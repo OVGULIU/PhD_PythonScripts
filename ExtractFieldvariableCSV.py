@@ -1,5 +1,5 @@
 """
-abaqus viewer noGui=/home/cerecam/Desktop/GIT/PhD_PyhtonScripts/ExtractFieldvariableCSV.py  
+abaqus viewer noGui=/home/cerecam/Desktop/GIT/PhD_PythonScripts/ExtractFieldvariableCSV.py  
 """
 
 
@@ -10,8 +10,8 @@ import sys,os
 
 from odbAccess import openOdb
 
-currentwd = '/home/cerecam/Desktop/Npg_Comp_Model_73_27/73_27'
-odbfile  = 'NPG_73_27_Standard'
+currentwd = '/home/cerecam/Desktop/Voxel_models/2M_32x32x32'
+odbfile  = 'Voxel32_Standard'
 #FileOut = '/DispConc/LinearConcentration'
 FileOut = '/ElecPotentials'
 InstanceName = 'RVE.'
