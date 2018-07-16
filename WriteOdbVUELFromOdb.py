@@ -23,6 +23,9 @@ Inputs to consider/change:
     - numIntervals (number of intervals that a display/frame must be created min=1 [one at beginning and on at analysisTime])
     
 @author: cerecam_E Griffiths
+
+* Note to print use:
+		# print >> sys.__stdout__, str()
 """
 ##
 # import abaqus libraries
@@ -35,55 +38,110 @@ import numpy as np
 # import python libraries
 import sys,time,csv,os
 
-def StressStrain(Ele_Con, Node_Vals):
-    GpCord = [0.25, 0.25, 0.25]
-    Wt = 1.0
-    QuadPnts = 1.0/6.0
-    
-    xi1=GpCord[0]
-    xi2=GpCord[1]
-    xi3=GpCord[2]
-    pNN = [1.0-xi1-xi2-xi3, xi1, xi2, xi3]
-    dNdXi1 = [-1.0, 1.0, 0.0, 0.0]
-    dNdXi2 = [-1.0, 0.0, 1.0, 0.0]
-    dNdXi3 = [-1.0, 0.0, 0.0, 1.0]
-    dNdX1 = [0.0, 0.0, 0.0, 0.0]
-    dNdX2 = [0.0, 0.0, 0.0, 0.0]
-    dNdX3 = [0.0, 0.0, 0.0, 0.0]
-    
-    X1,X2,X3 = [],[],[]
-    for node in Ele_Con:
-        X1.append(Node_Vals[str(node)][0])
-        X2.append(Node_Vals[str(node)][1])
-        X3.append(Node_Vals[str(node)][2])
-        
-    
-    dX1dxi1=np.dot(X1,dNdXi1)
-    dX1dxi2=np.dot(X1,dNdXi2)
-    dX1dxi3=np.dot(X1,dNdXi3)
-    
-    dX2dxi1=np.dot(X2,dNdXi1)
-    dX2dxi2=np.dot(X2,dNdXi2)
-    dX2dxi3=np.dot(X2,dNdXi3)
-    
-    dX3dxi1=np.dot(X3,dNdXi1)
-    dX3dxi2=np.dot(X3,dNdXi2)
-    dX3dxi3=np.dot(X3,dNdXi3)
-    
-    detJ = dX1dxi1*dX2dxi2*dX3dxi3 + dX2dxi1*dX3dxi2*dX1dxi3 + dX3dxi1*dX1dxi2*dX2dxi3 - dX1dxi3*dX2dxi2*dX3dxi1 - dX2dxi3*dX3dxi2*dX1dxi1 - dX3dxi3*dX1dxi2*dX2dxi1
-    
-    for nn in range(4):
-        dNdX1[nn] = 1.0/detJ*( (dX2dxi2*dX3dxi3-dX3dxi2*dX2dxi3)*dNdXi1[nn] + 
-                        (dX3dxi1*dX2dxi3-dX2dxi1*dX3dxi3)*dNdXi2[nn] + 
-                        (dX2dxi1*dX3dxi2-dX3dxi1*dX2dxi2)*dNdXi3[nn] )
-        dNdX2[nn] = 1.0/detJ*( (dX3dxi2*dX1dxi3-dX1dxi2*dX3dxi3)*dNdXi1[nn] +
-                        (dX1dxi1*dX3dxi3-dX3dxi1*dX1dxi3)*dNdXi2[nn] +
-                        (dX3dxi1*dX1dxi2-dX1dxi1*dX3dxi2)*dNdXi3[nn] )
-        dNdX3[nn] = 1.0/detJ*( (dX1dxi2*dX2dxi3-dX2dxi2*dX1dxi3)*dNdXi1[nn] +
-                        (dX2dxi1*dX1dxi3-dX1dxi1*dX2dxi3)*dNdXi2[nn] +
-                        (dX1dxi1*dX2dxi2-dX2dxi1*dX1dxi2)*dNdXi3[nn] )
-                        
-    return dNdX1,dNdX2,dNdX3, pNN
+def StressStrain(Ele_Con, Node_Vals, ElementType):
+	if ElementType.strip() == 'C3D4': # Tetrahedral element with one integration point 
+		GpCord = [0.25, 0.25, 0.25]
+		Wt = 1.0
+		QuadPnts = 1.0/6.0
+		
+		dNdXi1 = [-1.0, 1.0, 0.0, 0.0]
+		dNdXi2 = [-1.0, 0.0, 1.0, 0.0]
+		dNdXi3 = [-1.0, 0.0, 0.0, 1.0]
+		dNdX1 = [0.0]*int(ElementType[-1])[0.0]*size(GpCord,1)
+		dNdX2 = [0.0, 0.0, 0.0, 0.0]
+		dNdX3 = [0.0, 0.0, 0.0, 0.0]
+		
+		for ip in range(size(GpCord,2)):
+			xi1=GpCord[0,ip]
+			xi2=GpCord[1,ip]
+			xi3=GpCord[2,ip]
+			
+			pNN[ip] = [1.0-xi1-xi2-xi3, xi1, xi2, xi3]
+			
+			X1,X2,X3 = [],[],[]
+			for node in Ele_Con:
+				X1.append(Node_Vals[str(node)][0])
+				X2.append(Node_Vals[str(node)][1])
+				X3.append(Node_Vals[str(node)][2])
+				
+			
+			dX1dxi1[ip]=np.dot(X1,dNdXi1)
+			dX1dxi2[ip]=np.dot(X1,dNdXi2)
+			dX1dxi3[ip]=np.dot(X1,dNdXi3)
+			
+			dX2dxi1[ip]=np.dot(X2,dNdXi1)
+			dX2dxi2[ip]=np.dot(X2,dNdXi2)
+			dX2dxi3[ip]=np.dot(X2,dNdXi3)
+			
+			dX3dxi1[ip]=np.dot(X3,dNdXi1)
+			dX3dxi2[ip]=np.dot(X3,dNdXi2)
+			dX3dxi3[ip]=np.dot(X3,dNdXi3)
+			
+			detJ[ip] = dX1dxi1*dX2dxi2*dX3dxi3 + dX2dxi1*dX3dxi2*dX1dxi3 + dX3dxi1*dX1dxi2*dX2dxi3 - dX1dxi3*dX2dxi2*dX3dxi1 - dX2dxi3*dX3dxi2*dX1dxi1 - dX3dxi3*dX1dxi2*dX2dxi1
+		
+			for nn in range(4):
+				dNdX1[ip][nn] = 1.0/detJ*( (dX2dxi2*dX3dxi3-dX3dxi2*dX2dxi3)*dNdXi1[nn] + 
+								(dX3dxi1*dX2dxi3-dX2dxi1*dX3dxi3)*dNdXi2[nn] + 
+								(dX2dxi1*dX3dxi2-dX3dxi1*dX2dxi2)*dNdXi3[nn] )
+				dNdX2[ip][nn] = 1.0/detJ*( (dX3dxi2*dX1dxi3-dX1dxi2*dX3dxi3)*dNdXi1[nn] +
+								(dX1dxi1*dX3dxi3-dX3dxi1*dX1dxi3)*dNdXi2[nn] +
+								(dX3dxi1*dX1dxi2-dX1dxi1*dX3dxi2)*dNdXi3[nn] )
+				dNdX3[ip][nn] = 1.0/detJ*( (dX1dxi2*dX2dxi3-dX2dxi2*dX1dxi3)*dNdXi1[nn] +
+								(dX2dxi1*dX1dxi3-dX1dxi1*dX2dxi3)*dNdXi2[nn] +
+								(dX1dxi1*dX2dxi2-dX2dxi1*dX1dxi2)*dNdXi3[nn] )
+								
+	elif ElementType.strip() == 'C3D8': # Brick element with one integration point
+		GpCord = [0.25, 0.25, 0.25]
+		Wt = 1.0
+		QuadPnts = 1.0/6.0
+		
+		dNdXi1 = [-1.0, 1.0, 0.0, 0.0]
+		dNdXi2 = [-1.0, 0.0, 1.0, 0.0]
+		dNdXi3 = [-1.0, 0.0, 0.0, 1.0]
+		dNdX1 = [0.0, 0.0, 0.0, 0.0]
+		dNdX2 = [0.0, 0.0, 0.0, 0.0]
+		dNdX3 = [0.0, 0.0, 0.0, 0.0]
+		
+		for ip in range(size(GpCord,2)):
+			xi1=GpCord[0,ip]
+			xi2=GpCord[1,ip]
+			xi3=GpCord[2,ip]
+			
+			pNN = [1.0-xi1-xi2-xi3, xi1, xi2, xi3]
+			
+			X1,X2,X3 = [],[],[]
+			for node in Ele_Con:
+				X1.append(Node_Vals[str(node)][0])
+				X2.append(Node_Vals[str(node)][1])
+				X3.append(Node_Vals[str(node)][2])
+				
+			
+			dX1dxi1=np.dot(X1,dNdXi1)
+			dX1dxi2=np.dot(X1,dNdXi2)
+			dX1dxi3=np.dot(X1,dNdXi3)
+			
+			dX2dxi1=np.dot(X2,dNdXi1)
+			dX2dxi2=np.dot(X2,dNdXi2)
+			dX2dxi3=np.dot(X2,dNdXi3)
+			
+			dX3dxi1=np.dot(X3,dNdXi1)
+			dX3dxi2=np.dot(X3,dNdXi2)
+			dX3dxi3=np.dot(X3,dNdXi3)
+			
+			detJ = dX1dxi1*dX2dxi2*dX3dxi3 + dX2dxi1*dX3dxi2*dX1dxi3 + dX3dxi1*dX1dxi2*dX2dxi3 - dX1dxi3*dX2dxi2*dX3dxi1 - dX2dxi3*dX3dxi2*dX1dxi1 - dX3dxi3*dX1dxi2*dX2dxi1
+		
+			for nn in range(4):
+				dNdX1[nn] = 1.0/detJ*( (dX2dxi2*dX3dxi3-dX3dxi2*dX2dxi3)*dNdXi1[nn] + 
+								(dX3dxi1*dX2dxi3-dX2dxi1*dX3dxi3)*dNdXi2[nn] + 
+								(dX2dxi1*dX3dxi2-dX3dxi1*dX2dxi2)*dNdXi3[nn] )
+				dNdX2[nn] = 1.0/detJ*( (dX3dxi2*dX1dxi3-dX1dxi2*dX3dxi3)*dNdXi1[nn] +
+								(dX1dxi1*dX3dxi3-dX3dxi1*dX1dxi3)*dNdXi2[nn] +
+								(dX3dxi1*dX1dxi2-dX1dxi1*dX3dxi2)*dNdXi3[nn] )
+				dNdX3[nn] = 1.0/detJ*( (dX1dxi2*dX2dxi3-dX2dxi2*dX1dxi3)*dNdXi1[nn] +
+								(dX2dxi1*dX1dxi3-dX1dxi1*dX2dxi3)*dNdXi2[nn] +
+								(dX1dxi1*dX2dxi2-dX2dxi1*dX1dxi2)*dNdXi3[nn] )
+							
+	return dNdX1,dNdX2,dNdX3, pNN
 
 #
 #########################################################
@@ -100,6 +158,7 @@ OldOdbNameNoext = 'TestCase2'
 OldOdbName = OldOdbNameNoext + '.odb'
 ElementFiles = [cwd + 'UserElements.inp',
                 cwd +'GoldElements.inp'] # Files with element connectivity description
+Eletype = 'C3D8'
                 
 # Accessing necessary objects in old odb                
 oldOdb=openOdb(cwd+OldOdbName)
@@ -136,7 +195,7 @@ for num, mat in enumerate(materialNames):
     section1 = odb.HomogeneousSolidSection(name=mat,
                                            material=mat)
 
-# MODEL data:
+# MODEL data, creation of part from node data
 part1 = odb.Part(name='Part-1', embeddedSpace=THREE_D, type=DEFORMABLE_BODY)    
 
 part1.addNodes(nodeData=tuple(nodeData), nodeSetName='All_NODES') # add nodes to part
@@ -149,7 +208,7 @@ for num, Fname in enumerate(ElementFiles):
     Efile = open(Fname)
     for line in Efile:
         if line[0] == '*': # remove first line if element def present (i.e *element,type=...)
-            break
+            pass
         else:
             newarray = map(int,line.split(',')) # Read first line and convert string to a list of integers
             elementData1.append(tuple(newarray))
@@ -158,19 +217,18 @@ for num, Fname in enumerate(ElementFiles):
             del newarray
     elementData1 = tuple(elementData1)
     Efile.close()
-    part1.addElements(elementData=elementData1, type='C3D4', elementSetName=materialNames[num]) # add elements to part
+    part1.addElements(elementData=elementData1, type=Eletype, elementSetName=materialNames[num]) # add elements to part
 EleList = sorted(EleList) # List of elements in ascending order
 
-#print >> sys.__stdout__, str(len(EleList))
-#a=b
+
 # Instance the part
 instance1= odb.rootAssembly.Instance(name='I_Cube', object=part1)
 
 ## FIELD DATA: 
 # Field data extraction from .odb file
 # Data must be written as a tuple (tuple of data), if SCALAR tuple of data written as (scalar,); 
-#                                                              else if VECTOR (data1,data2,data3);
-#                                                              else if TENSOR ((11,22,33,12,13,23),(...))
+#                                                  else if VECTOR (data1,data2,data3);
+#                                                  else if TENSOR ((11,22,33,12,13,23),(...))
 
 # Creating step and frame:
 
@@ -192,13 +250,15 @@ Efinal, S_totfinal = {}, {}
 S_mechfinal, S_chemfinal, S_elecfinal = {}, {}, {}
 count = 0
 
+# Read electric potential values from inp file
 ElecFile = cwd +'ElecPotentialsInitial.inp'
 ElecF = open(ElecFile,'r')
 ElecData = [0]*len(nodeData)
 for line in ElecF:
     newarray = map(str,line.split(','))
     ElecData[int(newarray[0][-(len(newarray[0])-len(OldOdbNameNoext)-3):])] = float(newarray[1])
-for MultiFrame in steps.frames:
+ 
+for MultiFrame in steps.frames:	#Loop over every frame captured in odb
 #for MultiFrame in [steps.frames[-1]]:
 #    FrameTime= round(MultiFrame.frameValue,2)
     if round(MultiFrame.frameValue,2)==FrameTime:
@@ -227,21 +287,11 @@ for MultiFrame in steps.frames:
             TempData.append(tuple([val.dataDouble,]))# Data at node
         TempDataDict[round(MultiFrame.frameValue,3)]=tuple(TempData)
         TempNodesDict[round(MultiFrame.frameValue,3)] = tuple(TempNodes)
-#         # Elec data at Gauss point:
-#        FieldValue = MultiFrame.fieldOutputs['FV1']    # Extract Temperature fieldOutput object from old Odb
-#        FieldValueData = []
-#        FieldValueEle = []
-#        for val in FieldValue.values:
-#            FieldValueEle.append(val.elementLabel-500000) # Element label list
-#            FieldValueData.append(tuple([val.data,]))# Data at Gauss point
-#            
-#        FieldValueDataDict[round(MultiFrame.frameValue,3)]=tuple(FieldValueData)
-#        FieldValueEleDict[round(MultiFrame.frameValue,3)] = tuple(FieldValueEle)
-    
+            
         Ee, Ss, Ee_principal, Ss_principal, V_mises = [],[],[],[],[]
         Ss_mech, Ss_chem, Ss_elec, Ss_tot = [], [], [], []
         
-##################### MATERIAL PARAMETERS #############################
+##################### Material Parameters #############################
 
         e_r = 1.0E3
         e_zero = 8.854E-12
@@ -249,8 +299,9 @@ for MultiFrame in steps.frames:
         Z = -1.0
         k = 5.0E+01
         csat = 1.2E-3
-        elements = []
-        Mat = -1
+        
+#######################################################################
+        
         for Ele_Label in EleList:
             
             Mat = Ele_Con_Dict[Ele_Label][1]    # Material of specified element
@@ -266,7 +317,7 @@ for MultiFrame in steps.frames:
                 Node_Vals[str(i)] = nodeDict[str(i)] 
                 Elec_Ele_Data[int(i)] = ElecData[int(i)]
         
-            dNdX1,dNdX2,dNdX3, pNN = StressStrain(Ele_con, Node_Vals) # Function defining shape functions and there derivatives
+            dNdX1,dNdX2,dNdX3, pNN = StressStrain(Ele_con, Node_Vals, Eletype) # Function defining shape functions and there derivatives
             H = [0.0,0.0,0.0]
             Conc_gp = 0.0
             ElecField = np.array([0.0,0.0,0.0])
