@@ -25,7 +25,7 @@ Inputs to consider/change:
 @author: cerecam_E Griffiths
 
 * Note to print use:
-		# print >> sys.__stdout__, str()
+# print >> sys.__stdout__, str()
 """
 ##
 # import abaqus libraries
@@ -40,72 +40,22 @@ import sys, time, csv, os
 
 
 def StressStrain(Ele_Con, Node_Vals, ElementType):
-    dNdX1 = [[0.0] * int(ElementType[-1])] * size(GpCord, 1)
-    dNdX2 = [[0.0] * int(ElementType[-1])] * size(GpCord, 1)
-    dNdX3 = [[0.0] * int(ElementType[-1])] * size(GpCord, 1)
     if ElementType.strip() == 'C3D4':  # Tetrahedral element with one integration point
-        GpCord = [0.25, 0.25, 0.25]
-        Wt = 1.0
-        QuadPnts = 1.0 / 6.0
+        GpCord = [[0.25, 0.25, 0.25]]
+
+        dNdX1 = [[0.0] * int(ElementType[-1])] * len(GpCord)
+        dNdX2 = [[0.0] * int(ElementType[-1])] * len(GpCord)
+        dNdX3 = [[0.0] * int(ElementType[-1])] * len(GpCord)
+        pNN = [[0.0] * int(ElementType[-1])] * len(GpCord)
 
         dNdXi1 = [-1.0, 1.0, 0.0, 0.0]
         dNdXi2 = [-1.0, 0.0, 1.0, 0.0]
         dNdXi3 = [-1.0, 0.0, 0.0, 1.0]
 
-        for ip in range(size(GpCord, 2)):
-            xi1 = GpCord[0, ip]
-            xi2 = GpCord[1, ip]
-            xi3 = GpCord[2, ip]
-
-            pNN[ip] = [1.0 - xi1 - xi2 - xi3, xi1, xi2, xi3]
-
-            X1, X2, X3 = [], [], []
-            for node in Ele_Con:
-                X1.append(Node_Vals[str(node)][0])
-                X2.append(Node_Vals[str(node)][1])
-                X3.append(Node_Vals[str(node)][2])
-
-            dX1dxi1[ip] = np.dot(X1, dNdXi1)
-            dX1dxi2[ip] = np.dot(X1, dNdXi2)
-            dX1dxi3[ip] = np.dot(X1, dNdXi3)
-
-            dX2dxi1[ip] = np.dot(X2, dNdXi1)
-            dX2dxi2[ip] = np.dot(X2, dNdXi2)
-            dX2dxi3[ip] = np.dot(X2, dNdXi3)
-
-            dX3dxi1[ip] = np.dot(X3, dNdXi1)
-            dX3dxi2[ip] = np.dot(X3, dNdXi2)
-            dX3dxi3[ip] = np.dot(X3, dNdXi3)
-
-            detJ[
-                ip] = dX1dxi1 * dX2dxi2 * dX3dxi3 + dX2dxi1 * dX3dxi2 * dX1dxi3 + dX3dxi1 * dX1dxi2 * dX2dxi3 - dX1dxi3 * dX2dxi2 * dX3dxi1 - dX2dxi3 * dX3dxi2 * dX1dxi1 - dX3dxi3 * dX1dxi2 * dX2dxi1
-
-            for nn in range(4):
-                dNdX1[ip][nn] = 1.0 / detJ * ((dX2dxi2 * dX3dxi3 - dX3dxi2 * dX2dxi3) * dNdXi1[nn] +
-                                              (dX3dxi1 * dX2dxi3 - dX2dxi1 * dX3dxi3) * dNdXi2[nn] +
-                                              (dX2dxi1 * dX3dxi2 - dX3dxi1 * dX2dxi2) * dNdXi3[nn])
-                dNdX2[ip][nn] = 1.0 / detJ * ((dX3dxi2 * dX1dxi3 - dX1dxi2 * dX3dxi3) * dNdXi1[nn] +
-                                              (dX1dxi1 * dX3dxi3 - dX3dxi1 * dX1dxi3) * dNdXi2[nn] +
-                                              (dX3dxi1 * dX1dxi2 - dX1dxi1 * dX3dxi2) * dNdXi3[nn])
-                dNdX3[ip][nn] = 1.0 / detJ * ((dX1dxi2 * dX2dxi3 - dX2dxi2 * dX1dxi3) * dNdXi1[nn] +
-                                              (dX2dxi1 * dX1dxi3 - dX1dxi1 * dX2dxi3) * dNdXi2[nn] +
-                                              (dX1dxi1 * dX2dxi2 - dX2dxi1 * dX1dxi2) * dNdXi3[nn])
-
-    elif ElementType.strip() == 'C3D8':  # Brick element with one integration point
-        GpCord = [0.25, 0.25, 0.25]
-        Wt = 1.0
-        QuadPnts = 1.0 / 6.0
-
-        dNdXi1 = [-1.0, 1.0, 0.0, 0.0]
-        dNdXi2 = [-1.0, 0.0, 1.0, 0.0]
-        dNdXi3 = [-1.0, 0.0, 0.0, 1.0]
-
-        for ip in range(size(GpCord, 2)):
+        for ip in range(len(GpCord)):
             xi1 = GpCord[0][ip]
             xi2 = GpCord[1][ip]
             xi3 = GpCord[2][ip]
-
-            pNN = [1.0 - xi1 - xi2 - xi3, xi1, xi2, xi3]
 
             X1, X2, X3 = [], [], []
             for node in Ele_Con:
@@ -125,22 +75,103 @@ def StressStrain(Ele_Con, Node_Vals, ElementType):
             dX3dxi2 = np.dot(X3, dNdXi2)
             dX3dxi3 = np.dot(X3, dNdXi3)
 
-            detJ = dX1dxi1 * dX2dxi2 * dX3dxi3 + dX2dxi1 * dX3dxi2 * dX1dxi3 + dX3dxi1 * dX1dxi2 * dX2dxi3 - dX1dxi3 * dX2dxi2 * dX3dxi1 - dX2dxi3 * dX3dxi2 * dX1dxi1 - dX3dxi3 * dX1dxi2 * dX2dxi1
+            detJ = dX1dxi1 * dX2dxi2 * dX3dxi3 + dX2dxi1 * dX3dxi2 * dX1dxi3 + \
+                   dX3dxi1 * dX1dxi2 * dX2dxi3 - dX1dxi3 * dX2dxi2 * dX3dxi1 - \
+                   dX2dxi3 * dX3dxi2 * dX1dxi1 - dX3dxi3 * dX1dxi2 * dX2dxi1
 
             for nn in range(4):
-                dNdX1[nn] = 1.0 / detJ * ((dX2dxi2 * dX3dxi3 - dX3dxi2 * dX2dxi3) * dNdXi1[nn] +
-                                          (dX3dxi1 * dX2dxi3 - dX2dxi1 * dX3dxi3) * dNdXi2[nn] +
-                                          (dX2dxi1 * dX3dxi2 - dX3dxi1 * dX2dxi2) * dNdXi3[nn])
-                dNdX2[nn] = 1.0 / detJ * ((dX3dxi2 * dX1dxi3 - dX1dxi2 * dX3dxi3) * dNdXi1[nn] +
-                                          (dX1dxi1 * dX3dxi3 - dX3dxi1 * dX1dxi3) * dNdXi2[nn] +
-                                          (dX3dxi1 * dX1dxi2 - dX1dxi1 * dX3dxi2) * dNdXi3[nn])
-                dNdX3[nn] = 1.0 / detJ * ((dX1dxi2 * dX2dxi3 - dX2dxi2 * dX1dxi3) * dNdXi1[nn] +
-                                          (dX2dxi1 * dX1dxi3 - dX1dxi1 * dX2dxi3) * dNdXi2[nn] +
-                                          (dX1dxi1 * dX2dxi2 - dX2dxi1 * dX1dxi2) * dNdXi3[nn])
+                dNdX1[ip][nn] = 1.0 / detJ * ((dX2dxi2 * dX3dxi3 - dX3dxi2 * dX2dxi3) * dNdXi1[nn] +
+                                              (dX3dxi1 * dX2dxi3 - dX2dxi1 * dX3dxi3) * dNdXi2[nn] +
+                                              (dX2dxi1 * dX3dxi2 - dX3dxi1 * dX2dxi2) * dNdXi3[nn])
+                dNdX2[ip][nn] = 1.0 / detJ * ((dX3dxi2 * dX1dxi3 - dX1dxi2 * dX3dxi3) * dNdXi1[nn] +
+                                              (dX1dxi1 * dX3dxi3 - dX3dxi1 * dX1dxi3) * dNdXi2[nn] +
+                                              (dX3dxi1 * dX1dxi2 - dX1dxi1 * dX3dxi2) * dNdXi3[nn])
+                dNdX3[ip][nn] = 1.0 / detJ * ((dX1dxi2 * dX2dxi3 - dX2dxi2 * dX1dxi3) * dNdXi1[nn] +
+                                              (dX2dxi1 * dX1dxi3 - dX1dxi1 * dX2dxi3) * dNdXi2[nn] +
+                                              (dX1dxi1 * dX2dxi2 - dX2dxi1 * dX1dxi2) * dNdXi3[nn])
+
+            pNN[ip] = [1.0 - xi1 - xi2 - xi3, xi1, xi2, xi3]
+
+    elif ElementType.strip() == 'C3D8':
+        # Brick element with one integration point
+        GpCord = [[0.0, 0.0, 0.0]]
+
+        # Brick element with eight integration points
+        # alpha =  np.sqrt(1.0/3.0)
+        # GpCord = [[-alpha, -alpha, -alpha],
+        #           [alpha, -alpha, -alpha],
+        #           [alpha, alpha, -alpha],
+        #           [alpha, alpha, alpha],
+        #           [-alpha, alpha, alpha],
+        #           [-alpha, -alpha, alpha],
+        #           [-alpha, alpha, -alpha],
+        #           [alpha, -alpha, alpha]]
+
+        dNdX1 = [[0.0] * int(ElementType[-1])] * len(GpCord)
+        dNdX2 = [[0.0] * int(ElementType[-1])] * len(GpCord)
+        dNdX3 = [[0.0] * int(ElementType[-1])] * len(GpCord)
+        pNN = [[0.0] * int(ElementType[-1])] * len(GpCord)
+
+        for ip in range(len(GpCord)):
+            xi1 = GpCord[0][ip]
+            xi2 = GpCord[1][ip]
+            xi3 = GpCord[2][ip]
+
+            dNdXi1 = [-1.0 / 8.0 * (1 - xi2) * (1 - xi3), 1.0 / 8.0 * (1 - xi2) * (1 - xi3),
+                      1.0 / 8.0 * (1 + xi2) * (1 - xi3), -1.0 / 8.0 * (1 + xi2) * (1 - xi3),
+                      -1.0 / 8.0 * (1 - xi2) * (1 + xi3), 1.0 / 8.0 * (1 - xi2) * (1 + xi3),
+                      1.0 / 8.0 * (1 + xi2) * (1 + xi3), -1.0 / 8.0 * (1 + xi2) * (1 + xi3)]
+
+            dNdXi2 = [-1.0 / 8.0 * (1 - xi1) * (1 - xi3), -1.0 / 8.0 * (1 + xi1) * (1 - xi3),
+                      1.0 / 8.0 * (1 + xi1) * (1 - xi3), 1.0 / 8.0 * (1 - xi1) * (1 - xi3),
+                      -1.0 / 8.0 * (1 - xi1) * (1 + xi3), -1.0 / 8.0 * (1 + xi1) * (1 + xi3),
+                      1.0 / 8.0 * (1 + xi1) * (1 + xi3), 1.0 / 8.0 * (1 - xi1) * (1 + xi3)]
+
+            dNdXi3 = [-1.0 / 8.0 * (1 - xi1) * (1 - xi2), -1.0 / 8.0 * (1 + xi1) * (1 - xi2),
+                      -1.0 / 8.0 * (1 + xi1) * (1 + xi2), -1.0 / 8.0 * (1 - xi1) * (1 + xi2),
+                      1.0 / 8.0 * (1 - xi1) * (1 - xi2), 1.0 / 8.0 * (1 + xi1) * (1 - xi2),
+                      1.0 / 8.0 * (1 + xi1) * (1 + xi2), 1.0 / 8.0 * (1 - xi1) * (1 + xi2)]
+
+            X1, X2, X3 = [], [], []
+            for node in Ele_Con:
+                X1.append(Node_Vals[str(node)][0])
+                X2.append(Node_Vals[str(node)][1])
+                X3.append(Node_Vals[str(node)][2])
+
+            dX1dxi1 = np.dot(X1, dNdXi1)
+            dX1dxi2 = np.dot(X1, dNdXi2)
+            dX1dxi3 = np.dot(X1, dNdXi3)
+
+            dX2dxi1 = np.dot(X2, dNdXi1)
+            dX2dxi2 = np.dot(X2, dNdXi2)
+            dX2dxi3 = np.dot(X2, dNdXi3)
+
+            dX3dxi1 = np.dot(X3, dNdXi1)
+            dX3dxi2 = np.dot(X3, dNdXi2)
+            dX3dxi3 = np.dot(X3, dNdXi3)
+
+            J = np.array([[dX1dxi1, dX2dxi1, dX3dxi1],
+                          [dX1dxi2, dX2dxi2, dX3dxi2],
+                          [dX1dxi3, dX2dxi3, dX3dxi3]])
+            detJ = np.linalg.det(J)
+
+            for nn in range(8):
+                dNdX1[ip][nn] = 1.0 / detJ * ((dX2dxi2 * dX3dxi3 - dX3dxi2 * dX2dxi3) * dNdXi1[nn] +
+                                              (dX3dxi1 * dX2dxi3 - dX2dxi1 * dX3dxi3) * dNdXi2[nn] +
+                                              (dX2dxi1 * dX3dxi2 - dX3dxi1 * dX2dxi2) * dNdXi3[nn])
+                dNdX2[ip][nn] = 1.0 / detJ * ((dX3dxi2 * dX1dxi3 - dX1dxi2 * dX3dxi3) * dNdXi1[nn] +
+                                              (dX1dxi1 * dX3dxi3 - dX3dxi1 * dX1dxi3) * dNdXi2[nn] +
+                                              (dX3dxi1 * dX1dxi2 - dX1dxi1 * dX3dxi2) * dNdXi3[nn])
+                dNdX3[ip][nn] = 1.0 / detJ * ((dX1dxi2 * dX2dxi3 - dX2dxi2 * dX1dxi3) * dNdXi1[nn] +
+                                              (dX2dxi1 * dX1dxi3 - dX1dxi1 * dX2dxi3) * dNdXi2[nn] +
+                                              (dX1dxi1 * dX2dxi2 - dX2dxi1 * dX1dxi2) * dNdXi3[nn])
+
+            pNN[ip] = [1.0/8.0*(1-xi1)*(1-xi2)*(1-xi3), 1.0/8.0*(1+xi1)*(1-xi2)*(1-xi3),
+                       1.0/8.0*(1+xi1)*(1+xi2)*(1-xi3), 1.0/8.0*(1-xi1)*(1+xi2)*(1-xi3),
+                       1.0/8.0*(1-xi1)*(1-xi2)*(1+xi3), 1.0/8.0*(1+xi1)*(1-xi2)*(1+xi3),
+                       1.0/8.0*(1+xi1)*(1+xi2)*(1+xi3), 1.0/8.0*(1-xi1)*(1+xi2)*(1+xi3)]
 
     return dNdX1, dNdX2, dNdX3, pNN
-
-
 #
 #########################################################
 # Opening old odb file (pure VUEL file) to get nodal data:
@@ -181,7 +212,7 @@ for nodes in myinstance.nodes:
 # Creates an ODB
 odbpath = cwd + '/Cube_PythonWritten.odb'
 odb = Odb(name='Model-1', analysisTitle="ODB created by python script",
-          description="using python scripting to create an odb for showing VUEL data from a previous odb with no visualization elements",
+          description="Using python scripting to create an odb for showing VUEL data from a previous odb with no visualization elements",
           path=odbpath)
 
 for num, mat in enumerate(materialNames):
