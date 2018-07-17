@@ -299,8 +299,9 @@ count = 0
 for MultiFrame in steps.frames:  # Loop over every frame captured in odb
     # for MultiFrame in [steps.frames[-1]]:
     # FrameTime= round(MultiFrame.frameValue,2)
-    print >> sys.__stdout__, str(MultiFrame.frameValue)
+    print >> sys.__stdout__, str(round(MultiFrame.frameValue, 3))
     print >> sys.__stdout__, str(FrameTime)
+    print >> sys.__stdout__, str(round(MultiFrame.frameValue, 3) == FrameTime)
     if round(MultiFrame.frameValue, 3) == FrameTime:
 
         #########################################################################################
@@ -525,7 +526,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         print >> sys.__stdout__, (
                 'Displacement, temperature, electric potential, stress and strain  tensors created at ' + str(FrameTime) + 's')
 
-    FrameTime += frequency
+        FrameTime += frequency
 print >> sys.__stdout__, ('New odb: ' + odbpath)
 
 oldOdb.close()
