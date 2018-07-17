@@ -338,8 +338,8 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         ##################### Material Parameters #############################
 
         e_r = 1.0E3
-        e_zero = 8.854E-12
-        F = 9.6485337E+04
+        e_zero = 8.854E-3
+        F = 9.6485337E+01
         Z = -1.0
         k = 5.0E+01
         csat = 1.3E-4
