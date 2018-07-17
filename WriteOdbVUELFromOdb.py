@@ -340,24 +340,6 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         TempNodesDict[round(MultiFrame.frameValue, 3)] = tuple(TempNodes)
 
         Ee, Ss, Ee_principal, Ss_principal, V_mises = [], [], [], [], []
-
-        DispNodes.append(val.nodeLabel)  # Node label list
-        DispData.append(tuple(val.dataDouble))  # Data at node
-        # Add values to dictionary elemtn with key= frameValue
-        DispDataDict[round(MultiFrame.frameValue, 3)] = tuple(DispData)
-        DispNodesDict[round(MultiFrame.frameValue, 3)] = tuple(DispNodes)
-
-        # Temperature data at nodes:
-        Tempfield = MultiFrame.fieldOutputs['NT11']  # Extract Temperature fieldOutput object from old Odb
-        TempData = []
-        TempNodes = []
-        for val in Tempfield.values:
-            TempNodes.append(val.nodeLabel)  # Node label list
-            TempData.append(tuple([val.dataDouble, ]))  # Data at node
-        TempDataDict[round(MultiFrame.frameValue, 3)] = tuple(TempData)
-        TempNodesDict[round(MultiFrame.frameValue, 3)] = tuple(TempNodes)
-
-        Ee, Ss, Ee_principal, Ss_principal, V_mises = [], [], [], [], []
         Ss_mech, Ss_chem, Ss_elec, Ss_tot = [], [], [], []
 
         ##################### Material Parameters #############################
@@ -367,7 +349,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         F = 9.6485337E+04
         Z = -1.0
         k = 5.0E+01
-        csat = 1.2E-3
+        csat = 1.4E-4
 
         #######################################################################
 
@@ -445,6 +427,28 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
                             frameValue=FrameTime,
                             description='Results at time :\t ' + str(FrameTime) + 's')  # Creation of new frame
         # Add fieldoutput object to new odb
+        newField = frame.FieldOutput(name='U',
+                                     description='Displacement',
+                                     type=VECTOR,
+                                     validInvariants = (MAGNITUDE,))  # Creation of new field output object called 'U'
+
+        # Add data to fieldoutput object
+        newField.addData(position=NODAL,
+                         instance=instance1,
+                         labels=DispNodesDict[round(FrameTime, 3)],
+                         data=DispDataDict[round(FrameTime, 3)])
+        step1.setDefaultField(newField)
+
+        # Add fieldoutput object to new odb
+        newField2 = frame.FieldOutput(name='Co',
+                                      description='Concentration',
+                                      type=SCALAR)  # Creation of new field otput object called 'CONCENTRATION'
+        # Add data to fieldoutput object
+        newField2.addData(position=NODAL,
+                          instance=instance1,
+                          labels=TempNodesDict[round(FrameTime, 3)],
+                          data=TempDataDict[round(FrameTime, 3)])
+        # Add fieldoutput object to new odb
         newField3 = frame.FieldOutput(name='E',
                                       description='Small strain at gauss points',
                                       type=TENSOR_3D_FULL,
@@ -497,13 +501,13 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
                           labels=tuple(EleList),
                           data=S_chemfinal[round(FrameTime, 3)])
 
-        # Add data to fieldoutput object
-        newField7 = frame.FieldOutput(name='S_e',
-                                      description='Electrical stress at gauss points',
-                                      type=TENSOR_3D_FULL,
-                                      componentLabels=('Se11', 'Se22', 'Se33', 'Se12', 'Se13', 'Se23'),
-                                      validInvariants=(MISES, MAX_PRINCIPAL, MID_PRINCIPAL,
-                                                       MIN_PRINCIPAL))  # Creation of new field otput object called 'STRESS'
+        # # Add data to fieldoutput object
+        # newField7 = frame.FieldOutput(name='S_e',
+        #                               description='Electrical stress at gauss points',
+        #                               type=TENSOR_3D_FULL,
+        #                               componentLabels=('Se11', 'Se22', 'Se33', 'Se12', 'Se13', 'Se23'),
+        #                               validInvariants=(MISES, MAX_PRINCIPAL, MID_PRINCIPAL,
+        #                                                MIN_PRINCIPAL))  # Creation of new field otput object called 'STRESS'
 
         # # Add electrical stress field
         # newField7.addData(position=INTEGRATION_POINT,
@@ -511,34 +515,13 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         #                   labels=tuple(EleList),
         #                   data=S_elecfinal[round(FrameTime, 3)])
         #
-        # # Add fieldoutput object to new odb
-        # newField = frame.FieldOutput(name='U',
-        #                              description='Displacements',
-        #                              type=VECTOR,
-        #                              validInvariants=(MAGNITUDE,))  # Creation of new field otput object called 'U'
-        # Add data to fieldoutput object
-        newField.addData(position=NODAL,
-                         instance=instance1,
-                         labels=DispNodesDict[round(FrameTime, 3)],
-                         data=DispDataDict[round(FrameTime, 3)])
-        step1.setDefaultField(newField)
-
-        # Add fieldoutput object to new odb
-        newField2 = frame.FieldOutput(name='Co',
-                                      description='Concentration',
-                                      type=SCALAR)  # Creation of new field otput object called 'CONCENTRATION'
-        # Add data to fieldoutput object
-        newField2.addData(position=NODAL,
-                          instance=instance1,
-                          labels=TempNodesDict[round(FrameTime, 3)],
-                          data=TempDataDict[round(FrameTime, 3)])
 
         #        # Add fieldoutput object to new odb
-        #        newField5 = frame.FieldOutput(name='EP',
+        #        newField8 = frame.FieldOutput(name='EP',
         #                                     description='Electric potential',
         #                                     type=SCALAR)
         #        # Add data to fieldoutput object
-        #        newField5.addData(position=INTEGRATION_POINT,
+        #        newField8.addData(position=INTEGRATION_POINT,
         #                          instance=instance1,
         #                          labels=FieldValueEleDict[round(FrameTime,3)],
         #                          data=FieldValueDataDict[round(FrameTime,3)])
