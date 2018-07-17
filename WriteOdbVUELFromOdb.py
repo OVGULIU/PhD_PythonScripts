@@ -213,7 +213,7 @@ for nodes in myinstance.nodes:
 # Creates an ODB
 odbpath = cwd + OldOdbNameNoext + '_NoUEL.odb'
 odb = Odb(name='WriteOdbTest', analysisTitle="ODB created by python script",
-          description="Using python scripting to create an odb for showing VUEL data from a previous odb with no visualization elements",
+          description="Odb for showing VUEL data from a previous odb with no visualization elements",
           path=odbpath)
 
 for num, mat in enumerate(materialNames):
@@ -251,12 +251,6 @@ for num, Fname in enumerate(ElementFiles):
     Efile.close()
     part1.addElements(elementData=elementData1, type=Eletype, elementSetName=materialNames[num])  # add elements to part
 EleList = sorted(EleList)  # List of elements in ascending order
-
-# Creates an ODB
-odbpath = cwd + '/Cube_PythonWritten.odb'
-odb = Odb(name='Model-1', analysisTitle="ODB created by python script",
-          description="using python scripting to create an odb for showing VUEL data from a previous odb with no visualization elements",
-          path=odbpath)
 
 for num, mat in enumerate(materialNames):
     # Creates materials
@@ -324,13 +318,13 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         DispNodes = []
         for val in Dispfield.values:
             if int(val.nodeLabel) > len(nodeData):
-                    print >> sys.__stdout__, str(val.nodeLabel)
+                    print >> sys.__stdout__, str(val.nodeLabel +" not added to node data")
             else:
                 DispNodes.append(val.nodeLabel) # Node label list
                 DispData.append(tuple(val.dataDouble)) # Data at node
         #Add values to dictionary elemtn with key= frameValue
-        DispDataDict[round(MultiFrame.frameValue,3)]=tuple(DispData)
-        DispNodesDict[round(MultiFrame.frameValue,3)] = tuple(DispNodes)
+        DispDataDict[round(MultiFrame.frameValue, 3)] = tuple(DispData)
+        DispNodesDict[round(MultiFrame.frameValue, 3)] = tuple(DispNodes)
 
        # Temperature data at nodes:
         Tempfield = MultiFrame.fieldOutputs['NT11']    # Extract Temperature fieldOutput object from old Odb
@@ -338,14 +332,14 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         TempNodes = []
         for val in Tempfield.values:
             if int(val.nodeLabel) > len(nodeData):
-                    print >> sys.__stdout__, str(val.nodeLabel)
+                    print >> sys.__stdout__, str(val.nodeLabel + " not added to node data")
             else:
-                TempNodes.append(val.nodeLabel) # Node label list
-                TempData.append(tuple([val.dataDouble,]))# Data at node
-        TempDataDict[round(MultiFrame.frameValue,3)]=tuple(TempData)
-        TempNodesDict[round(MultiFrame.frameValue,3)] = tuple(TempNodes)
+                TempNodes.append(val.nodeLabel)  # Node label list
+                TempData.append(tuple([val.dataDouble, ]))  # Data at node
+        TempDataDict[round(MultiFrame.frameValue, 3)] = tuple(TempData)
+        TempNodesDict[round(MultiFrame.frameValue, 3)] = tuple(TempNodes)
 
-        Ee, Ss, Ee_principal, Ss_principal, V_mises = [],[],[],[],[]
+        Ee, Ss, Ee_principal, Ss_principal, V_mises = [], [], [], [], []
 
         DispNodes.append(val.nodeLabel)  # Node label list
         DispData.append(tuple(val.dataDouble))  # Data at node
@@ -409,7 +403,6 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
 
                 else:
                     Tarray.append(csat)
-            #                a=b
 
             Conc_gp = np.dot(np.array(pNN), np.array(Tarray))
 
