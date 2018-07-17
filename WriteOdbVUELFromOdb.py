@@ -228,11 +228,9 @@ for num, mat in enumerate(materialNames):
 
 # MODEL data, creation of part from node data
 part1 = odb.Part(name='Part-1', embeddedSpace=THREE_D, type=DEFORMABLE_BODY)
-
 part1.addNodes(nodeData=tuple(nodeData), nodeSetName='All_NODES')  # add nodes to part
 
 # Element connectivity data read from .inp file (cannot use old odb as connectivity of user elements (RNODE3) not given)
-
 EleList = []
 Ele_Con_Dict = {}
 for num, Fname in enumerate(ElementFiles):
@@ -262,18 +260,8 @@ for num, mat in enumerate(materialNames):
     section1 = odb.HomogeneousSolidSection(name=mat,
                                            material=mat)
 
-# MODEL data:
-part1 = odb.Part(name='Part-1', embeddedSpace=THREE_D, type=DEFORMABLE_BODY)
-
-part1.addNodes(nodeData=tuple(nodeData), nodeSetName='All_NODES')  # add nodes to part
 # Instance the part
 instance1 = odb.rootAssembly.Instance(name='I_Cube', object=part1)
-
-## FIELD DATA: 
-# Field data extraction from .odb file
-# Data must be written as a tuple (tuple of data), if SCALAR tuple of data written as (scalar,); 
-#                                                  else if VECTOR (data1,data2,data3);
-#                                                  else if TENSOR ((11,22,33,12,13,23),(...))
 
 # Creating step and frame:
 
@@ -303,6 +291,11 @@ count = 0
 #     newarray = map(str, line.split(','))
 #     ElecData[int(newarray[0][-(len(newarray[0]) - len(OldOdbNameNoext) - 3):])] = float(newarray[1])
 
+## FIELD DATA:
+# Field data extraction from .odb file
+# Data must be written as a tuple (tuple of data), if SCALAR tuple of data written as (scalar,);
+#                                                  else if VECTOR (data1,data2,data3);
+#                                                  else if TENSOR ((11,22,33,12,13,23),(...))
 for MultiFrame in steps.frames:  # Loop over every frame captured in odb
     # for MultiFrame in [steps.frames[-1]]:
     #    FrameTime= round(MultiFrame.frameValue,2)
@@ -318,7 +311,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         DispNodes = []
         for val in Dispfield.values:
             if int(val.nodeLabel) > len(nodeData):
-                    print >> sys.__stdout__, str(val.nodeLabel +" not added to node data")
+                    print >> sys.__stdout__, str(val.nodeLabel + " not added to node data")
             else:
                 DispNodes.append(val.nodeLabel) # Node label list
                 DispData.append(tuple(val.dataDouble)) # Data at node
