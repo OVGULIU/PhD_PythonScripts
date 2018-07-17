@@ -211,7 +211,7 @@ for nodes in myinstance.nodes:
     del intnode
 
 # Creates an ODB
-odbpath = cwd + '/Cube_PythonWritten.odb'
+odbpath = cwd + OldOdbNameNoext + '_NoUEL.odb'
 odb = Odb(name='WriteOdbTest', analysisTitle="ODB created by python script",
           description="Using python scripting to create an odb for showing VUEL data from a previous odb with no visualization elements",
           path=odbpath)
