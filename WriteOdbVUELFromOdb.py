@@ -230,7 +230,8 @@ part1 = odb.Part(name='Part-1', embeddedSpace=THREE_D, type=DEFORMABLE_BODY)
 
 part1.addNodes(nodeData=tuple(nodeData), nodeSetName='All_NODES')  # add nodes to part
 
-# Get element node-connectivity of old odb from .inp files and add to new odb part
+# Element connectivity data read from old odb file
+
 EleList = []
 Ele_Con_Dict = {}
 for num, Fname in enumerate(ElementFiles):
