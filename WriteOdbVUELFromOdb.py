@@ -311,7 +311,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         DispNodes = []
         for val in Dispfield.values:
             if int(val.nodeLabel) > len(nodeData):
-                    print >> sys.__stdout__, str(val.nodeLabel + " not added to node data")
+                    print >> sys.__stdout__, str(val.nodeLabel) + " not added to node data"
             else:
                 DispNodes.append(val.nodeLabel) # Node label list
                 DispData.append(tuple(val.dataDouble)) # Data at node
@@ -325,7 +325,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         TempNodes = []
         for val in Tempfield.values:
             if int(val.nodeLabel) > len(nodeData):
-                    print >> sys.__stdout__, str(val.nodeLabel + " not added to node data")
+                    print >> sys.__stdout__, str(val.nodeLabel) + " not added to node data"
             else:
                 TempNodes.append(val.nodeLabel)  # Node label list
                 TempData.append(tuple([val.dataDouble, ]))  # Data at node
