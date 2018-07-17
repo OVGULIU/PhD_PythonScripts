@@ -182,11 +182,11 @@ MatE = [1.951, 77.71]
 Matmu = [0.3, 0.44]
 
 # File names and locations for old odb
-cwd = '/home/cerecam/Dropbox/PhD/PythonCodes/'
-OldOdbNameNoext = 'TestCase2'
+cwd = '/home/cerecam/Desktop/GP_BoundaryConditionTests'
+OldOdbNameNoext = 'Test1'
 OldOdbName = OldOdbNameNoext + '.odb'
-ElementFiles = [cwd + 'UserElements.inp',
-                cwd + 'GoldElements.inp']  # Files with element connectivity description
+ElementFiles = [cwd + '/InputFiles/UserElements.inp',
+                cwd + '/InputFiles/GoldElements.inp']  # Files with element connectivity description
 Eletype = 'C3D8'
 
 # Accessing necessary objects in old odb                
@@ -230,7 +230,7 @@ part1 = odb.Part(name='Part-1', embeddedSpace=THREE_D, type=DEFORMABLE_BODY)
 
 part1.addNodes(nodeData=tuple(nodeData), nodeSetName='All_NODES')  # add nodes to part
 
-# Element connectivity data read from old odb file
+# Element connectivity data read from .inp file (cannot use old odb as connectivity of user elements (RNODE3) not given)
 
 EleList = []
 Ele_Con_Dict = {}
