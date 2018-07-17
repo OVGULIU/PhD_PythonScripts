@@ -54,9 +54,9 @@ def StressStrain(Ele_Con, Node_Vals, ElementType):
         dNdXi3 = [-1.0, 0.0, 0.0, 1.0]
 
         for ip in range(len(GpCord)):
-            xi1 = GpCord[0][ip]
-            xi2 = GpCord[1][ip]
-            xi3 = GpCord[2][ip]
+            xi1 = GpCord[ip][0]
+            xi2 = GpCord[ip][1]
+            xi3 = GpCord[ip][2]
 
             X1, X2, X3 = [], [], []
             for node in Ele_Con:
@@ -114,9 +114,9 @@ def StressStrain(Ele_Con, Node_Vals, ElementType):
         pNN = [[0.0] * int(ElementType[-1])] * len(GpCord)
 
         for ip in range(len(GpCord)):
-            xi1 = GpCord[0][ip]
-            xi2 = GpCord[1][ip]
-            xi3 = GpCord[2][ip]
+            xi1 = GpCord[ip][0]
+            xi2 = GpCord[ip][1]
+            xi3 = GpCord[ip][2]
 
             dNdXi1 = [-1.0 / 8.0 * (1 - xi2) * (1 - xi3), 1.0 / 8.0 * (1 - xi2) * (1 - xi3),
                       1.0 / 8.0 * (1 + xi2) * (1 - xi3), -1.0 / 8.0 * (1 + xi2) * (1 - xi3),
