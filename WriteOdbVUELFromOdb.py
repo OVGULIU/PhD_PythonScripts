@@ -212,7 +212,7 @@ for nodes in myinstance.nodes:
 
 # Creates an ODB
 odbpath = cwd + '/Cube_PythonWritten.odb'
-odb = Odb(name='Model-1', analysisTitle="ODB created by python script",
+odb = Odb(name='WriteOdbTest', analysisTitle="ODB created by python script",
           description="Using python scripting to create an odb for showing VUEL data from a previous odb with no visualization elements",
           path=odbpath)
 
