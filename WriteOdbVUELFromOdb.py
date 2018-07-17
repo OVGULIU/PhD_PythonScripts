@@ -363,28 +363,29 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
 
             dNdX1, dNdX2, dNdX3, pNN = StressStrain(Ele_con, Node_Vals,
                                                     Eletype)  # Function defining shape functions and there derivatives
-            H = [0.0, 0.0, 0.0]
+            H = [[0.0, 0.0, 0.0]*len(dNdX1)]
             Conc_gp = 0.0
             # ElecField = np.array([0.0, 0.0, 0.0])
             Tarray = []
             for x, y in enumerate(Ele_con):
-                Uarray = DispData[int(y) - 1]
-                H = H + np.outer(Uarray, np.array([dNdX1[x], dNdX2[x], dNdX3[x]]))  # Grad(U)
+                for ip in range(len(dNdX1)):
+                    Uarray = DispData[int(y) - 1]
+                    H[ip] = H[ip] + np.outer(Uarray, np.array([dNdX1[ip][x], dNdX2[ip][x], dNdX3[ip][x]]))  # Grad(U)
 
-                if materialNames[Mat].lower() == 'polymer':
-                    Tarray.append(float(TempDataDict[round(MultiFrame.frameValue, 3)][int(y) - 1][0]))
-                    # ElecField_int = [dNdX * Elec_Ele_Data[y] for dNdX in [dNdX1[x], dNdX2[x], dNdX3[x]]]
-                    # ElecField = ElecField - np.array(ElecField_int)
+                    if materialNames[Mat].lower() == 'polymer':
+                        Tarray.append(float(TempDataDict[round(MultiFrame.frameValue, 3)][int(y) - 1][0]))
+                        # ElecField_int = [dNdX * Elec_Ele_Data[y] for dNdX in [dNdX1[ip][x], dNdX2[ip][x], dNdX3[ip][x]]]
+                        # ElecField = ElecField - np.array(ElecField_int)
 
-                else:
-                    Tarray.append(csat)
+                    else:
+                        Tarray.append(csat)
 
             Conc_gp = np.dot(np.array(pNN), np.array(Tarray))
 
             # ElecDisp = np.array(e_zero * e_r * ElecField)
-            Qf = F * ((Z * Conc_gp + (csat)))
+            Qf = F * (Z * Conc_gp + csat)
 
-            E = 0.5 * (np.transpose(H) + H)  # Strain calculation at Gauss point
+            E = 0.5 * (np.transpose(H[0]) + H[0])  # Strain calculation at Gauss point
             #            if Ele_Label == 11150:
             #                print >> sys.__stdout__, str(E)
 
