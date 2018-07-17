@@ -299,8 +299,8 @@ count = 0
 for MultiFrame in steps.frames:  # Loop over every frame captured in odb
     # for MultiFrame in [steps.frames[-1]]:
     # FrameTime= round(MultiFrame.frameValue,2)
-    # print >> sys.__stdout__, str(MultiFrame.frameValue)
-    # print >> sys.__stdout__, str(FrameTime)
+    print >> sys.__stdout__, str(MultiFrame.frameValue)
+    print >> sys.__stdout__, str(FrameTime)
     if round(MultiFrame.frameValue, 3) == FrameTime:
 
         #########################################################################################
