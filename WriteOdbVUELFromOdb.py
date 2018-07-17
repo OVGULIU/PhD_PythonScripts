@@ -183,11 +183,11 @@ MatE = [1.951, 77.71]
 Matmu = [0.3, 0.44]
 
 # File names and locations for old odb
-cwd = '/home/cerecam/Desktop/GP_BoundaryConditionTests'
+cwd = '/home/cerecam/Desktop/GP_BoundaryConditionTests/'
 OldOdbNameNoext = 'Test1'
 OldOdbName = OldOdbNameNoext + '.odb'
-ElementFiles = [cwd + '/InputFiles/UserElements.inp',
-                cwd + '/InputFiles/GoldElements.inp']  # Files with element connectivity description
+ElementFiles = [cwd + 'InputFiles/UserElements.inp',
+                cwd + 'InputFiles/GoldElements.inp']  # Files with element connectivity description
 Eletype = 'C3D8'
 
 # Accessing necessary objects in old odb                
