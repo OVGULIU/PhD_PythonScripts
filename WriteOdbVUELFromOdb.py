@@ -342,7 +342,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         F = 9.6485337E+04
         Z = -1.0
         k = 5.0E+01
-        csat = 1.4E-4
+        csat = 1.3E-4
 
         #######################################################################
 
@@ -364,14 +364,13 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
             dNdX1, dNdX2, dNdX3, pNN = StressStrain(Ele_con, Node_Vals,
                                                     Eletype)  # Function defining shape functions and there derivatives
             H = [[0.0, 0.0, 0.0]*len(dNdX1)]
-            Conc_gp = 0.0
+            # Conc_gp = [0.0]*len(dNdX1)
             # ElecField = np.array([0.0, 0.0, 0.0])
             Tarray = []
             for x, y in enumerate(Ele_con):
                 for ip in range(len(dNdX1)):
                     Uarray = DispData[int(y) - 1]
                     H[ip] = H[ip] + np.outer(Uarray, np.array([dNdX1[ip][x], dNdX2[ip][x], dNdX3[ip][x]]))  # Grad(U)
-
                     if materialNames[Mat].lower() == 'polymer':
                         Tarray.append(float(TempDataDict[round(MultiFrame.frameValue, 3)][int(y) - 1][0]))
                         # ElecField_int = [dNdX * Elec_Ele_Data[y] for dNdX in [dNdX1[ip][x], dNdX2[ip][x], dNdX3[ip][x]]]
@@ -380,7 +379,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
                     else:
                         Tarray.append(csat)
 
-            Conc_gp = np.dot(np.array(pNN), np.array(Tarray))
+            Conc_gp = np.dot(np.array(pNN[0]), np.array(Tarray))
 
             # ElecDisp = np.array(e_zero * e_r * ElecField)
             Qf = F * (Z * Conc_gp + csat)
