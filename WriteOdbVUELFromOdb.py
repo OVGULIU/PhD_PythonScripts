@@ -184,7 +184,7 @@ Matmu = [0.3, 0.44]
 
 # File names and locations for old odb
 cwd = '/home/cerecam/Desktop/GP_BoundaryConditionTests/'
-OldOdbNameNoext = 'Test1'
+OldOdbNameNoext = 'Flux2'
 OldOdbName = OldOdbNameNoext + '.odb'
 ElementFiles = [cwd + 'InputFiles/UserElements.inp',
                 cwd + 'InputFiles/GoldElements.inp']  # Files with element connectivity description
