@@ -302,12 +302,12 @@ S_mechfinal, S_chemfinal, S_elecfinal = {}, {}, {}
 count = 0
 
 # Read electric potential values from inp file
-ElecFile = cwd + 'InputFiles/ElecPotentialsInitial.inp'
-ElecF = open(ElecFile, 'r')
-ElecData = [0] * len(nodeData)
-for line in ElecF:
-    newarray = map(str, line.split(','))
-    ElecData[int(newarray[0][-(len(newarray[0]) - len(OldOdbNameNoext) - 3):])] = float(newarray[1])
+# ElecFile = cwd + 'InputFiles/ElecPotentialsInitial.inp'
+# ElecF = open(ElecFile, 'r')
+# ElecData = [0] * len(nodeData)
+# for line in ElecF:
+#     newarray = map(str, line.split(','))
+#     ElecData[int(newarray[0][-(len(newarray[0]) - len(OldOdbNameNoext) - 3):])] = float(newarray[1])
 
 for MultiFrame in steps.frames:  # Loop over every frame captured in odb
     # for MultiFrame in [steps.frames[-1]]:
@@ -387,16 +387,16 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
             lam = (MatE[Mat] * Matmu[Mat]) / ((1.0 + Matmu[Mat]) * (1.0 - 2.0 * Matmu[Mat]))
 
             Node_Vals = {}
-            Elec_Ele_Data = {}
-            for i in Ele_con:  # Creates dictionary (key = node label) of nodal coordinates (X,Y,Z) for element in question (Ele_Con[0])
-                Node_Vals[str(i)] = nodeDict[str(i)]
-                Elec_Ele_Data[int(i)] = ElecData[int(i)]
+            # Elec_Ele_Data = {}
+            # for i in Ele_con:  # Creates dictionary (key = node label) of nodal coordinates (X,Y,Z) for element in question (Ele_Con[0])
+            #     Node_Vals[str(i)] = nodeDict[str(i)]
+            #     Elec_Ele_Data[int(i)] = ElecData[int(i)]
 
             dNdX1, dNdX2, dNdX3, pNN = StressStrain(Ele_con, Node_Vals,
                                                     Eletype)  # Function defining shape functions and there derivatives
             H = [0.0, 0.0, 0.0]
             Conc_gp = 0.0
-            ElecField = np.array([0.0, 0.0, 0.0])
+            # ElecField = np.array([0.0, 0.0, 0.0])
             Tarray = []
             for x, y in enumerate(Ele_con):
                 Uarray = DispData[int(y) - 1]
@@ -404,8 +404,8 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
 
                 if materialNames[Mat].lower() == 'polymer':
                     Tarray.append(float(TempDataDict[round(MultiFrame.frameValue, 3)][int(y) - 1][0]))
-                    ElecField_int = [dNdX * Elec_Ele_Data[y] for dNdX in [dNdX1[x], dNdX2[x], dNdX3[x]]]
-                    ElecField = ElecField - np.array(ElecField_int)
+                    # ElecField_int = [dNdX * Elec_Ele_Data[y] for dNdX in [dNdX1[x], dNdX2[x], dNdX3[x]]]
+                    # ElecField = ElecField - np.array(ElecField_int)
 
                 else:
                     Tarray.append(csat)
@@ -413,7 +413,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
 
             Conc_gp = np.dot(np.array(pNN), np.array(Tarray))
 
-            ElecDisp = np.array(e_zero * e_r * ElecField)
+            # ElecDisp = np.array(e_zero * e_r * ElecField)
             Qf = F * ((Z * Conc_gp + (csat)))
 
             E = 0.5 * (np.transpose(H) + H)  # Strain calculation at Gauss point
@@ -423,23 +423,24 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
             S_mech = 2.0 * Gmod * E + lam * np.trace(E) * np.eye(3)  # Mecahnical stress calculation at Gauss point
             S_chem = -((k * Qf) / Z) * np.eye(3)  # Chemical Stress calculation at Gauss point
 
-            S_elec = (1.0 / (e_zero * e_r)) * (
-                    (np.outer(ElecDisp, ElecDisp)) - 0.5 * (np.dot(ElecDisp, ElecDisp)) * np.eye(3))
+            # S_elec = (1.0 / (e_zero * e_r)) * (
+            #         (np.outer(ElecDisp, ElecDisp)) - 0.5 * (np.dot(ElecDisp, ElecDisp)) * np.eye(3))
             #            S_elec = np.array([[0.0,0.0,0.0],[0.0,0.0,0.0],[0.0,0.0,0.0]])
-            S_total = S_mech + S_chem + S_elec
+            # S_total = S_mech + S_chem + S_elec
+            S_total = S_mech + S_chem
             Ee.append(tuple(E.flatten()[[0, 4, 8, 1, 2,
                                          5]]))  # create vector format of strain data ('E11','E22','E33','E12','E13','E23')
             Ss_mech.append(tuple(S_mech.flatten()[[0, 4, 8, 1, 2,
                                                    5]]))  # create vector format of strain data ('S11','S22','S33','S12','S13','S23')
             Ss_chem.append(tuple(S_chem.flatten()[[0, 4, 8, 1, 2, 5]]))
-            Ss_elec.append(tuple(S_elec.flatten()[[0, 4, 8, 1, 2, 5]]))
+            # Ss_elec.append(tuple(S_elec.flatten()[[0, 4, 8, 1, 2, 5]]))
             Ss_tot.append(tuple(S_total.flatten()[[0, 4, 8, 1, 2, 5]]))
             # Store data for frame in question
         Efinal[round(MultiFrame.frameValue, 3)] = tuple(Ee)
         #        print >> sys.__stdout__, str(Efinal)
         S_mechfinal[round(MultiFrame.frameValue, 3)] = tuple(Ss_mech)
         S_chemfinal[round(MultiFrame.frameValue, 3)] = tuple(Ss_chem)
-        S_elecfinal[round(MultiFrame.frameValue, 3)] = tuple(Ss_elec)
+        # S_elecfinal[round(MultiFrame.frameValue, 3)] = tuple(Ss_elec)
         S_totfinal[round(MultiFrame.frameValue, 3)] = tuple(Ss_tot)
 
         #########################################################################################
@@ -511,17 +512,17 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
                                       validInvariants=(MISES, MAX_PRINCIPAL, MID_PRINCIPAL,
                                                        MIN_PRINCIPAL))  # Creation of new field otput object called 'STRESS'
 
-        # Add electrical stress field
-        newField7.addData(position=INTEGRATION_POINT,
-                          instance=instance1,
-                          labels=tuple(EleList),
-                          data=S_elecfinal[round(FrameTime, 3)])
-
-        # Add fieldoutput object to new odb
-        newField = frame.FieldOutput(name='U',
-                                     description='Displacements',
-                                     type=VECTOR,
-                                     validInvariants=(MAGNITUDE,))  # Creation of new field otput object called 'U'
+        # # Add electrical stress field
+        # newField7.addData(position=INTEGRATION_POINT,
+        #                   instance=instance1,
+        #                   labels=tuple(EleList),
+        #                   data=S_elecfinal[round(FrameTime, 3)])
+        #
+        # # Add fieldoutput object to new odb
+        # newField = frame.FieldOutput(name='U',
+        #                              description='Displacements',
+        #                              type=VECTOR,
+        #                              validInvariants=(MAGNITUDE,))  # Creation of new field otput object called 'U'
         # Add data to fieldoutput object
         newField.addData(position=NODAL,
                          instance=instance1,
