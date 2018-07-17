@@ -269,7 +269,7 @@ step1 = odb.Step(name='Step-1',
                  description='First step with displacement applied',
                  domain=TIME, timePeriod=1.0)
 
-numIntervals = 30
+numIntervals = 30.0
 frequency = analysisTime / numIntervals
 FrameTime = 0.0
 
@@ -298,8 +298,8 @@ count = 0
 #                                                  else if TENSOR ((11,22,33,12,13,23),(...))
 for MultiFrame in steps.frames:  # Loop over every frame captured in odb
     # for MultiFrame in [steps.frames[-1]]:
-    #    FrameTime= round(MultiFrame.frameValue,2)
-    if round(MultiFrame.frameValue, 2) == FrameTime:
+    # FrameTime= round(MultiFrame.frameValue,2)
+    if round(MultiFrame.frameValue, 3) == FrameTime:
 
         #########################################################################################
         # OLD ODB DATA EXTRACTION AND MANIPULATIONS
@@ -519,10 +519,9 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         #                          labels=FieldValueEleDict[round(FrameTime,3)],
         #                          data=FieldValueDataDict[round(FrameTime,3)])
 
-        step1.setDefaultField(newField2)
+        step1.setDefaultField(newField)
         print >> sys.__stdout__, (
-                'Displacement, temperature, electric potential, stress and strain  tensors created at ' + str(
-            FrameTime) + 's')
+                'Displacement, temperature, electric potential, stress and strain  tensors created at ' + str(FrameTime) + 's')
 
         FrameTime += frequency
 print >> sys.__stdout__, ('New odb: ' + odbpath)
