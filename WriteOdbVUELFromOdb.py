@@ -93,7 +93,7 @@ def StressStrain(Ele_Con, Node_Vals, ElementType):
 
             pNN[ip] = [1.0 - xi1 - xi2 - xi3, xi1, xi2, xi3]
 
-    elif ElementType.strip() == 'C3D8':
+    elif ElementType.strip() == 'C3D8R':
         # Brick element with one integration point
         GpCord = [[0.0, 0.0, 0.0]]
 
@@ -108,10 +108,10 @@ def StressStrain(Ele_Con, Node_Vals, ElementType):
         #           [-alpha, alpha, -alpha],
         #           [alpha, -alpha, alpha]]
 
-        dNdX1 = [[0.0] * int(ElementType[-1])] * len(GpCord)
-        dNdX2 = [[0.0] * int(ElementType[-1])] * len(GpCord)
-        dNdX3 = [[0.0] * int(ElementType[-1])] * len(GpCord)
-        pNN = [[0.0] * int(ElementType[-1])] * len(GpCord)
+        dNdX1 = [[0.0] * int(ElementType[-2])] * len(GpCord)
+        dNdX2 = [[0.0] * int(ElementType[-2])] * len(GpCord)
+        dNdX3 = [[0.0] * int(ElementType[-2])] * len(GpCord)
+        pNN = [[0.0] * int(ElementType[-2])] * len(GpCord)
 
         for ip in range(len(GpCord)):
             xi1 = GpCord[ip][0]
@@ -188,7 +188,7 @@ OldOdbNameNoext = 'Test1'
 OldOdbName = OldOdbNameNoext + '.odb'
 ElementFiles = [cwd + 'InputFiles/UserElements.inp',
                 cwd + 'InputFiles/GoldElements.inp']  # Files with element connectivity description
-Eletype = 'C3D8'
+Eletype = 'C3D8R'
 
 # Accessing necessary objects in old odb                
 oldOdb = openOdb(cwd + OldOdbName)
