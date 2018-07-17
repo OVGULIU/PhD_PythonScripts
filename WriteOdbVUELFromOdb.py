@@ -302,7 +302,7 @@ S_mechfinal, S_chemfinal, S_elecfinal = {}, {}, {}
 count = 0
 
 # Read electric potential values from inp file
-ElecFile = cwd + 'ElecPotentialsInitial.inp'
+ElecFile = cwd + 'InputFiles/ElecPotentialsInitial.inp'
 ElecF = open(ElecFile, 'r')
 ElecData = [0] * len(nodeData)
 for line in ElecF:
