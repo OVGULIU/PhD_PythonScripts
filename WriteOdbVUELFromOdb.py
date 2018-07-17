@@ -269,7 +269,7 @@ step1 = odb.Step(name='Step-1',
                  description='First step with displacement applied',
                  domain=TIME, timePeriod=1.0)
 
-numIntervals = 1
+numIntervals = 30
 frequency = analysisTime / numIntervals
 FrameTime = 0.0
 
