@@ -357,8 +357,8 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
 
             Node_Vals = {}
             # Elec_Ele_Data = {}
-            # for i in Ele_con:  # Creates dictionary (key = node label) of nodal coordinates (X,Y,Z) for element in question (Ele_Con[0])
-            #     Node_Vals[str(i)] = nodeDict[str(i)]
+            for i in Ele_con:  # Creates dictionary (key = node label) of nodal coordinates (X,Y,Z) for element in question (Ele_Con[0])
+                Node_Vals[str(i)] = nodeDict[str(i)]
             #     Elec_Ele_Data[int(i)] = ElecData[int(i)]
 
             dNdX1, dNdX2, dNdX3, pNN = StressStrain(Ele_con, Node_Vals,
