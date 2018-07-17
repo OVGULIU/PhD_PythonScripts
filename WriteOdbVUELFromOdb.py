@@ -2,7 +2,7 @@
 """
 Created on Tue Jan 16 12:04:48 2018
 
-abaqus python /home/cerecam/Desktop/GIT/PhD_PyhtonScripts/WriteOdbVUELFromOdb.py
+abaqus python /home/cerecam/Desktop/GIT/PhD_PythonScripts/WriteOdbVUELFromOdb.py
 
 This script creates a 3D odb for a model that contains user defined elements.
 It creates the following field outputs:
@@ -26,6 +26,8 @@ Inputs to consider/change:
 """
 ##
 # import abaqus libraries
+
+
 from odbAccess import *
 from odbMaterial import *
 from odbSection import *
@@ -34,6 +36,7 @@ import numpy as np
 
 # import python libraries
 import sys,time,csv,os
+
 
 def StressStrain(Ele_Con, Node_Vals):
     GpCord = [0.25, 0.25, 0.25]
@@ -95,11 +98,12 @@ MatE = [1.951,77.71]
 Matmu = [0.3,0.44]
 
 # File names and locations for old odb
-cwd = '/home/cerecam/Dropbox/PhD/PythonCodes/'
-OldOdbNameNoext = 'TestCase2'
+cwd = '/home/cerecam/Desktop/Npg_Comp_Model_58_42/58_42/SimulationsMarch21/'
+ElecFile = cwd +'ElecPotentialsInitial_RVE.inp'
+OldOdbNameNoext = 'NPG_58_42_periodic_modified'
 OldOdbName = OldOdbNameNoext + '.odb'
-ElementFiles = [cwd + 'UserElements.inp',
-                cwd +'GoldElements.inp'] # Files with element connectivity description
+ElementFiles = [cwd + 'PolymerElements_Con.inp',
+                cwd +'GoldElements_Con.inp'] # Files with element connectivity description
                 
 # Accessing necessary objects in old odb                
 oldOdb=openOdb(cwd+OldOdbName)
@@ -119,27 +123,6 @@ for nodes in myinstance.nodes:
     nodeDict[str(nodes.label)] = (nodes.coordinates[0],nodes.coordinates[1],nodes.coordinates[2]) 
     nodeData.append(intnode)
     del intnode
-
-# Creates an ODB
-odbpath = cwd+'/Cube_PythonWritten.odb'
-odb = Odb(name='Model-1', analysisTitle = "ODB created by python script",
-          description = "using python scripting to create an odb for showing VUEL data from a previous odb with no visualization elements",
-          path = odbpath)
-          
-for num, mat in enumerate(materialNames):
-    # Creates materials
-    Material = odb.Material(name=mat)
-    Material.Elastic(table=( (MatE[num], Matmu[num]),))
-    #polymerMaterial.Density(table=(  (1.47E-6),0))
-                  
-    # Create sections
-    section1 = odb.HomogeneousSolidSection(name=mat,
-                                           material=mat)
-
-# MODEL data:
-part1 = odb.Part(name='Part-1', embeddedSpace=THREE_D, type=DEFORMABLE_BODY)    
-
-part1.addNodes(nodeData=tuple(nodeData), nodeSetName='All_NODES') # add nodes to part
 
 # Get element node-connectivity of old odb from .inp files and add to new odb part
 EleList= []
@@ -161,8 +144,29 @@ for num, Fname in enumerate(ElementFiles):
     part1.addElements(elementData=elementData1, type='C3D4', elementSetName=materialNames[num]) # add elements to part
 EleList = sorted(EleList) # List of elements in ascending order
 
+
 #print >> sys.__stdout__, str(len(EleList))
 #a=b
+# Creates an ODB
+odbpath = cwd + '/Cube_PythonWritten.odb'
+odb = Odb(name='Model-1', analysisTitle="ODB created by python script",
+          description="using python scripting to create an odb for showing VUEL data from a previous odb with no visualization elements",
+          path=odbpath)
+
+for num, mat in enumerate(materialNames):
+    # Creates materials
+    Material = odb.Material(name=mat)
+    Material.Elastic(table=((MatE[num], Matmu[num]),))
+    # polymerMaterial.Density(table=(  (1.47E-6),0))
+
+    # Create sections
+    section1 = odb.HomogeneousSolidSection(name=mat,
+                                           material=mat)
+
+# MODEL data:
+part1 = odb.Part(name='Part-1', embeddedSpace=THREE_D, type=DEFORMABLE_BODY)
+
+part1.addNodes(nodeData=tuple(nodeData), nodeSetName='All_NODES')  # add nodes to part
 # Instance the part
 instance1= odb.rootAssembly.Instance(name='I_Cube', object=part1)
 
@@ -192,12 +196,14 @@ Efinal, S_totfinal = {}, {}
 S_mechfinal, S_chemfinal, S_elecfinal = {}, {}, {}
 count = 0
 
-ElecFile = cwd +'ElecPotentialsInitial.inp'
 ElecF = open(ElecFile,'r')
 ElecData = [0]*len(nodeData)
 for line in ElecF:
     newarray = map(str,line.split(','))
-    ElecData[int(newarray[0][-(len(newarray[0])-len(OldOdbNameNoext)-3):])] = float(newarray[1])
+    if int(newarray[0][len('RVE.'):]) > len(nodeData):
+        print >> sys.__stdout__, str(newarray[0])
+    else:
+        ElecData[int(newarray[0][len('RVE.'):])] = float(newarray[1])
 for MultiFrame in steps.frames:
 #for MultiFrame in [steps.frames[-1]]:
 #    FrameTime= round(MultiFrame.frameValue,2)
@@ -212,8 +218,11 @@ for MultiFrame in steps.frames:
         DispData = []
         DispNodes = []
         for val in Dispfield.values:
-            DispNodes.append(val.nodeLabel) # Node label list
-            DispData.append(tuple(val.dataDouble)) # Data at node
+            if int(val.nodeLabel) > len(nodeData):
+                    print >> sys.__stdout__, str(val.nodeLabel)
+            else:
+                DispNodes.append(val.nodeLabel) # Node label list
+                DispData.append(tuple(val.dataDouble)) # Data at node
         #Add values to dictionary elemtn with key= frameValue
         DispDataDict[round(MultiFrame.frameValue,3)]=tuple(DispData)
         DispNodesDict[round(MultiFrame.frameValue,3)] = tuple(DispNodes)
@@ -223,8 +232,11 @@ for MultiFrame in steps.frames:
         TempData = []
         TempNodes = []
         for val in Tempfield.values:
-            TempNodes.append(val.nodeLabel) # Node label list
-            TempData.append(tuple([val.dataDouble,]))# Data at node
+            if int(val.nodeLabel) > len(nodeData):
+                    print >> sys.__stdout__, str(val.nodeLabel)
+            else:
+                TempNodes.append(val.nodeLabel) # Node label list
+                TempData.append(tuple([val.dataDouble,]))# Data at node
         TempDataDict[round(MultiFrame.frameValue,3)]=tuple(TempData)
         TempNodesDict[round(MultiFrame.frameValue,3)] = tuple(TempNodes)
 #         # Elec data at Gauss point:
