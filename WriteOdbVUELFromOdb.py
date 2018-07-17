@@ -40,60 +40,6 @@ import numpy as np
 # import python libraries
 import sys, time, csv, os
 
-<<<<<<< HEAD
-
-def StressStrain(Ele_Con, Node_Vals):
-    GpCord = [0.25, 0.25, 0.25]
-    Wt = 1.0
-    QuadPnts = 1.0/6.0
-    
-    xi1=GpCord[0]
-    xi2=GpCord[1]
-    xi3=GpCord[2]
-    pNN = [1.0-xi1-xi2-xi3, xi1, xi2, xi3]
-    dNdXi1 = [-1.0, 1.0, 0.0, 0.0]
-    dNdXi2 = [-1.0, 0.0, 1.0, 0.0]
-    dNdXi3 = [-1.0, 0.0, 0.0, 1.0]
-    dNdX1 = [0.0, 0.0, 0.0, 0.0]
-    dNdX2 = [0.0, 0.0, 0.0, 0.0]
-    dNdX3 = [0.0, 0.0, 0.0, 0.0]
-    
-    X1,X2,X3 = [],[],[]
-    for node in Ele_Con:
-        X1.append(Node_Vals[str(node)][0])
-        X2.append(Node_Vals[str(node)][1])
-        X3.append(Node_Vals[str(node)][2])
-        
-    
-    dX1dxi1=np.dot(X1,dNdXi1)
-    dX1dxi2=np.dot(X1,dNdXi2)
-    dX1dxi3=np.dot(X1,dNdXi3)
-    
-    dX2dxi1=np.dot(X2,dNdXi1)
-    dX2dxi2=np.dot(X2,dNdXi2)
-    dX2dxi3=np.dot(X2,dNdXi3)
-    
-    dX3dxi1=np.dot(X3,dNdXi1)
-    dX3dxi2=np.dot(X3,dNdXi2)
-    dX3dxi3=np.dot(X3,dNdXi3)
-    
-    detJ = dX1dxi1*dX2dxi2*dX3dxi3 + dX2dxi1*dX3dxi2*dX1dxi3 + dX3dxi1*dX1dxi2*dX2dxi3 - dX1dxi3*dX2dxi2*dX3dxi1 - dX2dxi3*dX3dxi2*dX1dxi1 - dX3dxi3*dX1dxi2*dX2dxi1
-    
-    for nn in range(4):
-        dNdX1[nn] = 1.0/detJ*( (dX2dxi2*dX3dxi3-dX3dxi2*dX2dxi3)*dNdXi1[nn] + 
-                        (dX3dxi1*dX2dxi3-dX2dxi1*dX3dxi3)*dNdXi2[nn] + 
-                        (dX2dxi1*dX3dxi2-dX3dxi1*dX2dxi2)*dNdXi3[nn] )
-        dNdX2[nn] = 1.0/detJ*( (dX3dxi2*dX1dxi3-dX1dxi2*dX3dxi3)*dNdXi1[nn] +
-                        (dX1dxi1*dX3dxi3-dX3dxi1*dX1dxi3)*dNdXi2[nn] +
-                        (dX3dxi1*dX1dxi2-dX1dxi1*dX3dxi2)*dNdXi3[nn] )
-        dNdX3[nn] = 1.0/detJ*( (dX1dxi2*dX2dxi3-dX2dxi2*dX1dxi3)*dNdXi1[nn] +
-                        (dX2dxi1*dX1dxi3-dX1dxi1*dX2dxi3)*dNdXi2[nn] +
-                        (dX1dxi1*dX2dxi2-dX2dxi1*dX1dxi2)*dNdXi3[nn] )
-                        
-    return dNdX1,dNdX2,dNdX3, pNN
-=======
->>>>>>> 599eee6158d006984d085f7ab5bc07c905167f32
-
 def StressStrain(Ele_Con, Node_Vals, ElementType):
     if ElementType.strip() == 'C3D4':  # Tetrahedral element with one integration point
         GpCord = [[0.25, 0.25, 0.25]]
@@ -237,15 +183,6 @@ MatE = [1.951, 77.71]
 Matmu = [0.3, 0.44]
 
 # File names and locations for old odb
-<<<<<<< HEAD
-cwd = '/home/cerecam/Desktop/Npg_Comp_Model_58_42/58_42/SimulationsMarch21/'
-ElecFile = cwd +'ElecPotentialsInitial_RVE.inp'
-OldOdbNameNoext = 'NPG_58_42_periodic_modified'
-OldOdbName = OldOdbNameNoext + '.odb'
-ElementFiles = [cwd + 'PolymerElements_Con.inp',
-                cwd +'GoldElements_Con.inp'] # Files with element connectivity description
-                
-=======
 cwd = '/home/cerecam/Desktop/GP_BoundaryConditionTests'
 OldOdbNameNoext = 'Test1'
 OldOdbName = OldOdbNameNoext + '.odb'
@@ -253,7 +190,6 @@ ElementFiles = [cwd + '/InputFiles/UserElements.inp',
                 cwd + '/InputFiles/GoldElements.inp']  # Files with element connectivity description
 Eletype = 'C3D8'
 
->>>>>>> 599eee6158d006984d085f7ab5bc07c905167f32
 # Accessing necessary objects in old odb                
 oldOdb = openOdb(cwd + OldOdbName)
 assembly = oldOdb.rootAssembly
@@ -274,10 +210,6 @@ for nodes in myinstance.nodes:
     nodeData.append(intnode)
     del intnode
 
-<<<<<<< HEAD
-# Get element node-connectivity of old odb from .inp files and add to new odb part
-EleList= []
-=======
 # Creates an ODB
 odbpath = cwd + '/Cube_PythonWritten.odb'
 odb = Odb(name='Model-1', analysisTitle="ODB created by python script",
@@ -302,7 +234,6 @@ part1.addNodes(nodeData=tuple(nodeData), nodeSetName='All_NODES')  # add nodes t
 # Element connectivity data read from .inp file (cannot use old odb as connectivity of user elements (RNODE3) not given)
 
 EleList = []
->>>>>>> 599eee6158d006984d085f7ab5bc07c905167f32
 Ele_Con_Dict = {}
 for num, Fname in enumerate(ElementFiles):
     elementData1 = []
@@ -321,10 +252,6 @@ for num, Fname in enumerate(ElementFiles):
     part1.addElements(elementData=elementData1, type=Eletype, elementSetName=materialNames[num])  # add elements to part
 EleList = sorted(EleList)  # List of elements in ascending order
 
-<<<<<<< HEAD
-
-#print >> sys.__stdout__, str(len(EleList))
-#a=b
 # Creates an ODB
 odbpath = cwd + '/Cube_PythonWritten.odb'
 odb = Odb(name='Model-1', analysisTitle="ODB created by python script",
@@ -345,8 +272,6 @@ for num, mat in enumerate(materialNames):
 part1 = odb.Part(name='Part-1', embeddedSpace=THREE_D, type=DEFORMABLE_BODY)
 
 part1.addNodes(nodeData=tuple(nodeData), nodeSetName='All_NODES')  # add nodes to part
-=======
->>>>>>> 599eee6158d006984d085f7ab5bc07c905167f32
 # Instance the part
 instance1 = odb.rootAssembly.Instance(name='I_Cube', object=part1)
 
@@ -376,21 +301,6 @@ Efinal, S_totfinal = {}, {}
 S_mechfinal, S_chemfinal, S_elecfinal = {}, {}, {}
 count = 0
 
-<<<<<<< HEAD
-ElecF = open(ElecFile,'r')
-ElecData = [0]*len(nodeData)
-for line in ElecF:
-    newarray = map(str,line.split(','))
-    if int(newarray[0][len('RVE.'):]) > len(nodeData):
-        print >> sys.__stdout__, str(newarray[0])
-    else:
-        ElecData[int(newarray[0][len('RVE.'):])] = float(newarray[1])
-for MultiFrame in steps.frames:
-#for MultiFrame in [steps.frames[-1]]:
-#    FrameTime= round(MultiFrame.frameValue,2)
-    if round(MultiFrame.frameValue,2)==FrameTime:
-        
-=======
 # Read electric potential values from inp file
 ElecFile = cwd + 'ElecPotentialsInitial.inp'
 ElecF = open(ElecFile, 'r')
@@ -404,17 +314,15 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
     #    FrameTime= round(MultiFrame.frameValue,2)
     if round(MultiFrame.frameValue, 2) == FrameTime:
 
->>>>>>> 599eee6158d006984d085f7ab5bc07c905167f32
         #########################################################################################
         # OLD ODB DATA EXTRACTION AND MANIPULATIONS
         #########################################################################################
 
-        # Displacement data at nodes:                   
+        # Displacement data at nodes:
         Dispfield = MultiFrame.fieldOutputs['U']  # Extract disp field output object from old Odb
         DispData = []
         DispNodes = []
         for val in Dispfield.values:
-<<<<<<< HEAD
             if int(val.nodeLabel) > len(nodeData):
                     print >> sys.__stdout__, str(val.nodeLabel)
             else:
@@ -423,7 +331,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         #Add values to dictionary elemtn with key= frameValue
         DispDataDict[round(MultiFrame.frameValue,3)]=tuple(DispData)
         DispNodesDict[round(MultiFrame.frameValue,3)] = tuple(DispNodes)
-        
+
        # Temperature data at nodes:
         Tempfield = MultiFrame.fieldOutputs['NT11']    # Extract Temperature fieldOutput object from old Odb
         TempData = []
@@ -436,21 +344,11 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
                 TempData.append(tuple([val.dataDouble,]))# Data at node
         TempDataDict[round(MultiFrame.frameValue,3)]=tuple(TempData)
         TempNodesDict[round(MultiFrame.frameValue,3)] = tuple(TempNodes)
-#         # Elec data at Gauss point:
-#        FieldValue = MultiFrame.fieldOutputs['FV1']    # Extract Temperature fieldOutput object from old Odb
-#        FieldValueData = []
-#        FieldValueEle = []
-#        for val in FieldValue.values:
-#            FieldValueEle.append(val.elementLabel-500000) # Element label list
-#            FieldValueData.append(tuple([val.data,]))# Data at Gauss point
-#            
-#        FieldValueDataDict[round(MultiFrame.frameValue,3)]=tuple(FieldValueData)
-#        FieldValueEleDict[round(MultiFrame.frameValue,3)] = tuple(FieldValueEle)
-    
+
         Ee, Ss, Ee_principal, Ss_principal, V_mises = [],[],[],[],[]
-=======
-            DispNodes.append(val.nodeLabel)  # Node label list
-            DispData.append(tuple(val.dataDouble))  # Data at node
+
+        DispNodes.append(val.nodeLabel)  # Node label list
+        DispData.append(tuple(val.dataDouble))  # Data at node
         # Add values to dictionary elemtn with key= frameValue
         DispDataDict[round(MultiFrame.frameValue, 3)] = tuple(DispData)
         DispNodesDict[round(MultiFrame.frameValue, 3)] = tuple(DispNodes)
@@ -466,7 +364,6 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         TempNodesDict[round(MultiFrame.frameValue, 3)] = tuple(TempNodes)
 
         Ee, Ss, Ee_principal, Ss_principal, V_mises = [], [], [], [], []
->>>>>>> 599eee6158d006984d085f7ab5bc07c905167f32
         Ss_mech, Ss_chem, Ss_elec, Ss_tot = [], [], [], []
 
         ##################### Material Parameters #############################
@@ -485,7 +382,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
             Mat = Ele_Con_Dict[Ele_Label][1]  # Material of specified element
             Ele_con = Ele_Con_Dict[Ele_Label][0]  # Nodal connectivity of current element
 
-            ## Elastic material parameters            
+            ## Elastic material parameters
             Gmod = 0.5 * MatE[Mat] / (1.0 + Matmu[Mat])
             lam = (MatE[Mat] * Matmu[Mat]) / ((1.0 + Matmu[Mat]) * (1.0 - 2.0 * Matmu[Mat]))
 
@@ -549,11 +446,11 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         # NEW ODB FIELD DATA CREATION
         #########################################################################################
         count += 1
-        # Creation of displacement, cocentration, stress and strain field at n=numIntervals frames       
+        # Creation of displacement, cocentration, stress and strain field at n=numIntervals frames
         frame = step1.Frame(incrementNumber=count,
                             frameValue=FrameTime,
                             description='Results at time :\t ' + str(FrameTime) + 's')  # Creation of new frame
-        # Add fieldoutput object to new odb  
+        # Add fieldoutput object to new odb
         newField3 = frame.FieldOutput(name='E',
                                       description='Small strain at gauss points',
                                       type=TENSOR_3D_FULL,
@@ -567,46 +464,46 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
                           labels=tuple(EleList),
                           data=Efinal[round(FrameTime, 3)])
 
-        # Add fieldoutput object to new odb                 
+        # Add fieldoutput object to new odb
         newField4 = frame.FieldOutput(name='S',
                                       description='Total stress at gauss points',
                                       type=TENSOR_3D_FULL,
                                       componentLabels=('S11', 'S22', 'S33', 'S12', 'S13', 'S23'),
                                       validInvariants=(MISES, MAX_PRINCIPAL, MID_PRINCIPAL,
                                                        MIN_PRINCIPAL))  # Creation of new field otput object called 'STRESS'
-        # Add Total stress field                               
+        # Add Total stress field
         newField4.addData(position=INTEGRATION_POINT,
                           instance=instance1,
                           labels=tuple(EleList),
                           data=S_totfinal[round(FrameTime, 3)])
 
-        # Add data to fieldoutput object                          
+        # Add data to fieldoutput object
         newField5 = frame.FieldOutput(name='S_m',
                                       description='Mechanical stress at gauss points',
                                       type=TENSOR_3D_FULL,
                                       componentLabels=('Sm11', 'Sm22', 'Sm33', 'Sm12', 'Sm13', 'Sm23'),
                                       validInvariants=(MISES, MAX_PRINCIPAL, MID_PRINCIPAL,
                                                        MIN_PRINCIPAL))  # Creation of new field otput object called 'STRESS'
-        # Add mechanical stress field                               
+        # Add mechanical stress field
         newField5.addData(position=INTEGRATION_POINT,
                           instance=instance1,
                           labels=tuple(EleList),
                           data=S_mechfinal[round(FrameTime, 3)])
 
-        # Add data to fieldoutput object                          
+        # Add data to fieldoutput object
         newField6 = frame.FieldOutput(name='S_c',
                                       description='Chemical stress at gauss points',
                                       type=TENSOR_3D_FULL,
                                       componentLabels=('Sc11', 'Sc22', 'Sc33', 'Sc12', 'Sc13', 'Sc23'),
                                       validInvariants=(MISES, MAX_PRINCIPAL, MID_PRINCIPAL,
                                                        MIN_PRINCIPAL))  # Creation of new field otput object called 'STRESS'
-        # Add chemical stress field                               
+        # Add chemical stress field
         newField6.addData(position=INTEGRATION_POINT,
                           instance=instance1,
                           labels=tuple(EleList),
                           data=S_chemfinal[round(FrameTime, 3)])
 
-        # Add data to fieldoutput object                          
+        # Add data to fieldoutput object
         newField7 = frame.FieldOutput(name='S_e',
                                       description='Electrical stress at gauss points',
                                       type=TENSOR_3D_FULL,
@@ -614,7 +511,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
                                       validInvariants=(MISES, MAX_PRINCIPAL, MID_PRINCIPAL,
                                                        MIN_PRINCIPAL))  # Creation of new field otput object called 'STRESS'
 
-        # Add electrical stress field                              
+        # Add electrical stress field
         newField7.addData(position=INTEGRATION_POINT,
                           instance=instance1,
                           labels=tuple(EleList),
