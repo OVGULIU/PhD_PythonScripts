@@ -14,7 +14,7 @@ session.viewports['Viewport: 1'].maximize()
 from caeModules import *
 from driverUtils import executeOnCaeStartup
 executeOnCaeStartup()
-o1 = session.openOdb(name='/home/cerecam/Desktop/GP_BoundaryConditionTests/Flux_NoUEL.odb')
+o1 = session.openOdb(name='/home/cerecam/Desktop/GP_BoundaryConditionTests/Flux2_NoUEL.odb')
 session.viewports['Viewport: 1'].setValues(displayedObject=o1)
 ### CREATE OUTPUT ###
 session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(
