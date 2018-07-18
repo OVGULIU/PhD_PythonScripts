@@ -34,7 +34,7 @@ session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leafTest)	
 dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
 dg = session.DisplayGroup(name='TestDispGroup', objectToCopy=dg)
 
-leafTest = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',('11400:124024')),)) # Leaf object from element labels
+leafTest = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',('11400:12424')),)) # Leaf object from element labels
 session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leafTest)	# Create displaygourp from leafTest object
 dg2 = session.viewports['Viewport: 1'].odbDisplay.displayGroup
 dg2 = session.DisplayGroup(name='TestDispGroup', objectToCopy=dg2)
