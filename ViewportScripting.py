@@ -4,6 +4,7 @@ displaygroups/viewport options.
 Can also print files directly from script
 """
 def ElementSlices(cwd):
+	import numpy as np
     print('ElementSlices.py is running')
     def readinp(filename, startline):
         """
