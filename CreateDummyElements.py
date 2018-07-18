@@ -1,4 +1,5 @@
-Readf = open('/home/cerecam/Desktop/SUPG_tricks/UserElements.inp','r')
+cwd = '/home/cerecam/Desktop/GP_BoundaryConditionTests/InputFiles'
+Readf = open(cwd + '/UserElements.inp','r')
 import numpy as np
 
 user_eles = []
@@ -15,7 +16,7 @@ for line in Readf:
         dummies.append(newarray)
 
 Readf.close()
-Writef = open('/home/cerecam/Desktop/SUPG_tricks//DummyElements.inp','w')
+Writef = open(cwd + '/DummyElements.inp','w')
 number = 0
 for x in dummies:
     Writef.write(str(x).strip(']').strip('[')+'\n')

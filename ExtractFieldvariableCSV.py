@@ -1,5 +1,5 @@
 """
-abaqus viewer noGui=/home/cerecam/Desktop/GIT/PhD_PythonScripts/ExtractFieldvariableCSV.py  
+abaqus viewer noGui=/home/cerecam/Desktop/GIT/PhD_PythonScripts/ExtractFieldvariableCSV.py --  '/home/cerecam/Desktop/MesoporousSilica/Short/ShortExperimental' 'ShortExperimental_Standard'
 """
 
 
@@ -10,11 +10,13 @@ import sys,os
 
 from odbAccess import openOdb
 
-currentwd = '/home/cerecam/Desktop/Voxel_models/2M_32x32x32'
-odbfile  = 'Voxel32_Standard'
+currentwd = sys.argv[-2] 
+odbfile  = sys.argv[-1]
+if odbfile[0]!='/':
+	odbfile = '/'+odbfile 
 #FileOut = '/DispConc/LinearConcentration'
 FileOut = '/ElecPotentials'
-InstanceName = 'RVE.'
+InstanceName = 'I_CUBE.'
 FO = 'NT11'
 if odbfile[0]!='/':
     odbfile = '/'+odbfile
@@ -31,13 +33,14 @@ NodeNum = np.array([ x.nodeLabel for x in CONCEN.values])       # numpy array co
 CONCEN_Array = np.array([ round(float(CONCENvals.dataDouble),15) for CONCENvals in CONCEN.values])    #numpy array containing concentrations at each node
 
 np.savetxt((str(currentwd)+str(FileOut)+".csv"),CONCEN_Array, delimiter=",")
-InitialFile=open(str(currentwd)+str(FileOut)+"Initial_RVE.inp", 'w')
-ElecFieldFile = open(str(currentwd)+str(FileOut)+"_RVE.inp", 'w')
+InitialFile=open(str(currentwd)+str(FileOut)+"Initial.inp", 'w')
+ElecFieldFile = open(str(currentwd)+str(FileOut)+".inp", 'w')
 count = 0
 for i in NodeNum:
-    InitialFile.write(InstanceName+str(i)+',\t'+str(CONCEN_Array[count])+'\n')
-    ElecFieldFile.write(InstanceName+str(i)+',\t'+str(CONCEN_Array[count])+'\n')
-    count+=1
+	if i<999990:
+	    InitialFile.write(InstanceName+str(i)+',\t'+str(CONCEN_Array[count])+'\n')
+	    ElecFieldFile.write(InstanceName+str(i)+',\t'+str(CONCEN_Array[count])+'\n')
+	    count+=1
 
 
 InitialFile.close()

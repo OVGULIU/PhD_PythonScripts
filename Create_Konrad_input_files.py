@@ -4,11 +4,11 @@ Created on Tue Feb  6 15:25:54 2018
 
 @author: cerecam
 """
-cwd = '/home/cerecam/Desktop/Npg_Comp_Model_73_27/73_27/'
+cwd = '/home/cerecam/Desktop/Voxel_models/2M_32x32x32/'
 NodeFile = 'Nodes.inp'
-Mat0File = 'GoldElements_Con.inp'
-Mat1File = 'PolymerElements_Con.inp'
-projectName = 'Periodic_NPG_73_27'
+Mat0File = 'GoldElements.inp'
+Mat1File = 'UserElements.inp'
+projectName = 'Periodic_voxel'
 Instancename = 'i_cube'
 
 
@@ -26,7 +26,7 @@ writef.close()
 ElementSets1 = []
 ElementSets2 = []
 readf = open(cwd + Mat0File,'r') # All nodes with coordinates
-elements = [0]*(54511)
+elements = [0]*(19016+13752+1)
 for line in readf:
     newarray = map(int,line.split(','))
     elements[newarray[0]] = newarray[1:]
@@ -56,6 +56,6 @@ ElementSets = [ElementSets1, ElementSets2]
 writef = open(cwd + 'Element_Sets_' + projectName + '.txt','w')
 for i in ElementSets:
     for x in range(0,len(i),10):
-        writef.write(str(i[x:x+11]).strip('[').strip(']')+'\n')
+        writef.write(str(i[x:x+10]).strip('[').strip(']')+'\n')
     writef.write('\n')
 writef.close()

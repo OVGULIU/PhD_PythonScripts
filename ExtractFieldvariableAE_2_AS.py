@@ -1,5 +1,5 @@
 """
-abaqus viewer noGui=/home/cerecam/Desktop/GIT/PhD_PyhtonScripts/ExtractFieldvariableAE_2_AS.py 
+abaqus viewer noGui=/home/cerecam/Desktop/GIT/PhD_PythonScripts/ExtractFieldvariableAE_2_AS.py 
 """
 
 
@@ -8,14 +8,17 @@ import csv,math
 import sys,os
 from odbAccess import openOdb
 
-currentwd = '/home/cerecam/Desktop/Npg_Comp_Model_58_42/58_42'
+
+currentwd = sys.argv[-2]
+#currentwd = '/home/cerecam/Desktop/MesoporousSilica/Short/Coupled_Flux'
 outputwd = currentwd
 
 #JobnameFile = open('/home/cerecam/Desktop/AbqJob2.txt','r')
 #Jobname = str(JobnameFile.readlines()[0])
 #JobnameFile.close()
 #Jobname = Jobname.strip()
-Jobname = 'NPG_58_42'
+Jobname = sys.argv[-1]
+#Jobname = 'Short_coupled_NoElecFlux'
 if Jobname[0]!='/':
     Jobname = '/'+Jobname
 odbfile = Jobname
@@ -40,7 +43,10 @@ CONCEN_Array = np.array([ round(float(CONCENvals.dataDouble),15) for CONCENvals 
 ##ELEC_Array = np.array([ round(float(ELECvals.data),15) for ELECvals in ELEC.values]) 
 
 for count,i in enumerate(NodeNum):
-    Tempf.write('I_CUBE.'+str(i)+',\t'+str(CONCEN_Array[count])+'\n')
+	if i<999990:
+		if CONCEN_Array[count]<0.0:
+			CONCEN_Array[count] = 0.0
+		Tempf.write('I_CUBE.'+str(i)+',\t'+str(CONCEN_Array[count])+'\n')
 
 Tempf.close()
 odb.close()
