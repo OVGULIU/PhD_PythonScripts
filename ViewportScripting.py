@@ -29,20 +29,20 @@ session.viewports['Viewport: 1'].view.setValues(session.views['Right'])	# Set vi
 
 #Creating Display Object
 
-leafTest = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',(1,'2',3,'4:1024')),)) # Leaf object from element labels
-session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leafTest)	# Create displaygourp from leafTest object
-dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
-dg = session.DisplayGroup(name='TestDispGroup', objectToCopy=dg)
-session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg, ))
-session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances['TestDispGroup'].setValues(
-	lockOptions=OFF)
+#leafTest = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',(1,'2',3,'4:1024')),)) # Leaf object from element labels
+#session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leafTest)	# Create displaygourp from leafTest object
+#dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
+#dg = session.DisplayGroup(name='TestDispGroup', objectToCopy=dg)
+#session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg, ))
+#session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances['TestDispGroup'].setValues(
+	#lockOptions=OFF)
 session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(CONTOURS_ON_DEF, ))
 #session.viewports['Viewport: 1'].odbDisplay.contourOptions(contourStyle=(CONTINUOUS,))
 
-#Switch to Visualization module (??)
-session.mdbData.summary()
-odb = session.odbs['/home/cerecam/Desktop/GP_BoundaryConditionTests/Flux2_NoUEL.odb']
-session.viewports['Viewport: 1'].setValues(displayedObject=odb)
+##Switch to Visualization module (??)
+#session.mdbData.summary()
+#odb = session.odbs['/home/cerecam/Desktop/GP_BoundaryConditionTests/Flux2_NoUEL.odb']
+#session.viewports['Viewport: 1'].setValues(displayedObject=odb)
 
 # Printing to file
 session.printOptions.setValues(vpDecorations=OFF, reduceColors=False)
