@@ -38,9 +38,12 @@ session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances['TestDispGroup
 	lockOptions=OFF)
 session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(CONTOURS_ON_DEF, ))
 
+#Switch to Visualization module (??)
+odb = session.odbs['/home/cerecam/Desktop/GP_BoundaryConditionTests/Flux2_NoUEL.odb']
+session.viewports['Viewport: 1'].setValues(displayedObject=odb)
+
 # Printing to file
 session.printOptions.setValues(vpDecorations=OFF, reduceColors=False)
 session.printToFile(fileName='Test.png', format=PNG, canvasObjects=(session.viewports['Viewport: 1'], ))
-session.printToFile(fileName='/home/cerecam/Desktop/GP_BoundaryConditionTests/PrintToFileExample', 
-	format=TIFF, canvasObjects=(
-session.viewports['Viewport: 1'], ))
+
+
