@@ -37,7 +37,7 @@ session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg, 
 session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances['TestDispGroup'].setValues(
 	lockOptions=OFF)
 session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(CONTOURS_ON_DEF, ))
-session.viewports['Viewport: 1'].odbDisplay.contourOptions(contourStyle=(CONTINUOUS,))
+#session.viewports['Viewport: 1'].odbDisplay.contourOptions(contourStyle=(CONTINUOUS,))
 
 #Switch to Visualization module (??)
 session.mdbData.summary()
