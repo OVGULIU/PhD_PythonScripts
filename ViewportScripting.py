@@ -3,7 +3,7 @@ Script to read in Odb and open Abaqus CAE with the required:
 displaygroups/viewport options.
 Can also print files directly from script
 """
-def ElementSlices():
+def ElementSlices(cwd):
     print('ElementSlices.py is running')
     def readinp(filename, startline):
         """
@@ -51,7 +51,6 @@ def ElementSlices():
         inpfile_write.close()
 
 
-    cwd = '/home/etg/Desktop'
     nodefile = 'Nodes.inp'
     #elementfile = 'Elements_All.inp'
     gold_element = range(1, 1213242+1)
@@ -159,8 +158,8 @@ from caeModules import *
 from driverUtils import executeOnCaeStartup
 
 #from BoundaryElementDetect import ElementSlices
-
-X,Y,Z = ElementSlices()
+InputDir  = '/home/cerecam/Desktop/GP_BoundaryConditionTests/InputFiles'
+X,Y,Z = ElementSlices(InputDir)
 
 executeOnCaeStartup()
 o1 = session.openOdb(name='/home/cerecam/Desktop/GP_BoundaryConditionTests/Flux2_NoUEL.odb')
