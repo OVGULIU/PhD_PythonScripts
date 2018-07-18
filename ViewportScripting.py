@@ -12,21 +12,35 @@ session.Viewport(name='Viewport: 1', origin=(0.0, 0.0), width=268.952117919922,
 height=154.15299987793)
 session.viewports['Viewport: 1'].makeCurrent()
 session.viewports['Viewport: 1'].maximize()
-leafTest = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',(1,'2',3,'4:1024')),))
 from caeModules import *
 from driverUtils import executeOnCaeStartup
 executeOnCaeStartup()
 o1 = session.openOdb(name='/home/cerecam/Desktop/GP_BoundaryConditionTests/Flux2_NoUEL.odb')
 session.viewports['Viewport: 1'].setValues(displayedObject=o1)
 ### CREATE OUTPUT ###
-session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leafTest)
+## Viewport visualization preferences
+session.viewports['Viewport: 1'].view.setProjection(projection=PARALLEL)
+session.viewports['Viewport: 1'].viewportAnnotationOptions.setValues(title=OFF,
+	state=OFF, annotations=OFF, compass=OFF)	# Remove unnecessary viewport annotations
+session.viewports['Viewport: 1'].viewportAnnotationOptions.setValues(triadColor='#000000', 
+	triadPosition=(6, 8), legendTextColor='#000000', legendBox=OFF)	#Change triad and legend colours to black
+session.viewports['Viewport: 1'].viewportAnnotationOptions.setValues(triadPosition=(5, 5))	# MOve triad to bottom left corner
+session.viewports['Viewport: 1'].view.setValues(session.views['Right'])	# Set view to the RHS view
+
+#Creating Display Object
+
+leafTest = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',(1,'2',3,'4:1024')),)) # Leaf object from element labels
+session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leafTest)	# Create displaygourp from leafTest object
 dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
 dg = session.DisplayGroup(name='TestDispGroup', objectToCopy=dg)
-session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg, 
-	))
+session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg, ))
 session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances['TestDispGroup'].setValues(
 	lockOptions=OFF)
-session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(
-CONTOURS_ON_DEF, ))
-session.printToFile(fileName='/home/cerecam/Desktop/GP_BoundaryConditionTests/PrintToFileExample', format=TIFF, canvasObjects=(
+session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(CONTOURS_ON_DEF, ))
+
+# Printing to file
+session.printOptions.setValues(vpDecorations=OFF, reduceColors=False)
+session.printToFile(fileName='Test.png', format=PNG, canvasObjects=(session.viewports['Viewport: 1'], ))
+session.printToFile(fileName='/home/cerecam/Desktop/GP_BoundaryConditionTests/PrintToFileExample', 
+	format=TIFF, canvasObjects=(
 session.viewports['Viewport: 1'], ))
