@@ -15,7 +15,7 @@ session.viewports['Viewport: 1'].maximize()
 from caeModules import *
 from driverUtils import executeOnCaeStartup
 import sys
-sys.path.append('/home/etg/PycharmProjects/PhD_PythonScripts')
+sys.path.append('/home/cerecam/Desktop/GIT/PhD_PythonScripts')
 
 from BoundaryElementDetect import ElementSlices
 
