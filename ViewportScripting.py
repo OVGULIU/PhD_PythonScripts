@@ -14,6 +14,12 @@ session.viewports['Viewport: 1'].makeCurrent()
 session.viewports['Viewport: 1'].maximize()
 from caeModules import *
 from driverUtils import executeOnCaeStartup
+import sys
+sys.path.append('/home/etg/PycharmProjects/PhD_PythonScripts')
+
+from BoundaryElementDetect import ElementSlices
+
+X,Y,Z = BoundaryElementDetect.ElementSlices()
 
 executeOnCaeStartup()
 o1 = session.openOdb(name='/home/cerecam/Desktop/GP_BoundaryConditionTests/Flux2_NoUEL.odb')
@@ -78,26 +84,26 @@ dg2 = session.DisplayGroup(name='TestDispGroup2', objectToCopy=dg2)
 session.printOptions.setValues(vpDecorations=OFF, reduceColors=False)
 session.pngOptions.setValues(imageSize=(1432,676))
 
-### Display display group in viewport ###
-session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg_X0G, ))
-session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances['X0_gold'].setValues(
-	lockOptions=OFF)
+#### Display display group in viewport ###
+#session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg_X0G, ))
+#session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances['X0_gold'].setValues(
+	#lockOptions=OFF)
 	
-### Printing to file ###
-session.printToFile(
-        fileName='/home/cerecam/Desktop/GP_BoundaryConditionTests/X0_Gold.png', 
-        format=PNG, canvasObjects=(session.viewports['Viewport: 1'], ))
+#### Printing to file ###
+#session.printToFile(
+        #fileName='/home/cerecam/Desktop/GP_BoundaryConditionTests/X0_Gold.png', 
+        #format=PNG, canvasObjects=(session.viewports['Viewport: 1'], ))
         
-session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
-        variableLabel='Co', outputPosition=NODAL, )
-### Display display group in viewport ###
-session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg_X0, ))
-session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances['X0_all'].setValues(
-	lockOptions=OFF)
+#session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
+        #variableLabel='Co', outputPosition=NODAL, )
+#### Display display group in viewport ###
+#session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg_X0, ))
+#session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances['X0_all'].setValues(
+	#lockOptions=OFF)
 	
-### Printing to file ###
-session.printToFile(
-        fileName='/home/cerecam/Desktop/GP_BoundaryConditionTests/X0_All.png', 
-        format=PNG, canvasObjects=(session.viewports['Viewport: 1'], ))
+#### Printing to file ###
+#session.printToFile(
+        #fileName='/home/cerecam/Desktop/GP_BoundaryConditionTests/X0_All.png', 
+        #format=PNG, canvasObjects=(session.viewports['Viewport: 1'], ))
 
 
