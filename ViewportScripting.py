@@ -4,8 +4,8 @@ displaygroups/viewport options.
 Can also print files directly from script
 """
 def ElementSlices(cwd):
-	import numpy as np
-    print('ElementSlices.py is running')
+    import numpy as np
+    print("ElementSlices.py is running")
     def readinp(filename, startline):
         """
         Reads file and converts line to list and places inlist of list
@@ -147,10 +147,11 @@ def ElementSlices(cwd):
         # print('Z' + str(increment),len(z_ele_int))
     return X_dict, Y_dict, Z_dict
 
-#open modulus, create viewport and open odb
+import displayGroupOdbToolset as dgo
+# open modulus, create viewport and open odb
 from abaqus import *
 from abaqusConstants import *
-import displayGroupOdbToolset as dgo
+
 session.Viewport(name='Viewport: 1', origin=(0.0, 0.0), width=268.952117919922,
 height=154.15299987793)
 session.viewports['Viewport: 1'].makeCurrent()
