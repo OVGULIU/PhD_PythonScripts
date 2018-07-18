@@ -45,6 +45,8 @@ session.viewports['Viewport: 1'].setValues(displayedObject=odb)
 
 # Printing to file
 session.printOptions.setValues(vpDecorations=OFF, reduceColors=False)
-session.printToFile(fileName='Test.png', format=PNG, canvasObjects=(session.viewports['Viewport: 1'], ))
+session.printToFile(
+        fileName='/home/cerecam/Desktop/GP_BoundaryConditionTests/Test.png', 
+        format=PNG, canvasObjects=(session.viewports['Viewport: 1'], ))
 
 
