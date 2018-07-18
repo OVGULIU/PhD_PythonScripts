@@ -8,13 +8,13 @@ Can also print files directly from script??
 from abaqus import *
 from abaqusConstants import *
 import displayGroupOdbToolset as dgo
+from caeModules import *
+from driverUtils import executeOnCaeStartup
+executeOnCaeStartup()
 session.Viewport(name='Viewport: 1', origin=(0.0, 0.0), width=268.952117919922,
 height=154.15299987793)
 session.viewports['Viewport: 1'].makeCurrent()
 session.viewports['Viewport: 1'].maximize()
-from caeModules import *
-from driverUtils import executeOnCaeStartup
-executeOnCaeStartup()
 o1 = session.openOdb(name='/home/cerecam/Desktop/GP_BoundaryConditionTests/Flux2_NoUEL.odb')
 session.viewports['Viewport: 1'].setValues(displayedObject=o1)
 ### CREATE OUTPUT ###
