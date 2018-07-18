@@ -34,7 +34,7 @@ session.viewports['Viewport: 1'].odbDisplay.contourOptions.setValues(
         contourStyle=CONTINUOUS)
         
 #Creating Display Object
-
+#leaf = dgo.LeafFromElementSets(elementSets=('I_Cube.Polymer', )) # Leaf object from element sets
 leafTest = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',(1,'2',3,'4:1024')),)) # Leaf object from element labels
 session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leafTest)	# Create displaygourp from leafTest object
 dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
@@ -45,14 +45,24 @@ session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leafTest)	
 dg2 = session.viewports['Viewport: 1'].odbDisplay.displayGroup
 dg2 = session.DisplayGroup(name='TestDispGroup2', objectToCopy=dg2)
 
+# Printing to file options
+session.printOptions.setValues(vpDecorations=OFF, reduceColors=False)
+session.pngOptions.setValues(imageSize=(1432,676))
+
 session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg, ))
 session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances['TestDispGroup'].setValues(
 	lockOptions=OFF)
 # Printing to file
-session.printOptions.setValues(vpDecorations=OFF, reduceColors=False)
-session.pngOptions.setValues(imageSize=(1432,676))
 session.printToFile(
         fileName='/home/cerecam/Desktop/GP_BoundaryConditionTests/Test.png', 
+        format=PNG, canvasObjects=(session.viewports['Viewport: 1'], ))
+        
+session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg2, ))
+session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances['TestDispGroup2'].setValues(
+	lockOptions=OFF)
+# Printing to file
+session.printToFile(
+        fileName='/home/cerecam/Desktop/GP_BoundaryConditionTests/Test2.png', 
         format=PNG, canvasObjects=(session.viewports['Viewport: 1'], ))
 
 
