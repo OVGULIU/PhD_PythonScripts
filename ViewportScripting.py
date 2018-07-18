@@ -80,7 +80,7 @@ session.pngOptions.setValues(imageSize=(1432,676))
 
 ### Display display group in viewport ###
 session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg_X0G, ))
-session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances['X0_Gold'].setValues(
+session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances['X0_gold'].setValues(
 	lockOptions=OFF)
 	
 ### Printing to file ###
@@ -92,7 +92,7 @@ session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
         variableLabel='Co', outputPosition=NODAL, )
 ### Display display group in viewport ###
 session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg_X0, ))
-session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances['X0_All'].setValues(
+session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances['X0_all'].setValues(
 	lockOptions=OFF)
 	
 ### Printing to file ###
