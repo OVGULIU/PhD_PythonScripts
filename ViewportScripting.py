@@ -12,7 +12,7 @@ session.Viewport(name='Viewport: 1', origin=(0.0, 0.0), width=268.952117919922,
 height=154.15299987793)
 session.viewports['Viewport: 1'].makeCurrent()
 session.viewports['Viewport: 1'].maximize()
-leafTest = dgo.LeafFromElementLabels(elementLabels=(('I_Cube',('1:1024')),))
+leafTest = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',(1,'2',3,'4:1024')),))
 from caeModules import *
 from driverUtils import executeOnCaeStartup
 executeOnCaeStartup()
