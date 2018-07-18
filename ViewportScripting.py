@@ -39,6 +39,7 @@ session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances['TestDispGroup
 session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(CONTOURS_ON_DEF, ))
 
 #Switch to Visualization module (??)
+session.mdbData.summary()
 odb = session.odbs['/home/cerecam/Desktop/GP_BoundaryConditionTests/Flux2_NoUEL.odb']
 session.viewports['Viewport: 1'].setValues(displayedObject=odb)
 

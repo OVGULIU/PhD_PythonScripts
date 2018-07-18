@@ -194,6 +194,7 @@ Eletype = 'C3D8R'
 oldOdb = openOdb(cwd + OldOdbName)
 assembly = oldOdb.rootAssembly
 instance = assembly.instances
+I_final_Keys = instance.keys()[0]
 myinstance = assembly.instances[instance.keys()[0]]
 steps = oldOdb.steps[oldOdb.steps.keys()[-1]]
 lastframe = steps.frames[-1]
@@ -204,11 +205,12 @@ FieldOutputs = lastframe.fieldOutputs
 nodeData = []
 nodeDict = {}
 for nodes in myinstance.nodes:
-    intnode = (nodes.label, nodes.coordinates[0], nodes.coordinates[1],
-               nodes.coordinates[2])  # Tuple of node data (node no., node x-coord, y-coord, z-coord)
-    nodeDict[str(nodes.label)] = (nodes.coordinates[0], nodes.coordinates[1], nodes.coordinates[2])
-    nodeData.append(intnode)
-    del intnode
+	if int(nodes.label)<999990:
+		intnode = (nodes.label, nodes.coordinates[0], nodes.coordinates[1],
+				   nodes.coordinates[2])  # Tuple of node data (node no., node x-coord, y-coord, z-coord)
+		nodeDict[str(nodes.label)] = (nodes.coordinates[0], nodes.coordinates[1], nodes.coordinates[2])
+		nodeData.append(intnode)
+		del intnode
 
 # Creates an ODB
 odbpath = cwd + OldOdbNameNoext + '_NoUEL.odb'
