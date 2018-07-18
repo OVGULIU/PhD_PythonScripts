@@ -8,13 +8,13 @@ Can also print files directly from script??
 from abaqus import *
 from abaqusConstants import *
 import displayGroupOdbToolset as dgo
-from caeModules import *
-from driverUtils import executeOnCaeStartup
-executeOnCaeStartup()
 session.Viewport(name='Viewport: 1', origin=(0.0, 0.0), width=268.952117919922,
 height=154.15299987793)
 session.viewports['Viewport: 1'].makeCurrent()
 session.viewports['Viewport: 1'].maximize()
+from caeModules import *
+from driverUtils import executeOnCaeStartup
+executeOnCaeStartup()
 o1 = session.openOdb(name='/home/cerecam/Desktop/GP_BoundaryConditionTests/Flux2_NoUEL.odb')
 session.viewports['Viewport: 1'].setValues(displayedObject=o1)
 ### CREATE OUTPUT ###
@@ -29,20 +29,25 @@ session.viewports['Viewport: 1'].view.setValues(session.views['Right'])	# Set vi
 
 #Creating Display Object
 
-#leafTest = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',(1,'2',3,'4:1024')),)) # Leaf object from element labels
-#session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leafTest)	# Create displaygourp from leafTest object
-#dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
-#dg = session.DisplayGroup(name='TestDispGroup', objectToCopy=dg)
-#session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg, ))
-#session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances['TestDispGroup'].setValues(
-	#lockOptions=OFF)
-session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(CONTOURS_ON_DEF, ))
-#session.viewports['Viewport: 1'].odbDisplay.contourOptions(contourStyle=(CONTINUOUS,))
+leafTest = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',(1,'2',3,'4:1024')),)) # Leaf object from element labels
+session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leafTest)	# Create displaygourp from leafTest object
+dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
+dg = session.DisplayGroup(name='TestDispGroup', objectToCopy=dg)
 
-##Switch to Visualization module (??)
-#session.mdbData.summary()
-#odb = session.odbs['/home/cerecam/Desktop/GP_BoundaryConditionTests/Flux2_NoUEL.odb']
-#session.viewports['Viewport: 1'].setValues(displayedObject=odb)
+leafTest = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',('11400:124024')),)) # Leaf object from element labels
+session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leafTest)	# Create displaygourp from leafTest object
+dg2 = session.viewports['Viewport: 1'].odbDisplay.displayGroup
+dg2 = session.DisplayGroup(name='TestDispGroup', objectToCopy=dg2)
+
+session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg, ))
+session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances['TestDispGroup'].setValues(
+	lockOptions=OFF)
+session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(CONTOURS_ON_DEF, ))
+session.viewports['Viewport: 1'].odbDisplay.commonOptions.setValues(
+        visibleEdges=FREE, deformationScaling=UNIFORM, uniformScaleFactor=2.0)
+session.viewports['Viewport: 1'].odbDisplay.contourOptions.setValues(
+        contourStyle=CONTINUOUS)
+    
 
 # Printing to file
 session.printOptions.setValues(vpDecorations=OFF, reduceColors=False)
