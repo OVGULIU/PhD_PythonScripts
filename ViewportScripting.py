@@ -27,6 +27,12 @@ session.viewports['Viewport: 1'].viewportAnnotationOptions.setValues(triadColor=
 session.viewports['Viewport: 1'].viewportAnnotationOptions.setValues(triadPosition=(5, 5))	# MOve triad to bottom left corner
 session.viewports['Viewport: 1'].view.setValues(session.views['Right'])	# Set view to the RHS view
 
+session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(CONTOURS_ON_DEF, ))
+session.viewports['Viewport: 1'].odbDisplay.commonOptions.setValues(
+        visibleEdges=FREE, deformationScaling=UNIFORM, uniformScaleFactor=2.0)
+session.viewports['Viewport: 1'].odbDisplay.contourOptions.setValues(
+        contourStyle=CONTINUOUS)
+        
 #Creating Display Object
 
 leafTest = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',(1,'2',3,'4:1024')),)) # Leaf object from element labels
@@ -37,18 +43,11 @@ dg = session.DisplayGroup(name='TestDispGroup', objectToCopy=dg)
 leafTest = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',('11400:12424')),)) # Leaf object from element labels
 session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leafTest)	# Create displaygourp from leafTest object
 dg2 = session.viewports['Viewport: 1'].odbDisplay.displayGroup
-dg2 = session.DisplayGroup(name='TestDispGroup', objectToCopy=dg2)
+dg2 = session.DisplayGroup(name='TestDispGroup2', objectToCopy=dg2)
 
 session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg, ))
 session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances['TestDispGroup'].setValues(
 	lockOptions=OFF)
-session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(CONTOURS_ON_DEF, ))
-session.viewports['Viewport: 1'].odbDisplay.commonOptions.setValues(
-        visibleEdges=FREE, deformationScaling=UNIFORM, uniformScaleFactor=2.0)
-session.viewports['Viewport: 1'].odbDisplay.contourOptions.setValues(
-        contourStyle=CONTINUOUS)
-    
-
 # Printing to file
 session.printOptions.setValues(vpDecorations=OFF, reduceColors=False)
 session.pngOptions.setValues(imageSize=(1432,676))
