@@ -206,14 +206,16 @@ session.viewports['Viewport: 1'].viewportAnnotationOptions.setValues(triadColor=
         
 ### Creating Display Objects ###
 
-for DictKey in Keys():
+for DictKey in Keys:
 	print(DictKey)
 	elements = tuple([str(y) for y in X[DictKey]])
 	leaf = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',elements),))
 	session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leaf)	# Create displaygourp from leafTest object
 	dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
 	dg = session.DisplayGroup(name=DictKey , objectToCopy=dg)
-#execfile('/home/cerecam/Desktop/GIT/PhD_PythonScripts/ImageCreationandPrint.py')
+execfile('/home/cerecam/Desktop/GIT/PhD_PythonScripts/ImageCreationandPrint.py')
+
+
 ### Various primary variable selection to display current primary = default which is U ###
 #session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
         #variableLabel='Co', outputPosition=NODAL, )
