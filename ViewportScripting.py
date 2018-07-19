@@ -179,8 +179,7 @@ def GoldPrint(DispGroupName):
 		UNDEFORMED, CONTOURS_ON_DEF, ))
 	session.viewports['Viewport: 1'].odbDisplay.superimposeOptions.setValues(
 		renderStyle=WIREFRAME, visibleEdges=FREE, edgeColorWireHide='#000000', 
-        edgeLineThickness=MEDIUM, colorCodeOverride=OFF)    
-        deformedOffsetMode=NONUNIFORM)
+        edgeLineThickness=MEDIUM, colorCodeOverride=OFF)
 	if DispGroupName[0].upper()=='X':
 		session.viewports['Viewport: 1'].view.setValues(session.views['Right'])	# Set view to the RHS view
 		session.viewports['Viewport: 1'].odbDisplay.superimposeOptions.setValues(
@@ -200,7 +199,7 @@ import displayGroupOdbToolset as dgo
 from abaqus import *
 from abaqusConstants import *
 
-session.Viewport(name='Viewport: 1', origin=(0.0, 0.0), width=305.0,
+session.Viewport(name='Viewport: 1', origin=(0.0, 0.0), width=290.0,
 height=154.15299987793)
 session.viewports['Viewport: 1'].makeCurrent()
 #session.viewports['Viewport: 1'].maximize()
@@ -248,6 +247,7 @@ session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(CONTOUR
 ### Creating Display Objects ###
 
 for DictKey in X.keys()[0:3]:
+	print(DictKey)
 	elements = tuple([str(y) for y in X[DictKey]])
 	leaf = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',elements),))
 	session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leaf)	# Create displaygourp from leafTest object
