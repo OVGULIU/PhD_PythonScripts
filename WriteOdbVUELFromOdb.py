@@ -234,6 +234,7 @@ part1.addNodes(nodeData=tuple(nodeData), nodeSetName='All_NODES')  # add nodes t
 
 # Element connectivity data read from .inp file (cannot use old odb as connectivity of user elements (RNODE3) not given)
 EleList = []
+EleListG = []
 Ele_Con_Dict = {}
 for num, Fname in enumerate(ElementFiles):
     elementData1 = []
@@ -246,11 +247,14 @@ for num, Fname in enumerate(ElementFiles):
             elementData1.append(tuple(newarray))
             Ele_Con_Dict[newarray[0]] = [newarray[1:], num]
             EleList.append(newarray[0])
+            if num==1:
+				EleListG.append(newarray[0])
             del newarray
     elementData1 = tuple(elementData1)
     Efile.close()
     part1.addElements(elementData=elementData1, type=Eletype, elementSetName=materialNames[num])  # add elements to part
 EleList = sorted(EleList)  # List of elements in ascending order
+EleListG = sorted(EleListG)
 
 for num, mat in enumerate(materialNames):
     # Creates materials
@@ -388,31 +392,31 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
 
             # ElecDisp = np.array(e_zero * e_r * ElecField)
             Qf = F * (Z * Conc_gp + csat)
+            if mat==1:
+				E = 0.5 * (np.transpose(H[0]) + H[0])  # Strain calculation at Gauss point
+				#            if Ele_Label == 11150:
+				#                print >> sys.__stdout__, str(E)
 
-            E = 0.5 * (np.transpose(H[0]) + H[0])  # Strain calculation at Gauss point
-            #            if Ele_Label == 11150:
-            #                print >> sys.__stdout__, str(E)
+				S_mech = 2.0 * Gmod * E + lam * np.trace(E) * np.eye(3)  # Mecahnical stress calculation at Gauss point
+				#S_chem = -((k * Qf) / Z) * np.eye(3)  # Chemical Stress calculation at Gauss point
 
-            S_mech = 2.0 * Gmod * E + lam * np.trace(E) * np.eye(3)  # Mecahnical stress calculation at Gauss point
-            S_chem = -((k * Qf) / Z) * np.eye(3)  # Chemical Stress calculation at Gauss point
-
-            # S_elec = (1.0 / (e_zero * e_r)) * (
-            #         (np.outer(ElecDisp, ElecDisp)) - 0.5 * (np.dot(ElecDisp, ElecDisp)) * np.eye(3))
-            #            S_elec = np.array([[0.0,0.0,0.0],[0.0,0.0,0.0],[0.0,0.0,0.0]])
-            # S_total = S_mech + S_chem + S_elec
-            S_total = S_mech + S_chem
-            Ee.append(tuple(E.flatten()[[0, 4, 8, 1, 2,
-                                         5]]))  # create vector format of strain data ('E11','E22','E33','E12','E13','E23')
-            Ss_mech.append(tuple(S_mech.flatten()[[0, 4, 8, 1, 2,
-                                                   5]]))  # create vector format of strain data ('S11','S22','S33','S12','S13','S23')
-            Ss_chem.append(tuple(S_chem.flatten()[[0, 4, 8, 1, 2, 5]]))
-            # Ss_elec.append(tuple(S_elec.flatten()[[0, 4, 8, 1, 2, 5]]))
-            Ss_tot.append(tuple(S_total.flatten()[[0, 4, 8, 1, 2, 5]]))
+				# S_elec = (1.0 / (e_zero * e_r)) * (
+				#         (np.outer(ElecDisp, ElecDisp)) - 0.5 * (np.dot(ElecDisp, ElecDisp)) * np.eye(3))
+				#            S_elec = np.array([[0.0,0.0,0.0],[0.0,0.0,0.0],[0.0,0.0,0.0]])
+				# S_total = S_mech + S_chem + S_elec
+				S_total = S_mech 
+				Ee.append(tuple(E.flatten()[[0, 4, 8, 1, 2,
+											 5]]))  # create vector format of strain data ('E11','E22','E33','E12','E13','E23')
+				Ss_mech.append(tuple(S_mech.flatten()[[0, 4, 8, 1, 2,
+													   5]]))  # create vector format of strain data ('S11','S22','S33','S12','S13','S23')
+				#Ss_chem.append(tuple(S_chem.flatten()[[0, 4, 8, 1, 2, 5]]))
+				# Ss_elec.append(tuple(S_elec.flatten()[[0, 4, 8, 1, 2, 5]]))
+				Ss_tot.append(tuple(S_total.flatten()[[0, 4, 8, 1, 2, 5]]))
             # Store data for frame in question
         Efinal[round(MultiFrame.frameValue, 1)] = tuple(Ee)
         #        print >> sys.__stdout__, str(Efinal)
         S_mechfinal[round(MultiFrame.frameValue, 1)] = tuple(Ss_mech)
-        S_chemfinal[round(MultiFrame.frameValue, 1)] = tuple(Ss_chem)
+        #S_chemfinal[round(MultiFrame.frameValue, 1)] = tuple(Ss_chem)
         # S_elecfinal[round(MultiFrame.frameValue, 3)] = tuple(Ss_elec)
         S_totfinal[round(MultiFrame.frameValue, 1)] = tuple(Ss_tot)
 
@@ -457,7 +461,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         # Add strain field
         newField3.addData(position=INTEGRATION_POINT,
                           instance=instance1,
-                          labels=tuple(EleList),
+                          labels=tuple(EleListG),
                           data=Efinal[round(FrameTime, 3)])
 
         # Add fieldoutput object to new odb
@@ -470,7 +474,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         # Add Total stress field
         newField4.addData(position=INTEGRATION_POINT,
                           instance=instance1,
-                          labels=tuple(EleList),
+                          labels=tuple(EleListG),
                           data=S_totfinal[round(FrameTime, 3)])
 
         # Add data to fieldoutput object
@@ -483,21 +487,21 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         # Add mechanical stress field
         newField5.addData(position=INTEGRATION_POINT,
                           instance=instance1,
-                          labels=tuple(EleList),
+                          labels=tuple(EleListG),
                           data=S_mechfinal[round(FrameTime, 3)])
 
-        # Add data to fieldoutput object
-        newField6 = frame.FieldOutput(name='S_c',
-                                      description='Chemical stress at gauss points',
-                                      type=TENSOR_3D_FULL,
-                                      componentLabels=('Sc11', 'Sc22', 'Sc33', 'Sc12', 'Sc13', 'Sc23'),
-                                      validInvariants=(MISES, MAX_PRINCIPAL, MID_PRINCIPAL,
-                                                       MIN_PRINCIPAL))  # Creation of new field otput object called 'STRESS'
-        # Add chemical stress field
-        newField6.addData(position=INTEGRATION_POINT,
-                          instance=instance1,
-                          labels=tuple(EleList),
-                          data=S_chemfinal[round(FrameTime, 3)])
+        ## Add data to fieldoutput object
+        #newField6 = frame.FieldOutput(name='S_c',
+                                      #description='Chemical stress at gauss points',
+                                      #type=TENSOR_3D_FULL,
+                                      #componentLabels=('Sc11', 'Sc22', 'Sc33', 'Sc12', 'Sc13', 'Sc23'),
+                                      #validInvariants=(MISES, MAX_PRINCIPAL, MID_PRINCIPAL,
+                                                       #MIN_PRINCIPAL))  # Creation of new field otput object called 'STRESS'
+        ## Add chemical stress field
+        #newField6.addData(position=INTEGRATION_POINT,
+                          #instance=instance1,
+                          #labels=tuple(EleList),
+                          #data=S_chemfinal[round(FrameTime, 3)])
 
         # # Add data to fieldoutput object
         # newField7 = frame.FieldOutput(name='S_e',
