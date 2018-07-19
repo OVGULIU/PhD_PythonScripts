@@ -66,6 +66,7 @@ def ElementSlices(cwd):
     nodelist = readinp(cwd + nodefile, 1)
     #elelist = readinp(cwd + elementfile, 0)
     gold_elelist = readinp(cwd  + 'GoldElements.inp',0)
+    Poly_elelist = readinp(cwd  + 'UserElements.inp',0)
 
     x0_val = min(nodelist, key=lambda z: z[-3])[-3]
     x1_val = max(nodelist, key=lambda z: z[-3])[-3]
@@ -139,9 +140,28 @@ def ElementSlices(cwd):
                     y_ele_int.append(int(element[0]))
                 if zmax >= z_cent >= zmin:
                     z_ele_int.append(int(element[0]))
-        X_dict['X' + str(increment)] = x_ele_int
-        Y_dict['Y' + str(increment)] = y_ele_int
-        Z_dict['Z' + str(increment)] = z_ele_int
+        X_dict['X' + str(increment) + '_Gold'] = x_ele_int
+        Y_dict['Y' + str(increment) + '_Gold'] = y_ele_int
+        Z_dict['Z' + str(increment) + '_Gold'] = z_ele_int
+        x_ele_int = []
+        y_ele_int = []
+        z_ele_int = []
+        for element in Poly_elelist:
+            nodes_coord = [nodelist[int(_)-1][1:] for _ in element[1:]]
+            x_cent, y_cent, z_cent = [_/len(element[1:]) for _ in (np.sum(np.array(nodes_coord), axis=0))]
+            centroid = [x_cent, y_cent, z_cent]
+            if all([x > centroid[i] for i, x in enumerate([xmin, ymin, zmin])]) and all([x < centroid[i] for i, x in enumerate([xmax, ymax, zmax])]):
+                pass
+            else:
+                if xmax >= x_cent >= xmin:
+                    x_ele_int.append(int(element[0]))
+                if ymax >= y_cent >= ymin:
+                    y_ele_int.append(int(element[0]))
+                if zmax >= z_cent >= zmin:
+                    z_ele_int.append(int(element[0]))
+        X_dict['X' + str(increment) + '_Poly'] = x_ele_int
+        Y_dict['Y' + str(increment) + '_Poly'] = y_ele_int
+        Z_dict['Z' + str(increment) + '_Poly'] = z_ele_int
         # print('X' + str(increment),len(x_ele_int))
         # print('Y' + str(increment),len(y_ele_int))
         # print('Z' + str(increment),len(z_ele_int))
@@ -165,6 +185,11 @@ X,Y,Z = ElementSlices(InputDir)
 executeOnCaeStartup()
 o1 = session.openOdb(name='/home/cerecam/Desktop/GP_BoundaryConditionTests/Flux2_NoUEL.odb')
 session.viewports['Viewport: 1'].setValues(displayedObject=o1)
+
+### Printing to file options ###
+session.printOptions.setValues(vpDecorations=OFF, reduceColors=False)
+session.pngOptions.setValues(imageSize=(1432,676))
+
 ### CREATE OUTPUT ###
 
 ### Various primary variable selection to display current primary = default which is U ###
@@ -205,31 +230,19 @@ for DictKey in X.keys():
 	leaf = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',elements),))
 	session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leaf)	# Create displaygourp from leafTest object
 	dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
-	dg = session.DisplayGroup(name=DictKey + '_poly', objectToCopy=dg)
-##leaf = dgo.LeafFromElementSets(elementSets=('I_Cube.Polymer', )) # Leaf object from element sets
-#leaf_X0P = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',('1:625+1')),)) # Leaf object from element labels
-#leaf_X0G = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',('19017:19415+1')),)) # Leaf object from element labels
-
-#session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leaf_X0P)	# Create displaygourp from leafTest object
-#dg_X0P = session.viewports['Viewport: 1'].odbDisplay.displayGroup
-#dg_X0P = session.DisplayGroup(name='X0_poly', objectToCopy=dg_X0P)
-
-#session.viewports['Viewport: 1'].odbDisplay.displayGroup.add(leaf=leaf_X0G)	# Create displaygourp from leafTest object
-#dg_X0 = session.viewports['Viewport: 1'].odbDisplay.displayGroup
-#dg_X0 = session.DisplayGroup(name='X0_all', objectToCopy=dg_X0)
-
-#session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leaf_X0G)	# Create displaygourp from leafTest object
-#dg_X0G = session.viewports['Viewport: 1'].odbDisplay.displayGroup
-#dg_X0G = session.DisplayGroup(name='X0_gold', objectToCopy=dg_X0G)
-
-#leafTest = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',('11400:12424')),)) # Leaf object from element labels
-#session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leafTest)	# Create displaygourp from leafTest object
-#dg2 = session.viewports['Viewport: 1'].odbDisplay.displayGroup
-#dg2 = session.DisplayGroup(name='TestDispGroup2', objectToCopy=dg2)
-
-### Printing to file options ###
-session.printOptions.setValues(vpDecorations=OFF, reduceColors=False)
-session.pngOptions.setValues(imageSize=(1432,676))
+	dg = session.DisplayGroup(name=DictKey , objectToCopy=dg)
+for DictKey in Y.keys():
+	elements = tuple([str(y) for y in X[DictKey]])
+	leaf = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',elements),))
+	session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leaf)	# Create displaygourp from leafTest object
+	dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
+	dg = session.DisplayGroup(name=DictKey , objectToCopy=dg)
+for DictKey in Z.keys():
+	elements = tuple([str(y) for y in X[DictKey]])
+	leaf = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',elements),))
+	session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leaf)	# Create displaygourp from leafTest object
+	dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
+	dg = session.DisplayGroup(name=DictKey , objectToCopy=dg)
 
 #### Display display group in viewport ###
 #session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg_X0G, ))
