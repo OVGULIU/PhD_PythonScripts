@@ -392,7 +392,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
 
             # ElecDisp = np.array(e_zero * e_r * ElecField)
             Qf = F * (Z * Conc_gp + csat)
-            if mat==1:
+            if int(mat)==1:
 				E = 0.5 * (np.transpose(H[0]) + H[0])  # Strain calculation at Gauss point
 				#            if Ele_Label == 11150:
 				#                print >> sys.__stdout__, str(E)
