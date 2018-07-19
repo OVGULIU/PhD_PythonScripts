@@ -140,9 +140,11 @@ def ElementSlices(cwd):
                     y_ele_int.append(int(element[0]))
                 if zmax >= z_cent >= zmin:
                     z_ele_int.append(int(element[0]))
-        X_dict['X' + str(increment) + '_Gold'] = x_ele_int
-        Y_dict['Y' + str(increment) + '_Gold'] = y_ele_int
-        Z_dict['Z' + str(increment) + '_Gold'] = z_ele_int
+		if len(str(increment))<2:
+			IncrementName = '0' + str(increment)
+        X_dict['X' + IncrementName + '_Gold'] = x_ele_int
+        Y_dict['Y' + IncrementName + '_Gold'] = y_ele_int
+        Z_dict['Z' + IncrementName + '_Gold'] = z_ele_int
         x_ele_int = []
         y_ele_int = []
         z_ele_int = []
@@ -159,9 +161,11 @@ def ElementSlices(cwd):
                     y_ele_int.append(int(element[0]))
                 if zmax >= z_cent >= zmin:
                     z_ele_int.append(int(element[0]))
-        X_dict['X' + str(increment) + '_Poly'] = x_ele_int
-        Y_dict['Y' + str(increment) + '_Poly'] = y_ele_int
-        Z_dict['Z' + str(increment) + '_Poly'] = z_ele_int
+		if len(str(increment))<2:
+			IncrementName = '0' + str(increment)
+        X_dict['X' + IncrementName + '_Poly'] = x_ele_int
+        Y_dict['Y' + IncrementName + '_Poly'] = y_ele_int
+        Z_dict['Z' + IncrementName + '_Poly'] = z_ele_int
         # print('X' + str(increment),len(x_ele_int))
         # print('Y' + str(increment),len(y_ele_int))
         # print('Z' + str(increment),len(z_ele_int))
