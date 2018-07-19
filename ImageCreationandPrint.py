@@ -7,6 +7,7 @@ from abaqusConstants import *
 import displayGroupOdbToolset as dgo
 from caeModules import *
 from driverUtils import executeOnCaeStartup
+import csv
 
 def GoldPrint(DispGroupName):	
 	session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
@@ -57,9 +58,13 @@ session.viewports['Viewport: 1'].viewportAnnotationOptions.setValues(triadColor=
 
 session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(CONTOURS_ON_DEF, ))
         
-### Creating Display Objects ###
-
-for DictKey in X.keys()[0:3]:
+InputDir  = '/home/cerecam/Desktop/GP_BoundaryConditionTests/InputFiles'
+csvFile = open(InputDir + '/DictionaryKeys.csv', 'r')
+Keys = []
+reader = csv.reader(csvFile)
+for row in reader:
+    Keys.extend(row)
+for DictKey in Keys()[0:3]:
 	print(DictKey)
 	if DictKey[-4:].lower() == 'gold':
 		GoldPrint(DictKey)

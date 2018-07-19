@@ -168,6 +168,7 @@ def ElementSlices(cwd):
     return X_dict, Y_dict, Z_dict
 
 # open modulus, create viewport and open odb
+import numpy as np
 from abaqus import *
 from abaqusConstants import *
 import displayGroupOdbToolset as dgo
@@ -177,11 +178,12 @@ from driverUtils import executeOnCaeStartup
 session.Viewport(name='Viewport: 1', origin=(0.0, 0.0), width=290.0,
 height=154.15299987793)
 session.viewports['Viewport: 1'].makeCurrent()
-#session.viewports['Viewport: 1'].maximize()
+session.viewports['Viewport: 1'].maximize()
 
 #from BoundaryElementDetect import ElementSlices
 InputDir  = '/home/cerecam/Desktop/GP_BoundaryConditionTests/InputFiles'
 X,Y,Z = ElementSlices(InputDir)
+Keys = X.keys() + Y.keys() + Z.keys()
 executeOnCaeStartup()
 o1 = session.openOdb(name='/home/cerecam/Desktop/GP_BoundaryConditionTests/Flux2_NoUEL.odb')
 session.viewports['Viewport: 1'].setValues(displayedObject=o1)
@@ -189,7 +191,7 @@ session.viewports['Viewport: 1'].setValues(displayedObject=o1)
 ### Printing to file options ###
 session.printOptions.setValues(vpDecorations=OFF, reduceColors=False)
 session.pngOptions.setValues(imageSize=(1150,676))
-np.savetxt(InputDir+ '/DictionaryKeys.csv',np.array(X.keys() + Y.keys() + Z.keys()), delimiter=",",fmt='%s')
+np.savetxt(InputDir+ '/DictionaryKeys.csv',np.array(Keys), delimiter=",",fmt='%s')
 ### CREATE OUTPUT ###
 
 session.viewports['Viewport: 1'].view.setProjection(projection=PARALLEL)
@@ -200,7 +202,7 @@ session.viewports['Viewport: 1'].viewportAnnotationOptions.setValues(triadColor=
         
 ### Creating Display Objects ###
 
-for DictKey in X.keys()[0:3]:
+for DictKey in Keys():
 	print(DictKey)
 	elements = tuple([str(y) for y in X[DictKey]])
 	leaf = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',elements),))
