@@ -167,7 +167,7 @@ def ElementSlices(cwd):
         # print('Z' + str(increment),len(z_ele_int))
     return X_dict, Y_dict, Z_dict
 
-def PolyPrint(DispGroupName):	
+def GoldPrint(DispGroupName):	
 	session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
 		variableLabel='S', outputPosition=INTEGRATION_POINT, refinement=(
 		INVARIANT, 'Mises'), )
@@ -200,10 +200,10 @@ import displayGroupOdbToolset as dgo
 from abaqus import *
 from abaqusConstants import *
 
-session.Viewport(name='Viewport: 1', origin=(0.0, 0.0), width=268.952117919922,
+session.Viewport(name='Viewport: 1', origin=(0.0, 0.0), width=305.0,
 height=154.15299987793)
 session.viewports['Viewport: 1'].makeCurrent()
-session.viewports['Viewport: 1'].maximize()
+#session.viewports['Viewport: 1'].maximize()
 from caeModules import *
 from driverUtils import executeOnCaeStartup
 
@@ -216,7 +216,7 @@ session.viewports['Viewport: 1'].setValues(displayedObject=o1)
 
 ### Printing to file options ###
 session.printOptions.setValues(vpDecorations=OFF, reduceColors=False)
-session.pngOptions.setValues(imageSize=(1432,676))
+session.pngOptions.setValues(imageSize=(1452,676))
 
 ### CREATE OUTPUT ###
 
@@ -247,38 +247,35 @@ session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(CONTOUR
         
 ### Creating Display Objects ###
 
-for DictKey in X.keys():
+for DictKey in X.keys()[0:3]:
 	elements = tuple([str(y) for y in X[DictKey]])
 	leaf = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',elements),))
 	session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leaf)	# Create displaygourp from leafTest object
 	dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
 	dg = session.DisplayGroup(name=DictKey , objectToCopy=dg)
 	if DictKey[-4:].lower() == 'gold':
-		session.viewports['Viewport: 1'].view.setValues(session.views['Right'])	# Set view to the RHS view
-		ession.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
-			variableLabel='S', outputPosition=INTEGRATION_POINT, refinement=(
-			INVARIANT, 'Mises'), )
-		session.viewports['Viewport: 1'].odbDisplay.commonOptions.setValues(
-		        renderStyle=SHADED, visibleEdges=FREE, deformationScaling=UNIFORM, uniformScaleFactor=3.5)
-        session.viewports['Viewport: 1'].odbDisplay.contourOptions.setValues(
-	        contourStyle=CONTINUOUS)
-		session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(
-			UNDEFORMED, CONTOURS_ON_DEF, ))
-		session.viewports['Viewport: 1'].odbDisplay.superimposeOptions.setValues(
-			renderStyle=WIREFRAME, visibleEdges=FREE, edgeColorWireHide='#000000', 
-	        edgeLineThickness=MEDIUM, colorCodeOverride=OFF)
-for DictKey in Y.keys():
-	elements = tuple([str(y) for y in X[DictKey]])
-	leaf = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',elements),))
-	session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leaf)	# Create displaygourp from leafTest object
-	dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
-	dg = session.DisplayGroup(name=DictKey , objectToCopy=dg)
-for DictKey in Z.keys():
-	elements = tuple([str(y) for y in X[DictKey]])
-	leaf = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',elements),))
-	session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leaf)	# Create displaygourp from leafTest object
-	dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
-	dg = session.DisplayGroup(name=DictKey , objectToCopy=dg)
+		GoldPrint(DictKey)
+		#### Display display group in viewport ###
+		session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg, ))
+		session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances[DictKey].setValues(
+			lockOptions=OFF)
+			
+		### Printing to file ###
+		session.printToFile(
+		        fileName='/home/cerecam/Desktop/GP_BoundaryConditionTests/' + DictKey + '.png', 
+		        format=PNG, canvasObjects=(session.viewports['Viewport: 1'], ))
+#for DictKey in Y.keys():
+	#elements = tuple([str(y) for y in X[DictKey]])
+	#leaf = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',elements),))
+	#session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leaf)	# Create displaygourp from leafTest object
+	#dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
+	#dg = session.DisplayGroup(name=DictKey , objectToCopy=dg)
+#for DictKey in Z.keys():
+	#elements = tuple([str(y) for y in X[DictKey]])
+	#leaf = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',elements),))
+	#session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leaf)	# Create displaygourp from leafTest object
+	#dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
+	#dg = session.DisplayGroup(name=DictKey , objectToCopy=dg)
 
 #### Display display group in viewport ###
 #session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg_X0G, ))
