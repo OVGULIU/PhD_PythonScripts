@@ -194,17 +194,17 @@ def GoldPrint(DispGroupName):
 		deformedOffsetMode=NONUNIFORM, nonuniformOffset=(0.0,0.0,-2.0))
 		
 	return
-import displayGroupOdbToolset as dgo
 # open modulus, create viewport and open odb
 from abaqus import *
 from abaqusConstants import *
+import displayGroupOdbToolset as dgo
+from caeModules import *
+from driverUtils import executeOnCaeStartup
 
 session.Viewport(name='Viewport: 1', origin=(0.0, 0.0), width=290.0,
 height=154.15299987793)
 session.viewports['Viewport: 1'].makeCurrent()
 #session.viewports['Viewport: 1'].maximize()
-from caeModules import *
-from driverUtils import executeOnCaeStartup
 
 #from BoundaryElementDetect import ElementSlices
 InputDir  = '/home/cerecam/Desktop/GP_BoundaryConditionTests/InputFiles'
@@ -216,9 +216,10 @@ session.viewports['Viewport: 1'].setValues(displayedObject=o1)
 ### Printing to file options ###
 session.printOptions.setValues(vpDecorations=OFF, reduceColors=False)
 session.pngOptions.setValues(imageSize=(1452,676))
-
+np.savetxt(InputDir+ '/DictionaryKeys.csv',np.array(X.keys() + Y.keys() + Z.keys()), delimiter=",",fmt='%s')
 ### CREATE OUTPUT ###
 
+#execfile('/home/cerecam/Desktop/GIT/PhD_PythonScripts/ImageCreationandPrint.py')
 ### Various primary variable selection to display current primary = default which is U ###
 #session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
         #variableLabel='Co', outputPosition=NODAL, )
@@ -236,34 +237,7 @@ session.pngOptions.setValues(imageSize=(1452,676))
 	#renderStyle=FILLED, visibleEdges=FREE)
 
 ## Viewport visualization preferences
-session.viewports['Viewport: 1'].view.setProjection(projection=PARALLEL)
-session.viewports['Viewport: 1'].viewportAnnotationOptions.setValues(title=OFF,
-	state=OFF, annotations=OFF, compass=OFF)	# Remove unnecessary viewport annotations
-session.viewports['Viewport: 1'].viewportAnnotationOptions.setValues(triadColor='#000000', 
-	triadPosition=(5, 5), legendTextColor='#000000', legendBox=OFF)	#Change triad and legend colours to black, MOve triad to bottom left corner
 
-session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(CONTOURS_ON_DEF, ))
-        
-### Creating Display Objects ###
-
-for DictKey in X.keys()[0:3]:
-	print(DictKey)
-	elements = tuple([str(y) for y in X[DictKey]])
-	leaf = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',elements),))
-	session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leaf)	# Create displaygourp from leafTest object
-	dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
-	dg = session.DisplayGroup(name=DictKey , objectToCopy=dg)
-	if DictKey[-4:].lower() == 'gold':
-		GoldPrint(DictKey)
-		#### Display display group in viewport ###
-		session.viewports['Viewport: 1'].odbDisplay.setValues(visibleDisplayGroups=(dg, ))
-		session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances[DictKey].setValues(
-			lockOptions=OFF)
-			
-		### Printing to file ###
-		session.printToFile(
-		        fileName='/home/cerecam/Desktop/GP_BoundaryConditionTests/' + DictKey + '.png', 
-		        format=PNG, canvasObjects=(session.viewports['Viewport: 1'], ))
 #for DictKey in Y.keys():
 	#elements = tuple([str(y) for y in X[DictKey]])
 	#leaf = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',elements),))
