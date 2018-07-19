@@ -167,33 +167,6 @@ def ElementSlices(cwd):
         # print('Z' + str(increment),len(z_ele_int))
     return X_dict, Y_dict, Z_dict
 
-def GoldPrint(DispGroupName):	
-	session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
-		variableLabel='S', outputPosition=INTEGRATION_POINT, refinement=(
-		INVARIANT, 'Mises'), )
-	session.viewports['Viewport: 1'].odbDisplay.commonOptions.setValues(
-	        renderStyle=SHADED, visibleEdges=FREE, deformationScaling=UNIFORM, uniformScaleFactor=3.5)
-	session.viewports['Viewport: 1'].odbDisplay.contourOptions.setValues(
-        contourStyle=CONTINUOUS)
-	session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(
-		UNDEFORMED, CONTOURS_ON_DEF, ))
-	session.viewports['Viewport: 1'].odbDisplay.superimposeOptions.setValues(
-		renderStyle=WIREFRAME, visibleEdges=FREE, edgeColorWireHide='#000000', 
-        edgeLineThickness=MEDIUM, colorCodeOverride=OFF)
-	if DispGroupName[0].upper()=='X':
-		session.viewports['Viewport: 1'].view.setValues(session.views['Right'])	# Set view to the RHS view
-		session.viewports['Viewport: 1'].odbDisplay.superimposeOptions.setValues(
-		deformedOffsetMode=NONUNIFORM, nonuniformOffset=(-2.0,0.0,0.0))
-	elif DispGroupName[0].upper()=='Y':
-		session.viewports['Viewport: 1'].view.setValues(session.views['Top'])	# Set view to the Top view
-		session.viewports['Viewport: 1'].odbDisplay.superimposeOptions.setValues(
-		deformedOffsetMode=NONUNIFORM, nonuniformOffset=(0.0,-2.0,0.0))
-	elif DispGroupName[0].upper()=='Z':
-		session.viewports['Viewport: 1'].view.setValues(session.views['Front'])	# Set view to the Front view
-		session.viewports['Viewport: 1'].odbDisplay.superimposeOptions.setValues(
-		deformedOffsetMode=NONUNIFORM, nonuniformOffset=(0.0,0.0,-2.0))
-		
-	return
 # open modulus, create viewport and open odb
 from abaqus import *
 from abaqusConstants import *
@@ -215,10 +188,25 @@ session.viewports['Viewport: 1'].setValues(displayedObject=o1)
 
 ### Printing to file options ###
 session.printOptions.setValues(vpDecorations=OFF, reduceColors=False)
-session.pngOptions.setValues(imageSize=(1452,676))
+session.pngOptions.setValues(imageSize=(1150,676))
 np.savetxt(InputDir+ '/DictionaryKeys.csv',np.array(X.keys() + Y.keys() + Z.keys()), delimiter=",",fmt='%s')
 ### CREATE OUTPUT ###
 
+session.viewports['Viewport: 1'].view.setProjection(projection=PARALLEL)
+session.viewports['Viewport: 1'].viewportAnnotationOptions.setValues(title=OFF,
+	state=OFF, annotations=OFF, compass=OFF)	# Remove unnecessary viewport annotations
+session.viewports['Viewport: 1'].viewportAnnotationOptions.setValues(triadColor='#000000', 
+	triadPosition=(5, 5), legendTextColor='#000000', legendBox=OFF)	#Change triad and legend colours to black, MOve triad to bottom left corner
+        
+### Creating Display Objects ###
+
+for DictKey in X.keys()[0:3]:
+	print(DictKey)
+	elements = tuple([str(y) for y in X[DictKey]])
+	leaf = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',elements),))
+	session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leaf)	# Create displaygourp from leafTest object
+	dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
+	dg = session.DisplayGroup(name=DictKey , objectToCopy=dg)
 #execfile('/home/cerecam/Desktop/GIT/PhD_PythonScripts/ImageCreationandPrint.py')
 ### Various primary variable selection to display current primary = default which is U ###
 #session.viewports['Viewport: 1'].odbDisplay.setPrimaryVariable(
