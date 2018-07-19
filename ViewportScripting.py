@@ -171,6 +171,11 @@ def ElementSlices(cwd):
         # print('Z' + str(increment),len(z_ele_int))
     return X_dict, Y_dict, Z_dict
 
+def merge_two_dicts(x, y):
+    z = x.copy()   # start with x's keys and values
+    z.update(y)    # modifies z with y's keys and values & returns None
+    return z
+    
 # open modulus, create viewport and open odb
 import numpy as np
 from abaqus import *
@@ -188,6 +193,8 @@ session.viewports['Viewport: 1'].maximize()
 InputDir  = '/home/cerecam/Desktop/GP_BoundaryConditionTests/InputFiles'
 X,Y,Z = ElementSlices(InputDir)
 Keys = X.keys() + Y.keys() + Z.keys()
+HalfDict = merge_two_dicts(X,Y)
+FullDict = merge_two_dicts(HalfDict, Z)
 executeOnCaeStartup()
 o1 = session.openOdb(name='/home/cerecam/Desktop/GP_BoundaryConditionTests/Flux2_NoUEL.odb')
 session.viewports['Viewport: 1'].setValues(displayedObject=o1)
@@ -208,7 +215,7 @@ session.viewports['Viewport: 1'].viewportAnnotationOptions.setValues(triadColor=
 
 for DictKey in Keys:
 	print(DictKey)
-	elements = tuple([str(y) for y in X[DictKey]])
+	elements = tuple([str(y) for y in FullDict[DictKey]])
 	leaf = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',elements),))
 	session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leaf)	# Create displaygourp from leafTest object
 	dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
