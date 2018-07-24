@@ -24,34 +24,6 @@ def InteriorElements(cwd):
         return output_list
 
 
-    def writeinp(lst, output_name, set_name, eset=0, nset=0, create_csv=0):
-        """
-        Writes .inp file given list of nodes or elements
-        :param lst: list of elements of nodes
-        :param output_name: file to write to
-        :param set_name: name of el/nset
-        :param eset: state if elset (default = 0)
-        :param nset: state if nset (default = 0)
-        :param create_csv: 1 = create a csv fiel from lst otherwise not
-        only eset or nset, if both ==1 returns error
-        :return: None
-        """
-        if ((eset == 1) and (nset == 1)) or not((eset == 1) or (nset == 1)):
-            print("Error list given as both nset or elset, only one to be given at a time")
-        elif int(eset) == 1:
-            firstline = "*elset, elset={}, instance=RVE \n".format(set_name)
-        elif int(nset) == 1:
-            firstline = "*nset, nset={}, instance=RVE \n".format(set_name)
-        inpfile_write = open(output_name+'.inp', 'w')
-        inpfile_write.write(firstline)
-        for i in range(0, len(lst), 10):
-            inpfile_write.write(''.join(str(lst[i:i + 10])).strip('[').strip(']') + '\n')
-        if create_csv:
-            arry = np.array([len(lst)] + lst)
-            np.savetxt(output_name+'.csv', arry, delimiter=",", fmt='%i')
-        inpfile_write.close()
-
-
     nodefile = 'Nodes.inp'
     if cwd[-1] != '/':
         cwd = cwd + '/'
@@ -70,7 +42,7 @@ def InteriorElements(cwd):
     print('Total number of nodes in larger RVE: ' + str(len(nodelist)))
 
     ele_g, ele_p  = [], []
-    new_nodes = []
+    new_nodes,nset_nodes = [], []
 
     L_size_voxel = 64.0
     S_size_voxel = 32.0
@@ -83,6 +55,7 @@ def InteriorElements(cwd):
             pass
         else:
             new_nodes.append(node)
+            nset_nodes.append(int((node[0])))
 
     for element in gold_elelist:
         nodes_coord = [nodelist[int(_)-1][1:] for _ in element[1:]]
@@ -110,13 +83,42 @@ def InteriorElements(cwd):
     print('Total number of nodes in smaller RVE: ' + str(len(new_nodes)))
     print('Expected number of elements: ' + "(" + str(int((L_size_voxel ** 3) - (S_size_voxel ** 3))) + ') ' + str((L_size_voxel ** 3) - (S_size_voxel ** 3) == (len(ele_p) + len(ele_g))))
     print('Expected number of nodes: ' + "(" + str(int(((S_size_voxel + 1) ** 3))) + ') ' + str((S_size_voxel + 1) ** 3 == (len(new_nodes))))
-    return ele_g, ele_p,new_nodes
+    return ele_g, ele_p,new_nodes, nset_nodes
 
 def merge_two_dicts(x, y):
     z = x.copy()   # start with x's keys and values
     z.update(y)    # modifies z with y's keys and values & returns None
     return z
-    
+
+
+def writeinp(lst, output_name, set_name, eset=0, nset=0, create_csv=0):
+    """
+    Writes .inp file given list of nodes or elements
+    :param lst: list of elements of nodes
+    :param output_name: file to write to
+    :param set_name: name of el/nset
+    :param eset: state if elset (default = 0)
+    :param nset: state if nset (default = 0)
+    :param create_csv: 1 = create a csv fiel from lst otherwise not
+    only eset or nset, if both ==1 returns error
+    :return: None
+    """
+    if ((eset == 1) and (nset == 1)) or not((eset == 1) or (nset == 1)):
+        print("Error list given as both nset or elset, only one to be given at a time")
+    elif int(eset) == 1:
+        firstline = "*elset, elset={}, instance=RVE \n".format(set_name)
+    elif int(nset) == 1:
+        firstline = "*nset, nset={}, instance=RVE \n".format(set_name)
+    inpfile_write = open(output_name+'.inp', 'w')
+    inpfile_write.write(firstline)
+    for i in range(0, len(lst), 10):
+        inpfile_write.write(''.join(str(lst[i:i + 10])).strip('[').strip(']') + '\n')
+    if create_csv:
+        arry = np.array([len(lst)] + lst)
+        np.savetxt(output_name+'.csv', arry, delimiter=",", fmt='%i')
+    inpfile_write.close()
+
+
 # open modulus, create viewport and open odb
 # import numpy as np
 # from abaqus import *
@@ -126,7 +128,7 @@ def merge_two_dicts(x, y):
 
 #from BoundaryElementDetect import ElementSlices
 InputDir  = '/home/etg/Desktop/2M_64x64x64'
-Gold_new, Poly_new, new_nodelist = InteriorElements(InputDir)
+Gold_new, Poly_new, new_nodelist, nset = InteriorElements(InputDir)
 
 with open(InputDir + '/GoldElements_s.inp', 'w') as writef:
     for i in Gold_new:
@@ -139,6 +141,8 @@ with open(InputDir + '/PolyElements_s.inp', 'w') as writef:
 with open(InputDir + '/Nodes_s.inp', 'w') as writef:
     for i in new_nodelist:
         writef.write(str(i).strip('[').strip(']') + '\n')
+
+writeinp(nset, InputDir + '/AllNodeSet', 'All', nset=1)
 # Keys = X.keys() + Y.keys() + Z.keys()
 # HalfDict = merge_two_dicts(X,Y)
 # FullDict = merge_two_dicts(HalfDict, Z)
