@@ -142,6 +142,8 @@ def ElementSlices(cwd):
                     z_ele_int.append(int(element[0]))
 		if len(str(increment))<2:
 			IncrementName = '0' + str(increment)
+		else:
+			IncrementName =str(increment)
         X_dict['X' + IncrementName + '_Gold'] = x_ele_int
         Y_dict['Y' + IncrementName + '_Gold'] = y_ele_int
         Z_dict['Z' + IncrementName + '_Gold'] = z_ele_int
@@ -163,6 +165,8 @@ def ElementSlices(cwd):
                     z_ele_int.append(int(element[0]))
 		if len(str(increment))<2:
 			IncrementName = '0' + str(increment)
+		else:
+			IncrementName =str(increment)
         X_dict['X' + IncrementName + '_Poly'] = x_ele_int
         Y_dict['Y' + IncrementName + '_Poly'] = y_ele_int
         Z_dict['Z' + IncrementName + '_Poly'] = z_ele_int

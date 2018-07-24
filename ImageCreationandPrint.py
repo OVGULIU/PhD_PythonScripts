@@ -37,7 +37,9 @@ def GoldPrint(DispGroupName):
 		
 	return
 	
-def PolyPrint(DispGroupName):
+def PolyPrint(DispGroupName):	
+	session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(
+		DEFORMED, ))
 	session.viewports['Viewport: 1'].enableMultipleColors()
 	session.viewports['Viewport: 1'].setColor(initialColor='#BDBDBD')
 	cmap=session.viewports['Viewport: 1'].colorMappings['Set']
@@ -63,19 +65,20 @@ def PolyPrint(DispGroupName):
 
 session.viewports['Viewport: 1'].view.setProjection(projection=PARALLEL)
 session.viewports['Viewport: 1'].viewportAnnotationOptions.setValues(title=OFF,
-	state=OFF, annotations=OFF, compass=OFF)	# Remove unnecessary viewport annotations
+	state=OFF, compass=OFF)	# Remove unnecessary viewport annotations
 session.viewports['Viewport: 1'].viewportAnnotationOptions.setValues(triadColor='#000000', 
 	triadPosition=(5, 5), legendTextColor='#000000', legendBox=OFF)	#Change triad and legend colours to black, MOve triad to bottom left corner
 
 session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(CONTOURS_ON_DEF, ))
-        
+import annotationToolset
+
 InputDir  = '/home/cerecam/Desktop/GP_BoundaryConditionTests/InputFiles'
 csvFile = open(InputDir + '/DictionaryKeys.csv', 'r')
 Keys = []
 reader = csv.reader(csvFile)
 for row in reader:
     Keys.extend(row)
-for DictKey in Keys[0:3]:
+for DictKey in Keys:
 	print(DictKey)
 	#### Display display group in viewport ###
 	dg1= session.displayGroups[DictKey]
@@ -87,9 +90,13 @@ for DictKey in Keys[0:3]:
 		PolyPrint(DictKey)
 	#session.viewports['Viewport: 1'].odbDisplay.displayGroupInstances[DictKey].setValues(
 	#lockOptions=OFF)
-	
-	### Printing to file ###
-	session.printToFile(
-		fileName='/home/cerecam/Desktop/GP_BoundaryConditionTests/' + DictKey + '.png', 
-		format=PNG, canvasObjects=(session.viewports['Viewport: 1'], ))
+	#session.viewports['Viewport: 1'].annotationToPlot
+	#t = session.odbs['/home/cerecam/Desktop/GP_BoundaryConditionTests/Flux2_NoUEL.odb'].userData.Text(
+		#name='Text-1', text=DictKey, offset=(300.0, 0.0), color='#000000', 
+		#box=ON)
+	#session.viewports['Viewport: 1'].plotAnnotation(annotation=t)
+	#### Printing to file ###
+	#session.printToFile(
+		#fileName='/home/cerecam/Desktop/GP_BoundaryConditionTests/Images/' + DictKey + '.png', 
+		#format=PNG, canvasObjects=(session.viewports['Viewport: 1'], ))
 	        

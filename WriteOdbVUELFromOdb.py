@@ -184,7 +184,7 @@ Matmu = [0.3, 0.44]
 
 # File names and locations for old odb
 cwd = '/home/cerecam/Desktop/GP_BoundaryConditionTests/'
-OldOdbNameNoext = 'Flux2'
+OldOdbNameNoext = 'Influx_full_exag25_kg50_doubleRho'
 OldOdbName = OldOdbNameNoext + '.odb'
 ElementFiles = [cwd + 'InputFiles/UserElements.inp',
                 cwd + 'InputFiles/GoldElements.inp']  # Files with element connectivity description
@@ -275,7 +275,7 @@ step1 = odb.Step(name='Step-1',
                  description='First step with displacement applied',
                  domain=TIME, timePeriod=1.0)
 
-numIntervals = 30.0
+numIntervals = 50.0
 frequency = analysisTime / numIntervals
 FrameTime = 0.0
 
@@ -305,10 +305,10 @@ count = 0
 for MultiFrame in steps.frames:  # Loop over every frame captured in odb
     # for MultiFrame in [steps.frames[-1]]:
     # FrameTime= round(MultiFrame.frameValue,2)
-    print >> sys.__stdout__, str(round(MultiFrame.frameValue, 1))
+    print >> sys.__stdout__, str(int(round(MultiFrame.frameValue)))
     print >> sys.__stdout__, str(FrameTime)
-    print >> sys.__stdout__, str(round(MultiFrame.frameValue, 1) == FrameTime)
-    if round(MultiFrame.frameValue, 1) == FrameTime:
+    print >> sys.__stdout__, str(int(round(MultiFrame.frameValue)) == FrameTime)
+    if int(round(MultiFrame.frameValue)) == FrameTime:
 
         #########################################################################################
         # OLD ODB DATA EXTRACTION AND MANIPULATIONS
@@ -325,8 +325,8 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
                 DispNodes.append(val.nodeLabel) # Node label list
                 DispData.append(tuple(val.dataDouble)) # Data at node
         #Add values to dictionary element with key = frameValue
-        DispDataDict[round(MultiFrame.frameValue, 1)] = tuple(DispData)
-        DispNodesDict[round(MultiFrame.frameValue, 1)] = tuple(DispNodes)
+        DispDataDict[int(round(MultiFrame.frameValue))] = tuple(DispData)
+        DispNodesDict[int(round(MultiFrame.frameValue))] = tuple(DispNodes)
 
        # Temperature data at nodes:
         Tempfield = MultiFrame.fieldOutputs['NT11']    # Extract Temperature fieldOutput object from old Odb
@@ -338,12 +338,11 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
             else:
                 TempNodes.append(val.nodeLabel)  # Node label list
                 TempData.append(tuple([val.dataDouble, ]))  # Data at node
-        TempDataDict[round(MultiFrame.frameValue, 1)] = tuple(TempData)
-        TempNodesDict[round(MultiFrame.frameValue, 1)] = tuple(TempNodes)
+        TempDataDict[int(round(MultiFrame.frameValue))] = tuple(TempData)
+        TempNodesDict[int(round(MultiFrame.frameValue))] = tuple(TempNodes)
 
         Ee, Ss, Ee_principal, Ss_principal, V_mises = [], [], [], [], []
-        Ss_mech, Ss_chem, Ss_elec, Ss_tot = [], [], [], []
-
+        Ss_mech, Ss_chem, Ss_elec, Ss_tot, EleListG = [], [], [], [], []
         ##################### Material Parameters #############################
 
         e_r = 1.0E3
@@ -381,7 +380,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
                     Uarray = DispData[int(y) - 1]
                     H[ip] = H[ip] + np.outer(Uarray, np.array([dNdX1[ip][x], dNdX2[ip][x], dNdX3[ip][x]]))  # Grad(U)
                     if materialNames[Mat].lower() == 'polymer':
-                        Tarray.append(float(TempDataDict[round(MultiFrame.frameValue, 1)][int(y) - 1][0]))
+                        Tarray.append(float(TempDataDict[int(round(MultiFrame.frameValue))][int(y) - 1][0]))
                         # ElecField_int = [dNdX * Elec_Ele_Data[y] for dNdX in [dNdX1[ip][x], dNdX2[ip][x], dNdX3[ip][x]]]
                         # ElecField = ElecField - np.array(ElecField_int)
 
@@ -393,6 +392,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
             # ElecDisp = np.array(e_zero * e_r * ElecField)
             Qf = F * (Z * Conc_gp + csat)
             if mat=='Gold':
+				EleListG.append(Ele_Label)
 				E = 0.5 * (np.transpose(H[0]) + H[0])  # Strain calculation at Gauss point
 				#            if Ele_Label == 11150:
 				#                print >> sys.__stdout__, str(E)
@@ -413,12 +413,12 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
 				# Ss_elec.append(tuple(S_elec.flatten()[[0, 4, 8, 1, 2, 5]]))
 				Ss_tot.append(tuple(S_total.flatten()[[0, 4, 8, 1, 2, 5]]))
             # Store data for frame in question
-        Efinal[round(MultiFrame.frameValue, 1)] = tuple(Ee)
+        Efinal[int(round(MultiFrame.frameValue))] = tuple(Ee)
         #        print >> sys.__stdout__, str(Efinal)
-        S_mechfinal[round(MultiFrame.frameValue, 1)] = tuple(Ss_mech)
-        #S_chemfinal[round(MultiFrame.frameValue, 1)] = tuple(Ss_chem)
+        S_mechfinal[int(round(MultiFrame.frameValue))] = tuple(Ss_mech)
+        #S_chemfinal[int(round(MultiFrame.frameValue))] = tuple(Ss_chem)
         # S_elecfinal[round(MultiFrame.frameValue, 3)] = tuple(Ss_elec)
-        S_totfinal[round(MultiFrame.frameValue, 1)] = tuple(Ss_tot)
+        S_totfinal[int(round(MultiFrame.frameValue))] = tuple(Ss_tot)
 
         #########################################################################################
         # NEW ODB FIELD DATA CREATION
