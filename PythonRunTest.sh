@@ -1,22 +1,26 @@
-currentwd='/home/cerecam/Desktop/MesoporousSilica/Short/Coupled_Flux'
+currentwd='/home/cerecam/Desktop/GP_BoundaryConditionTests'
+ExplicitSim='Full_coupled'
+StandardSim='Voxel32_Standard'
+echo $ExplicitSim
+echo $StandardSim
 #echo ""
 echo "	Extracting concentrations from AE"
 #echo ""
-abaqus viewer noGui=/home/cerecam/Desktop/GIT/PhD_PythonScripts/ExtractFieldvariableAE_2_AS.py -- $currentwd 'Short_coupled_NoElecFlux'
+abaqus viewer noGui=/home/cerecam/Desktop/GIT/PhD_PythonScripts/ExtractFieldvariableAE_2_AS.py -- $currentwd $ExplicitSim
 #echo ""
 echo "------------------------------- DONE -------------------------------" 
 echo "	Running AS"
 #echo ""
 cd $currentwd
-abaqus job=Short_Standard User=/home/cerecam/Desktop/GIT/Abaqus_Subroutines/U1T4_robin.f double=both output_precision=full ask_delete=NO interactive
-cp Short_Standard.odb Short_Standard_tmp.odb
+abaqus job=$StandardSim User=/home/cerecam/Desktop/GIT/Abaqus_Subroutines/U1T8.f double=both output_precision=full ask_delete=NO interactive
+cp "${StandardSim}.odb" "${StandardSim}_tmp.odb"
 #cd
 #echo ""
 echo "------------------------------- DONE -------------------------------" 
 #echo ""
 echo "		Extracting elec potentials from AS"
 #echo ""
-abaqus viewer noGui=/home/cerecam/Desktop/GIT/PhD_PythonScripts/ExtractFieldvariableCSV.py  -- $currentwd
+abaqus viewer noGui=/home/cerecam/Desktop/GIT/PhD_PythonScripts/ExtractFieldvariableCSV.py  -- $currentwd $StandardSim
 #echo ""
 echo "------------------------------- DONE -------------------------------" 
 # sleep 5s
