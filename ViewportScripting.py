@@ -43,6 +43,7 @@ def ElementSlices(cwd):
         elif int(nset) == 1:
             firstline = "*nset, nset={}, instance=RVE \n".format(set_name)
         inpfile_write = open(output_name+'.inp', 'w')
+
         inpfile_write.write(firstline)
         for i in range(0, len(lst), 10):
             inpfile_write.write(''.join(str(lst[i:i + 10])).strip('[').strip(']') + '\n')
