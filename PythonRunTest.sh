@@ -4,7 +4,7 @@ StandardSim='Voxel32_Standard'
 echo $ExplicitSim
 echo $StandardSim
 #echo ""
-echo "	Extracting concentrations from AE"
+echo "	Extracting concentrations from ${currentwd}/$ExplicitSim"
 #echo ""
 abaqus viewer noGui=/home/cerecam/Desktop/GIT/PhD_PythonScripts/ExtractFieldvariableAE_2_AS.py -- $currentwd $ExplicitSim
 #echo ""
@@ -18,7 +18,7 @@ cp "${StandardSim}.odb" "${StandardSim}_tmp.odb"
 #echo ""
 echo "------------------------------- DONE -------------------------------" 
 #echo ""
-echo "		Extracting elec potentials from AS"
+echo "		Extracting elec potentials from  ${currentwd}/$StandardSim"
 #echo ""
 abaqus viewer noGui=/home/cerecam/Desktop/GIT/PhD_PythonScripts/ExtractFieldvariableCSV.py  -- $currentwd $StandardSim
 #echo ""

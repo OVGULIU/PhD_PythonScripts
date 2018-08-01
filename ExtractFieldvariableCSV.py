@@ -32,7 +32,7 @@ NodeNum = np.array([x.nodeLabel for x in CONCEN.values])  # numpy array containi
 CONCEN_Array = np.array([round(float(CONCENvals.dataDouble), 15) for CONCENvals in
                          CONCEN.values])  # numpy array containing concentrations at each node
 
-np.savetxt((str(currentwd) + str(FileOut) + ".csv"), CONCEN_Array, delimiter=",")
+np.savetxt((str(currentwd) + str(FileOut) + ".csv"), CONCEN_Array[:-4], delimiter=",")
 InitialFile = open(str(currentwd) + str(FileOut) + "Initial.inp", 'w')
 ElecFieldFile = open(str(currentwd) + str(FileOut) + ".inp", 'w')
 count = 0
