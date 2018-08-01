@@ -33,16 +33,16 @@ CONCEN_Array = np.array([round(float(CONCENvals.dataDouble), 15) for CONCENvals 
                          CONCEN.values])  # numpy array containing concentrations at each node
 
 np.savetxt((str(currentwd) + str(FileOut) + ".csv"), CONCEN_Array[:-4], delimiter=",")
-InitialFile = open(str(currentwd) + str(FileOut) + "Initial.inp", 'w')
+# InitialFile = open(str(currentwd) + str(FileOut) + "Initial.inp", 'w')
 ElecFieldFile = open(str(currentwd) + str(FileOut) + ".inp", 'w')
 count = 0
 for i in NodeNum:
     if i < 999990:
-        InitialFile.write(InstanceName + str(i) + ',\t' + str(CONCEN_Array[count]) + '\n')
+        # InitialFile.write(InstanceName + str(i) + ',\t' + str(CONCEN_Array[count]) + '\n')
         ElecFieldFile.write(InstanceName + str(i) + ',\t' + str(CONCEN_Array[count]) + '\n')
         count += 1
 
-InitialFile.close()
+# InitialFile.close()
 ElecFieldFile.close()
 odb.close()
 print >> sys.__stdout__, ('Electric field extraction SUCCESSFUL')
