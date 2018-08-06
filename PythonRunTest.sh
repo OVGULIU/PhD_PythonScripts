@@ -1,5 +1,5 @@
 currentwd='/home/cerecam/Desktop/GP_BoundaryConditionTests'
-ExplicitSim='Full_coupled'
+ExplicitSim='Full_coupled_2000'
 StandardSim='Voxel32_Standard'
 echo $ExplicitSim
 echo $StandardSim
