@@ -8,9 +8,9 @@ def ElementSlices(cwd):
     print("ElementSlices.py is running")
     def readinp(filename, startline):
         """
-        Reads file and converts line to list and places inlist of list
+        Reads file and converts line to list and places in list of list
         :param filename: filename to read from
-        :param startline: whther to start from line 1 or 0.
+        :param startline: whether to start from line 1 or 0.
         :return: list of list of each line of filename
         """
         output_list = []
@@ -52,11 +52,15 @@ def ElementSlices(cwd):
             np.savetxt(output_name+'.csv', arry, delimiter=",", fmt='%i')
         inpfile_write.close()
 
-
+	##### INPUTS #####
     nodefile = 'Nodes.inp'
     #elementfile = 'Elements_All.inp'
     gold_element = range(1, 1213242+1)
     poly_element = range(1213243, 2097152+1)
+	Voxel_Num = 32.0
+	RVE_dim = 30.0
+	#####        #####
+	
     if cwd[-1] != '/':
         cwd = cwd + '/'
     if nodefile[0] == '/':
@@ -120,9 +124,9 @@ def ElementSlices(cwd):
     # xmax, ymax, zmax = [x-element_dist for x in [x1_val, y1_val, z1_val]]
 
 
-    for increment in range(0, 32):  # type: int
-        xmin = 0.0 + (increment*(30.0/32))
-        xmax = xmin + (30.0/32.0)
+    for increment in range(0, Voxel_Num):  # type: int
+        xmin = 0.0 + (increment*(RVE_dim/Voxel_Num))
+        xmax = xmin + (RVE_dim/Voxel_Num)
         ymin, zmin = xmin, xmin
         ymax, zmax = xmax, xmax
         x_ele_int = []
@@ -194,14 +198,20 @@ height=154.15299987793)
 session.viewports['Viewport: 1'].makeCurrent()
 session.viewports['Viewport: 1'].maximize()
 
-#from BoundaryElementDetect import ElementSlices
+##### Inputs #####
+cwd = '/home/cerecam/Desktop/GP_BoundaryConditionTests/'
 InputDir  = '/home/cerecam/Desktop/GP_BoundaryConditionTests/InputFiles'
+Instance_name = 'I_CUBE'
+Odbname = cwd + 'Flux2_NoUEL.odb'
+##################
+
+#from BoundaryElementDetect import ElementSlices
 X,Y,Z = ElementSlices(InputDir)
 Keys = X.keys() + Y.keys() + Z.keys()
 HalfDict = merge_two_dicts(X,Y)
 FullDict = merge_two_dicts(HalfDict, Z)
 executeOnCaeStartup()
-o1 = session.openOdb(name='/home/cerecam/Desktop/GP_BoundaryConditionTests/Flux2_NoUEL.odb')
+o1 = session.openOdb(name=Odbname)
 session.viewports['Viewport: 1'].setValues(displayedObject=o1)
 
 ### Printing to file options ###
@@ -221,11 +231,11 @@ session.viewports['Viewport: 1'].viewportAnnotationOptions.setValues(triadColor=
 for DictKey in Keys:
 	print(DictKey)
 	elements = tuple([str(y) for y in FullDict[DictKey]])
-	leaf = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',elements),))
+	leaf = dgo.LeafFromModelElemLabels(elementLabels=((Instance_name,elements),))
 	session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leaf)	# Create displaygourp from leafTest object
 	dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
 	dg = session.DisplayGroup(name=DictKey , objectToCopy=dg)
-execfile('/home/cerecam/Desktop/GIT/PhD_PythonScripts/ImageCreationandPrint.py')
+#execfile('/home/cerecam/Desktop/GIT/PhD_PythonScripts/ImageCreationandPrint.py')
 
 
 ### Various primary variable selection to display current primary = default which is U ###
@@ -248,13 +258,13 @@ execfile('/home/cerecam/Desktop/GIT/PhD_PythonScripts/ImageCreationandPrint.py')
 
 #for DictKey in Y.keys():
 	#elements = tuple([str(y) for y in X[DictKey]])
-	#leaf = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',elements),))
+	#leaf = dgo.LeafFromModelElemLabels(elementLabels=((Instance_name,elements),))
 	#session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leaf)	# Create displaygourp from leafTest object
 	#dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
 	#dg = session.DisplayGroup(name=DictKey , objectToCopy=dg)
 #for DictKey in Z.keys():
 	#elements = tuple([str(y) for y in X[DictKey]])
-	#leaf = dgo.LeafFromModelElemLabels(elementLabels=(('I_Cube',elements),))
+	#leaf = dgo.LeafFromModelElemLabels(elementLabels=((Instance_name,elements),))
 	#session.viewports['Viewport: 1'].odbDisplay.displayGroup.replace(leaf=leaf)	# Create displaygourp from leafTest object
 	#dg = session.viewports['Viewport: 1'].odbDisplay.displayGroup
 	#dg = session.DisplayGroup(name=DictKey , objectToCopy=dg)

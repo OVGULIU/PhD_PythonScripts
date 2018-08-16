@@ -4,12 +4,12 @@ Created on Tue Feb  6 15:25:54 2018
 
 @author: cerecam
 """
-cwd = '/home/cerecam/Desktop/Voxel_models/2M_32x32x32/'
+cwd = '/home/cerecam/Desktop/emma_models_NEW/2M_96x96x96_89_over_146/'
 NodeFile = 'Nodes.inp'
 Mat0File = 'GoldElements.inp'
-Mat1File = 'UserElements.inp'
-projectName = 'Periodic_voxel'
-Instancename = 'i_cube'
+Mat1File = 'PolymerElements.inp'
+projectName = 'Voxel96'
+Instancename = 'RVE'
 
 
 import numpy as np
@@ -26,7 +26,7 @@ writef.close()
 ElementSets1 = []
 ElementSets2 = []
 readf = open(cwd + Mat0File,'r') # All nodes with coordinates
-elements = [0]*(19016+13752+1)
+elements = [0]*(884736+1)
 for line in readf:
     newarray = map(int,line.split(','))
     elements[newarray[0]] = newarray[1:]

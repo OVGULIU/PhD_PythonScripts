@@ -72,8 +72,10 @@ session.viewports['Viewport: 1'].viewportAnnotationOptions.setValues(triadColor=
 session.viewports['Viewport: 1'].odbDisplay.display.setValues(plotState=(CONTOURS_ON_DEF, ))
 import annotationToolset
 
+###### INPUTS ######
 InputDir  = '/home/cerecam/Desktop/GP_BoundaryConditionTests/InputFiles'
 csvFile = open(InputDir + '/DictionaryKeys.csv', 'r')
+######        ######
 Keys = []
 reader = csv.reader(csvFile)
 for row in reader:
