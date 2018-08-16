@@ -113,26 +113,26 @@ for x in xyzref:
         PeriodicN.append(int(x[2].split(',')[0].split('_')[-1]))
 
 PeriodicN = list(set(PeriodicN))
-#
-# with open(cwd2 + '/Pbc_Equations_Alt.inp', 'w') as writef:
-#     for s in check:
-#         if all([z != int(s[1].split('_')[-1].split(',')[0]) for z in EdgeZ]) or all(
-#                 [p != int(s[2].split('_')[-1].split(',')[0]) for p in EdgeZ]):
-#             EZcheck.append(s[1].split('_')[-1].split(',')[0])
-#             #            print(s)
-#             writef.write('*Equation\n')
-#             for y in s:
-#                 writef.write(y + '\n')
-#         else:
-#             pass
-#             #            print(s)
-#             #            if s[1].split(',')[1]=='1' or s[1].split(',')[1]=='2':
-#             #                print('yes')
-#             # writef.write('*Equation\n')
-#             # for y in s:
-#             #     writef.write(y + '\n')
-#
-# with open(cwd2 + '/PeriodicNodes2.inp', 'w') as writef:
-#     writef.write('*Nset,nset=PeriodicNodes2,instance=RVE \n')
-#     for x in range(0, len(PeriodicN), 10):
-#         writef.write(''.join(str(PeriodicN[x:x + 10])).strip('[').strip(']') + '\n')
+
+with open(cwd2 + '/Pbc_Equations_Alt.inp', 'w') as writef:
+    for s in check:
+        # if all([z != int(s[1].split('_')[-1].split(',')[0]) for z in EdgeZ]) or all(
+        #         [p != int(s[2].split('_')[-1].split(',')[0]) for p in EdgeZ]):
+        #     EZcheck.append(s[1].split('_')[-1].split(',')[0])
+        #     #            print(s)
+        writef.write('*Equation\n')
+        for y in s:
+            writef.write(y + '\n')
+        # else:
+        #     pass
+            #            print(s)
+            #            if s[1].split(',')[1]=='1' or s[1].split(',')[1]=='2':
+            #                print('yes')
+            # writef.write('*Equation\n')
+            # for y in s:
+            #     writef.write(y + '\n')
+
+with open(cwd2 + '/PeriodicNodes2.inp', 'w') as writef:
+    writef.write('*Nset, nset=PeriodicNodes2, instance=RVE \n')
+    for x in range(0, len(PeriodicN), 10):
+        writef.write(''.join(str(PeriodicN[x:x + 10])).strip('[').strip(']') + '\n')
