@@ -1,5 +1,5 @@
-cwd = '/home/cerecam/Desktop/GP_BoundaryConditionTests/InputFiles'
-Readf = open(cwd + '/UserElements.inp','r')
+cwd = '/home/etg/Desktop/2M_64x64x64'
+Readf = open(cwd + '/GoldElements.inp','r')
 import numpy as np
 
 user_eles = []
@@ -16,7 +16,7 @@ for line in Readf:
         dummies.append(newarray)
 
 Readf.close()
-Writef = open(cwd + '/DummyElements.inp','w')
+Writef = open(cwd + '/GoldDummyElements.inp','w')
 number = 0
 for x in dummies:
     Writef.write(str(x).strip(']').strip('[')+'\n')
