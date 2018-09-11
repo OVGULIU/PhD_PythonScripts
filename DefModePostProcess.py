@@ -85,12 +85,13 @@ def abaqusopen(filename):
     from odbAccess import openOdb
     odbname = filename + '.odb'
     odb = openOdb(odbname)
+    assem = odb.rootAssembly
     stepKey = odb.steps.keys()
     steps = odb.steps[stepKey[-1]]
     frames = steps.frames[-1]
     FieldOut = frames.fieldOutputs
 
-    return odb, stepKey, steps, frames, FieldOut
+    return odb, assem, stepKey, steps, frames, FieldOut
 
 
 from odbAccess import openOdb
@@ -114,11 +115,11 @@ surfaces = {'F1' : [1, 2, 3, 4], 'F2':[5, 6, 7, 8], 'F3' : [1, 8, 8, 4], 'F4' : 
           'F5': [4, 8, 7, 3], 'F6' : [1, 5, 6, 2]}
 axis = {'0': 'X', '1': 'Y', '2': 'Z'}
 
-cwd = '/home/cerecam/Desktop/GP_BoundaryConditionTests'
-odbname = 'Test1'
+cwd = '/home/cerecam/Desktop/GP_BoundaryConditionTests/'
+odbname = 'Test1_NoUEL'
 
 ligvals = open(cwd + '/LigVals.txt', 'r')  # File containing Ligament name, origin, 2 points to define co-ord system and the face orientated
-results = open(cwd + odbname[0:3] + '_' + odbname[-1] + '.txt', 'w')
+results = open(cwd + odbname + '.txt', 'w')
 # File giving lig name, bendign moment at max angle, torque, normal stress, shear stress and area of ligament.
 ligfile = ligvals.read()
 ligfile = ligfile.split('\n')
@@ -142,27 +143,29 @@ for ligamentnumber in range(1):
             point1 = int(ligfile[value + 2][7:].strip())
             point2 = int(ligfile[value + 3][7:].strip())
             myface = str(ligfile[value+4][7:].strip())
+            print >> sys.__stdout__, (str((origin, point1, point2, myface)))
 
     Norm[ligamentname] = [0, 0, 1]
-    [ods, Keys_steps, steps, frames, FO] = abaqusopen(odbname)
-    myinstance = assembly.instances[instance.keys()[0]]
+    [ODB, assembly, Keys_steps, steps, frames, FO] = abaqusopen(cwd + odbname)
+    myinstance = assembly.instances[assembly.instances.keys()[-1]]
     # Setting up no coord system and getting Transformed data (Sress, strain and Coords)
-    NODEorigin = tuple(ods.rootAssembly.instances[instance.keys()[0]].nodes[origin - 1].coordinates)
-    NODEpoint1 = tuple(ods.rootAssembly.instances[instance.keys()[0]].nodes[point1 - 1].coordinates)
-    NODEpoint2 = tuple(ods.rootAssembly.instances[instance.keys()[0]].nodes[point2 - 1].coordinates)
-    NEWCSYS = ods.rootAssembly.DatumCsysByThreePoints(name='NEW', coordSysType=CARTESIAN, origin=NODEorigin,
+    NODEorigin = tuple(assembly.instances[assembly.instances.keys()[-1]].nodes[origin - 1].coordinates)
+    NODEpoint1 = tuple(assembly.instances[assembly.instances.keys()[-1]].nodes[point1 - 1].coordinates)
+    NODEpoint2 = tuple(assembly.instances[assembly.instances.keys()[-1]].nodes[point2 - 1].coordinates)
+    NEWCSYS = ODB.rootAssembly.DatumCsysByThreePoints(name='NEW', coordSysType=CARTESIAN, origin=NODEorigin,
                                                       point1=NODEpoint1, point2=NODEpoint2)
-    frame_val = ods.steps[Keys_steps[-1]].frames[-1]
+    frame_val = ODB.steps[Keys_steps[-1]].frames[-1]
     FO_E = frame_val.fieldOutputs['E'].getTransformedField(NEWCSYS)
     E = [E_val.data for E_val in FO_E.values]
     FO_S = frame_val.fieldOutputs['S'].getTransformedField(NEWCSYS)
     S = [S_val.data for S_val in FO_S.values]
     FO_COORD = frame_val.fieldOutputs['Centroid'].getTransformedField(NEWCSYS)
     COORD_e = [COORD_val.data for COORD_val in FO_COORD.values]
+    COORD_n = []
     for nodes in myinstance.nodes:
         if int(nodes.label) < 999990:
-            intnode = (nodes.coordinates[0], nodes.coordinates[1],
-                       nodes.coordinates[2])  # Tuple of node data (node no., node x-coord, y-coord, z-coord)
+            intnode = [nodes.coordinates[0], nodes.coordinates[1],
+                       nodes.coordinates[2]]  # Tuple of node data (node no., node x-coord, y-coord, z-coord)
             COORD_n.append(intnode)
             del intnode
 
@@ -206,22 +209,22 @@ for ligamentnumber in range(1):
         Ele_node_coords = []
         Ele_coords = []
         # Gets the co-ordinates of each node within those elements specified by the file ("ligamentname"+faces.csv)
-        [Ele_node_coords.append(COORD_n[int(p) - 1]) for p in ConnectedNodes.connectivity]
+        [Ele_node_coords.append(COORD_n[int(p) - 1]) for p in ConnectedNodes]
         eleNormal = {}
         FaceArea = {}
+        # print >> sys.__stdout__, (str(Ele_node_coords[1]))
         # Calculation of normals of all surfaces
-        for key, value in surfaces.items():
-            if key == myface[i]:
-                surfacevec = []
-                surfacevec.append(Ele_node_coords[value[0] - 1] - Ele_node_coords[value[1] - 1])
-                surfacevec.append(Ele_node_coords[value[0] - 1] - Ele_node_coords[value[2] - 1])
-                normaldir = np.cross(surfacevec[0], surfacevec[1])
-                number = Norm[ligamentname].index(1)
-                if float(normaldir[number]) < 0:
-                    normaldir = [float(x) * -1 for x in normaldir]
-                normalmag = np.array(norm(normaldir))
-                normals[i] = np.array([float(m) / normalmag for m in normaldir])
-                Area[i] = normalmag / 2
+        value = surfaces[myface]
+        surfacevec = []
+        surfacevec.append(list(np.array(Ele_node_coords[value[0] - 1]) - np.array(Ele_node_coords[value[1] - 1])))
+        surfacevec.append(list(np.array(Ele_node_coords[value[0] - 1]) - np.array(Ele_node_coords[value[2] - 1])))
+        normaldir = np.cross(surfacevec[0], surfacevec[1])
+        number = Norm[ligamentname].index(1)
+        if float(normaldir[number]) < 0:
+            normaldir = [float(x) * -1 for x in normaldir]
+        normalmag = np.array(norm(normaldir))
+        normals[i] = np.array([float(m) / normalmag for m in normaldir])
+        Area[i] = normalmag / 2
 
     for key, value in normals.items():
         S_ele = S[int(key) - 1]
@@ -264,14 +267,15 @@ for ligamentnumber in range(1):
 
     Bmaxis = [values[maxBM[AngleBM][1]] for values in BMmatrix.values()]
 
-    with open(cwd + 'BendingResults_' + ligamentname + 'Bending' + axis[
-        str(maxBM[AngleBM][1])] + odbname[0:3] + '_' + odbname[-1] + '.csv', 'wb') as csv_file:
+    with open(cwd + odbname + '_' + ligamentname + 'Bending' + axis[
+        str(maxBM[AngleBM][1])] + '.csv', 'wb') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow([BM_3D[maxBM[AngleBM][1]], angle])
         for x, key in enumerate(BMmatrix):
             writer.writerow([key, Bmaxis[x], normalstress[key], Val[key][0], Val[key][1]])
 
-    abqPrint('Bending Moment: ' + str(BM_3D[maxBM[AngleBM][1]]) + ' at angle: ' + str(float(AngleBM) * 180 / pi))
+    print >> sys.__stdout__, (str('\n'))
+    print >> sys.__stdout__, (str( 'Bending Moment: ' + str(BM_3D[maxBM[AngleBM][1]]) + ' at angle: ' + str(float(AngleBM) * 180 / pi)))
 
     shearvec = {}
     for key, value in tractionvec.items():
@@ -316,31 +320,31 @@ for ligamentnumber in range(1):
     Torque = 0
     for key, value in shearstress.items():
         Torque = Torque + (value * Area[key] * np.array(norm(PXint[key])))
-    abqPrint('Torque ' + str(Torque))
+    print >> sys.__stdout__, (str('Torque ' + str(Torque)))
 
     # Shear Stress
     Shear = 0
     for key, value in shearstress.items():
         Shear = Shear + value * Area[key]
-    abqPrint('Shear ' + str(Shear))
+    print >> sys.__stdout__, (str('Shear ' + str(Shear)))
 
     # Normal Stress
     NormalS = 0
     for key, value in normalstress.items():
         NormalS = NormalS + value * Area[key]
-    abqPrint('Normal stress ' + str(NormalS))
+    print >> sys.__stdout__, (str('Normal stress ' + str(NormalS)))
 
     # Normal Stress
     AreaTot = 0
     for key, value in Area.items():
         AreaTot = AreaTot + value
 
-    writeFile(shearstress, 'ShearStress', [Shear])
-    writeFile(normalstress, 'NormalStress', [NormalS])
-    writeFile(shearvec, 'shearvec', [Torque])
-    writeFile(tractionvec, 'trac', [])
+    writeFile(shearstress, 'ShearStress', [Shear], cwd)
+    writeFile(normalstress, 'NormalStress', [NormalS], cwd)
+    writeFile(shearvec, 'shearvec', [Torque], cwd)
+    writeFile(tractionvec, 'trac', [], cwd)
     ##    writeFile(Area,'Areas',[AreaTot])
-    abqPrint('\n')
+    print >> sys.__stdout__, (str('\n'))
 
     results.write(ligamentname + '\n')
     results.write(

@@ -25,10 +25,12 @@ for line in lines[1:]:
 #         dummyElements.sort()
         Writef.write(','.join(split_line_name))
         if generate:
-            Writef.write(str([dummyElements[0],dummyElements[-1],1]).strip('[').strip(']')+'\n')
+            dummyElementsGen = list(range(dummyElements[0],dummyElements[-1]+1,1))
+            for x in range(0, len(dummyElementsGen), entries_per_line):
+                Writef.write(str(dummyElementsGen[x:x + entries_per_line]).strip('[').strip(']') + ', & \n')
         else:
             for x in range(0,len(dummyElements),entries_per_line):
-                Writef.write(str(dummyElements[x:x+entries_per_line]).strip('[').strip(']')+'\n')        
+                Writef.write(str(dummyElements[x:x+entries_per_line]).strip('[').strip(']')+', & \n')
         print(len(elements),elset)
         split_line_name = line.split(',')
         elset = split_line_name[1].split('=')[1]
@@ -45,7 +47,7 @@ for line in lines[1:]:
 #            if elset[3:].upper() == 'GOLD':                
 #                dummyElements = range(int(split_line[0]),int(split_line[1]),int(split_line[2]))
 #            else:
-            dummyElements = list(range(int(split_line[0])+900000,int(split_line[1])+900001,int(split_line[2])))
+            dummyElements = list(range(int(split_line[0]),int(split_line[1]),int(split_line[2])))
         else:
             # values = map(int, line.strip().split(','))
 #            if elset[3:].upper() == 'GOLD':
@@ -53,13 +55,13 @@ for line in lines[1:]:
 #            else:
 #             dummyvalues =[int(x) +500000 for x in line.strip().split(',') if x]
             elements.extend(int(x) for x in line.strip().split(',') if x)
-            dummyElements.extend(int(x) +900000 for x in line.strip().split(',') if x)
+            dummyElements.extend(int(x) for x in line.strip().split(',') if x)
     elif line == lines[-1]:
         np.savetxt(cwd+ '/'+elset +'.csv',np.array([len(elements)]+elements).astype(int), delimiter=",",fmt='%i')    
 #        print('csv file '+elset+' is written in '+cwd+ '/'+elset +'.csv')        
         Writef.write(','.join(split_line_name))
         for x in range(0,len(dummyElements),entries_per_line):
-            Writef.write(str(dummyElements[x:x+entries_per_line]).strip('[').strip(']')+'\n') 
+            Writef.write(str(dummyElements[x:x+entries_per_line]).strip('[').strip(']')+', & \n')
         
         print(len(elements),elset)
 Writef.close()
