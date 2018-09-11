@@ -329,7 +329,7 @@ count = 0
 #     ElecData[int(newarray[0][-(len(newarray[0]) - len(OldOdbNameNoext) - 3):])] = float(newarray[1])
 
 # Open file to write progress data to
-StatusFile = open(cwd+OldOdbNameNoext+'.sta','w')
+StatusFile = open(cwd+OldOdbNameNoext+'_NoUEL.sta','w')
 
 ## FIELD DATA:
 # Field data extraction from .odb file
@@ -339,9 +339,9 @@ StatusFile = open(cwd+OldOdbNameNoext+'.sta','w')
 for MultiFrame in steps.frames:  # Loop over every frame captured in odb
     # for MultiFrame in [steps.frames[-1]]:
     # FrameTime= round(MultiFrame.frameValue,Round_Var)
-    StatusFile.write(str(float(round(MultiFrame.frameValue, Round_Var))))
-    StatusFile.write(str(float(round(FrameTime, Round_Var))))
-    StatusFile.write(str(float(round(MultiFrame.frameValue, Round_Var)) == float(round(FrameTime, Round_Var))))
+    StatusFile.write(str(float(round(MultiFrame.frameValue, Round_Var)))+'\n')
+    StatusFile.write(str(float(round(FrameTime, Round_Var)))+'\n')
+    StatusFile.write(str(float(round(MultiFrame.frameValue, Round_Var)) == float(round(FrameTime, Round_Var)))+'\n')
     if float(round(MultiFrame.frameValue, Round_Var)) == float(round(FrameTime, Round_Var)):
 
         #########################################################################################
@@ -580,7 +580,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
             step1.setDefaultField(newField)
             StatusFile.write(
                     'Displacement, temperature, electric potential, stress and strain  tensors created at ' + str(
-                FrameTime) + 's')
+                FrameTime) + 's\n')
 
         FrameTime += frequency
 newField0 = frame.FieldOutput(name='Centroid',
