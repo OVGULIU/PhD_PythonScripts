@@ -37,10 +37,10 @@ EdgeZ = list(set(
               35871, 35904, 35937  # Y1Z1
               ]))
 EZcheck = []
-cwd1 = '/home/cerecam/Desktop/Voxel_models/2M_32x32x32'
-cwd2 = '/home/cerecam/Desktop/GP_BoundaryConditionTests/NodeSets'
+cwd1 = '/home/cerecam/Desktop/emma_models_NEW/2M_96x96x96_89_over_146'
+cwd2 = '/home/cerecam/Desktop/emma_models_NEW/2M_96x96x96_89_over_146'
 # cwd = '/home/cerecam/Desktop/MesoporousSilica/Short'
-with open(cwd1 + '/PBC_Equations.inp', 'r') as readf:
+with open(cwd1 + '/Pbc_Equations.inp', 'r') as readf:
     line = readf.read()
 line = line.split('*Equation\n')
 del line[0]
@@ -77,6 +77,7 @@ for x in line:
     else:
         print('ERROR')
         print(line)
+        break
 check = []
 for x in xref:
     check.append(x)
@@ -87,7 +88,8 @@ for x in yref:
     PeriodicN.append(int(x[1].split(',')[0].split('_')[-1]))
     PeriodicN.append(int(x[2].split(',')[0].split('_')[-1]))
 for x in zref:
-    if any([y == int(x[1].split(',')[0].split('_')[-1]) for y in ExtraZ]):
+    if x[1].split(',')[1]!='3':
+        # if any([y == int(x[1].split(',')[0].split('_')[-1]) for y in ExtraZ]):
         check.append(x)
         PeriodicN.append(int(x[1].split(',')[0].split('_')[-1]))
 for x in xyref:
@@ -95,31 +97,34 @@ for x in xyref:
     PeriodicN.append(int(x[1].split(',')[0].split('_')[-1]))
     PeriodicN.append(int(x[2].split(',')[0].split('_')[-1]))
 for x in xzref:
-    check.append(x)
-    PeriodicN.append(int(x[1].split(',')[0].split('_')[-1]))
-    PeriodicN.append(int(x[2].split(',')[0].split('_')[-1]))
+    if x[1].split(',')[1]!='3':
+        check.append(x)
+        PeriodicN.append(int(x[1].split(',')[0].split('_')[-1]))
+        PeriodicN.append(int(x[2].split(',')[0].split('_')[-1]))
 for x in yzref:
-    check.append(x)
-    PeriodicN.append(int(x[1].split(',')[0].split('_')[-1]))
-    PeriodicN.append(int(x[2].split(',')[0].split('_')[-1]))
+    if x[1].split(',')[1]!='3':
+        check.append(x)
+        PeriodicN.append(int(x[1].split(',')[0].split('_')[-1]))
+        PeriodicN.append(int(x[2].split(',')[0].split('_')[-1]))
 for x in xyzref:
-    check.append(x)
-    PeriodicN.append(int(x[1].split(',')[0].split('_')[-1]))
-    PeriodicN.append(int(x[2].split(',')[0].split('_')[-1]))
+    if x[1].split(',')[1]!='3':
+        check.append(x)
+        PeriodicN.append(int(x[1].split(',')[0].split('_')[-1]))
+        PeriodicN.append(int(x[2].split(',')[0].split('_')[-1]))
 
 PeriodicN = list(set(PeriodicN))
 
-with open(cwd2 + '/PBC_Equations_noZEdge.inp', 'w') as writef:
+with open(cwd2 + '/Pbc_Equations_Alt.inp', 'w') as writef:
     for s in check:
-        if all([z != int(s[1].split('_')[-1].split(',')[0]) for z in EdgeZ]) or all(
-                [p != int(s[2].split('_')[-1].split(',')[0]) for p in EdgeZ]):
-            EZcheck.append(s[1].split('_')[-1].split(',')[0])
-            #            print(s)
-            writef.write('*Equation\n')
-            for y in s:
-                writef.write(y + '\n')
-        else:
-            pass
+        # if all([z != int(s[1].split('_')[-1].split(',')[0]) for z in EdgeZ]) or all(
+        #         [p != int(s[2].split('_')[-1].split(',')[0]) for p in EdgeZ]):
+        #     EZcheck.append(s[1].split('_')[-1].split(',')[0])
+        #     #            print(s)
+        writef.write('*Equation\n')
+        for y in s:
+            writef.write(y + '\n')
+        # else:
+        #     pass
             #            print(s)
             #            if s[1].split(',')[1]=='1' or s[1].split(',')[1]=='2':
             #                print('yes')
@@ -128,6 +133,6 @@ with open(cwd2 + '/PBC_Equations_noZEdge.inp', 'w') as writef:
             #     writef.write(y + '\n')
 
 with open(cwd2 + '/PeriodicNodes2.inp', 'w') as writef:
-    writef.write('*Nset,nset=PeriodicNodes2,instance=RVE \n')
+    writef.write('*Nset, nset=PeriodicNodes2, instance=RVE \n')
     for x in range(0, len(PeriodicN), 10):
         writef.write(''.join(str(PeriodicN[x:x + 10])).strip('[').strip(']') + '\n')

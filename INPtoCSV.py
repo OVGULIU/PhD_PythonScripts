@@ -1,8 +1,8 @@
 import numpy as np
 
-cwd = '/home/cerecam/Desktop/GP_BoundaryConditionTests/InputFiles'
-InpName = '/ElementSets'
-filename =  cwd + InpName+'.inp'
+cwd = '/home/cerecam/Desktop/emma_models_NEW/2M_96x96x96_89_over_146'
+InpName = 'SideElements'
+filename =  cwd + '/' + InpName+'.inp'
 elements = []
 switch=0
 Readf = open(filename,'r')
@@ -17,18 +17,20 @@ else:
     generate=False
 elements = []
 dummyElements = []
-Writef = open(cwd + '/DummyElementSets.inp','w')
+Writef = open(cwd + '/Dummy'+InpName + '.inp','w')
 for line in lines[1:]:
     if line[0] =='*':        
-        np.savetxt(cwd+ '/'+elset +'.csv',np.array([len(elements)]+elements).astype(int), delimiter=",",fmt='%i')    
+        np.savetxt(cwd+ '/'+elset +'.csv',np.array([len(elements)]+elements), delimiter=",",fmt='%i')
 #        print('csv file '+elset+' is written in '+cwd+ '/'+elset +'.csv')
-        dummyElements.sort()
+#         dummyElements.sort()
         Writef.write(','.join(split_line_name))
         if generate:
-            Writef.write(str([dummyElements[0],dummyElements[-1],1]).strip('[').strip(']')+'\n')
+            dummyElementsGen = list(range(dummyElements[0],dummyElements[-1]+1,1))
+            for x in range(0, len(dummyElementsGen), entries_per_line):
+                Writef.write(str(dummyElementsGen[x:x + entries_per_line]).strip('[').strip(']') + ', & \n')
         else:
             for x in range(0,len(dummyElements),entries_per_line):
-                Writef.write(str(dummyElements[x:x+entries_per_line]).strip('[').strip(']')+'\n')        
+                Writef.write(str(dummyElements[x:x+entries_per_line]).strip('[').strip(']')+', & \n')
         print(len(elements),elset)
         split_line_name = line.split(',')
         elset = split_line_name[1].split('=')[1]
@@ -41,25 +43,25 @@ for line in lines[1:]:
     elif line.strip() != '':
         split_line = line.strip().split(',')
         if generate:  
-            elements = range(int(split_line[0]),int(split_line[1])+1,int(split_line[2]))
+            elements = list(range(int(split_line[0]),int(split_line[1])+1,int(split_line[2])))
 #            if elset[3:].upper() == 'GOLD':                
 #                dummyElements = range(int(split_line[0]),int(split_line[1]),int(split_line[2]))
 #            else:
-            dummyElements = range(int(split_line[0])+500000,int(split_line[1])+500001,int(split_line[2]))
+            dummyElements = list(range(int(split_line[0]),int(split_line[1]),int(split_line[2])))
         else:
-            values = map(int, line.strip().split(','))
+            # values = map(int, line.strip().split(','))
 #            if elset[3:].upper() == 'GOLD':
 #                dummyvalues =map(int, line.strip().split(','))
 #            else:
-            dummyvalues =[int(x) +500000 for x in line.strip().split(',')]
-            elements.extend(values)
-            dummyElements.extend(dummyvalues)
+#             dummyvalues =[int(x) +500000 for x in line.strip().split(',') if x]
+            elements.extend(int(x) for x in line.strip().split(',') if x)
+            dummyElements.extend(int(x) for x in line.strip().split(',') if x)
     elif line == lines[-1]:
         np.savetxt(cwd+ '/'+elset +'.csv',np.array([len(elements)]+elements).astype(int), delimiter=",",fmt='%i')    
 #        print('csv file '+elset+' is written in '+cwd+ '/'+elset +'.csv')        
         Writef.write(','.join(split_line_name))
         for x in range(0,len(dummyElements),entries_per_line):
-            Writef.write(str(dummyElements[x:x+entries_per_line]).strip('[').strip(']')+'\n') 
+            Writef.write(str(dummyElements[x:x+entries_per_line]).strip('[').strip(']')+', & \n')
         
         print(len(elements),elset)
 Writef.close()
