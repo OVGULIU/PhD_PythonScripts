@@ -187,15 +187,15 @@ Matmu = [0.3, 0.44]
 
 # File names and locations for old odb
 # cwd = '/home/cerecam/Desktop/emma_models_NEW/2M_96x96x96_89_over_146/'
-# cwd = '/home/grfemm002/UCT_hpc/2M_96x96x96_89_over_146/'
-cwd = '/home/cerecam/Desktop/GP_BoundaryConditionTests/'
+cwd = '/home/grfemm002/UCT_hpc/2M_96x96x96_89_over_146/'
+#cwd = '/home/cerecam/Desktop/GP_BoundaryConditionTests/'
 OldOdbNameNoext = sys.argv[-2]
 # OldOdbNameNoext = 'FULLRVE-EXP-64-CEM'
 OldOdbName = OldOdbNameNoext + '.odb'
-ElementFiles = [cwd + 'InputFiles/UserElements.inp',
-                cwd + 'InputFiles/GoldElements.inp']  # Files with element connectivity description
-# ElementFiles = [cwd + 'PolymerElements.inp',
-#                 cwd + 'GoldElements.inp']  # Files with element connectivity description
+#ElementFiles = [cwd + 'InputFiles/UserElements.inp',
+#                cwd + 'InputFiles/GoldElements.inp']  # Files with element connectivity description
+ ElementFiles = [cwd + 'PolymerElements.inp',
+                 cwd + 'GoldElements.inp']  # Files with element connectivity description
 numIntervals = int(sys.argv[-1])
 Round_Var = 1
 Eletype = 'C3D8R'
@@ -203,7 +203,7 @@ if Eletype=='C3D8R':
     ipLen = 1
 Disp = 1
 Temp = 1
-Stress = 1
+Stress = 0
 
 # Accessing necessary objects in old odb                
 oldOdb = openOdb(cwd + OldOdbName)
@@ -354,28 +354,32 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
                 Dispfield = MultiFrame.fieldOutputs['U']  # Extract disp field output object from old Odb
                 DispData = []
                 DispNodes = []
-                Value_len = len(Dispfield.values)
+                if count == 0:
+                    DispNodes = [Dispfield.values[num_val].nodeLabel for num_val in range(len(Dispfield.values))]  # Node label list
+                DispData = [(tuple(Dispfield.values[num_val].dataDouble)) for num_val in range(Value_len)] # Data at node
             if Temp:
                 Tempfield = MultiFrame.fieldOutputs['NT11']  # Extract Temperature fieldOutput object from old Odb
                 TempData = []
                 TempNodes = []
-                Value_len = len(Tempfield.values)
-            for num_val in range(Value_len):
-                if Disp:
-                    if int(Dispfield.values[num_val].nodeLabel) > len(nodeData):
-                        pass
-                    else:
-                        if count==0:
-                            DispNodes.append(Dispfield.values[num_val].nodeLabel)  # Node label list
-                        DispData.append(tuple(Dispfield.values[num_val].dataDouble))  # Data at node
-
-                if Temp:
-                    if int(Tempfield.values[num_val].nodeLabel) > len(nodeData):
-                        pass
-                    else:
-                        if count ==0:
-                            TempNodes.append(Tempfield.values[num_val].nodeLabel)  # Node label list
-                        TempData.append(tuple([Tempfield.values[num_val].dataDouble, ]))  # Data at node
+                if count == 0:
+                    TempNodes = [Tempfield.values[num_val].nodeLabel for num_val in range(len(Tempfield.values))]  # Node label list
+                TempData = [(tuple([Tempfield.values[num_val].dataDouble, ]))for num_val in range(len(Tempfield.values))]  # Data at node
+            # for num_val in range(Value_len):
+            #     if Disp:
+            #         if int(Dispfield.values[num_val].nodeLabel) > len(nodeData):
+            #             pass
+            #         else:
+            #             if count==0:
+            #                 DispNodes.append(Dispfield.values[num_val].nodeLabel)  # Node label list
+            #             DispData.append(tuple(Dispfield.values[num_val].dataDouble))  # Data at node
+            #
+            #     if Temp:
+            #         if int(Tempfield.values[num_val].nodeLabel) > len(nodeData):
+            #             pass
+            #         else:
+            #             if count ==0:
+            #                 TempNodes.append(Tempfield.values[num_val].nodeLabel)  # Node label list
+            #             TempData.append(tuple([Tempfield.values[num_val].dataDouble, ]))  # Data at node
             # Add values to dictionary element with key = frameValue
             if Disp:
                 if count ==0:
