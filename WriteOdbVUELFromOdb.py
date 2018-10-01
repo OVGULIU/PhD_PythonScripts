@@ -36,6 +36,7 @@ from odbMaterial import *
 from odbSection import *
 from abaqusConstants import *
 import numpy as np
+import time
 
 # import python libraries
 import sys, time, csv, os
@@ -176,6 +177,7 @@ def StressStrain(Ele_Con, Node_Vals, ElementType):
     return dNdX1, dNdX2, dNdX3, pNN
 
 
+t1 = time.time()
 #
 #########################################################
 # Opening old odb file (pure VUEL file) to get nodal data:
@@ -202,11 +204,13 @@ Round_Var = 0
 Eletype = 'C3D8R'
 if Eletype == 'C3D8R':
     ipLen = 1
+ElecP = int(sys.argv[-7])
 Disp = int(sys.argv[-6])
 Temp = int(sys.argv[-5])
 Stress = int(sys.argv[-4])
 
-print >> sys.__stdout__, ('Displacement: {} \nTemperature: {} \nStress: {}'.format('yes' if Disp else 'no', 'yes' if Temp else 'no','yes' if Stress else 'no'))
+print >> sys.__stdout__, ('Displacement: {} \nTemperature: {} \nStress: {} \nElectric potential: {}'.format(
+    'yes' if Disp else 'no', 'yes' if Temp else 'no','yes' if Stress else 'no','yes' if ElecP else 'no'))
 
 
 # Accessing necessary objects in old odb                
@@ -224,11 +228,13 @@ frequency = analysisTime / numIntervals
 # node data read from old odb file
 nodeData = []
 nodeDict = {}
+nodeNum = []
 for nodes in myinstance.nodes:
     if int(nodes.label) < 999990:
         intnode = (nodes.label, nodes.coordinates[0], nodes.coordinates[1],
                    nodes.coordinates[2])  # Tuple of node data (node no., node x-coord, y-coord, z-coord)
         nodeDict[str(nodes.label)] = (nodes.coordinates[0], nodes.coordinates[1], nodes.coordinates[2])
+        nodeNum.append(nodes.label)
         nodeData.append(intnode)
         del intnode
 
@@ -319,9 +325,9 @@ step1 = odb.Step(name='Step-1',
 FrameTime = 0.0
 
 DispDataDict = {}
-DispNodesDict = {}
+# DispNodesDict = {}
 TempDataDict = {}
-TempNodesDict = {}
+# TempNodesDict = {}
 FieldValueDataDict = {}
 FieldValueEleDict = {}
 Efinal, S_totfinal = {}, {}
@@ -344,6 +350,8 @@ StatusFile = open(cwd + OldOdbNameNoext + newodbnameExt + '.sta', 'w')
 # Data must be written as a tuple (tuple of data), if SCALAR tuple of data written as (scalar,);
 #                                                  else if VECTOR ((data1, data2, data3), (..., ..., ..,), ...);
 #                                                  else if TENSOR ((11, 22, 33, 12, 13, 23), (...), ...)
+t2 = t1 = time.time()
+print>> sys.__stdout__, str( 'Time taken {}'.format(str(t2-t1)))
 for MultiFrame in steps.frames:  # Loop over every frame captured in odb
     # for MultiFrame in [steps.frames[-1]]:
     # FrameTime= round(MultiFrame.frameValue,Round_Var)
@@ -362,42 +370,42 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         #########################################################################################
 
         # Displacement data at nodes:
-        if Disp or Temp:
+        if Disp or Temp or ElecP:
             if Disp:
                 Dispfield = MultiFrame.fieldOutputs['U']  # Extract disp field output object from old Odb
                 DispData = []
-                DispNodes = []
+                # DispNodes = []
                 Value_len = len(Dispfield.values)
             if Temp:
                 Tempfield = MultiFrame.fieldOutputs['NT11']  # Extract Temperature fieldOutput object from old Odb
                 TempData = []
-                TempNodes = []
+                # TempNodes = []
                 Value_len = len(Tempfield.values)
             for num_val in range(Value_len):
                 if Disp:
-                    if int(Dispfield.values[num_val].nodeLabel) > len(nodeData):
+                    if int(Dispfield.values[num_val].nodeLabel) > len(nodeNum):
                         pass
                     else:
-                        if count == 0:
-                            DispNodes.append(Dispfield.values[num_val].nodeLabel)  # Node label list
+                        # if count == 0:
+                            # DispNodes.append(Dispfield.values[num_val].nodeLabel)  # Node label list
                         DispData.append(tuple(Dispfield.values[num_val].dataDouble))  # Data at node
 
                 if Temp:
-                    if int(Tempfield.values[num_val].nodeLabel) > len(nodeData):
+                    if int(Tempfield.values[num_val].nodeLabel) > len(nodeNum):
                         pass
                     else:
-                        if count == 0:
-                            TempNodes.append(Tempfield.values[num_val].nodeLabel)  # Node label list
+                        # if count == 0:
+                            # TempNodes.append(Tempfield.values[num_val].nodeLabel)  # Node label list
                         TempData.append(tuple([Tempfield.values[num_val].dataDouble, ]))  # Data at node
             # Add values to dictionary element with key = frameValue
-            if Disp:
-                if count == 0:
-                    DispNodesDict[0.0] = tuple(DispNodes)
-                DispDataDict[float(round(MultiFrame.frameValue, Round_Var))] = tuple(DispData)
-
-            if Temp:
-                if count == 0:
-                    TempNodesDict[0.0] = tuple(TempNodes)
+            # if Disp:
+            #     if count == 0:
+            #         DispNodesDict[0.0] = tuple(DispNodes)
+            #     DispDataDict[float(round(MultiFrame.frameValue, Round_Var))] = tuple(DispData)
+            #
+            # if Temp:
+            #     if count == 0:
+            #         TempNodesDict[0.0] = tuple(TempNodes)
             #     TempDataDict[float(round(MultiFrame.frameValue, Round_Var))] = tuple(TempData)
             # ElecP = 1
             # if ElecP:
@@ -498,7 +506,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
             # Add data to fieldoutput object
             newField.addData(position=NODAL,
                              instance=instance1,
-                             labels=DispNodesDict[0.0],
+                             labels=nodeNum,
                              data=DispDataDict[round(FrameTime, Round_Var)])
             step1.setDefaultField(newField)
         #	    odb.save()
@@ -510,7 +518,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
             # Add data to fieldoutput object
             newField2.addData(position=NODAL,
                               instance=instance1,
-                              labels=TempNodesDict[0.0],
+                              labels=nodeNum,
                               data=TempDataDict[round(FrameTime, Round_Var)])
         #	    odb.save()
         if Stress:
@@ -598,6 +606,8 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
         StatusFile.close()
         print >> sys.__stdout__, ('Field variables written for {}s\n'.format(str(FrameTime)))
         FrameTime += frequency
+        t3 = time.time()
+        print >> sys.__stdout__, ('Time taken for frame: {}'.format(t3-t2))
 newField0 = frame.FieldOutput(name='Centroid',
                               description='Centroid of each element',
                               type=VECTOR,
@@ -611,6 +621,6 @@ print >> sys.__stdout__, ('New odb: ' + odbpath)
 oldOdb.close()
 odb.save()
 
-print >> sys.__stdout__, ('Complete')
+print >> sys.__stdout__, ('Complete in {} minutes'.format(str((time.time()-t1)/60.0)))
 
 odb.close()
