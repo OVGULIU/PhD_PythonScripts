@@ -353,7 +353,7 @@ StatusFile = open(cwd + OldOdbNameNoext + newodbnameExt + '.sta', 'w')
 # Data must be written as a tuple (tuple of data), if SCALAR tuple of data written as (scalar,);
 #                                                  else if VECTOR ((data1, data2, data3), (..., ..., ..,), ...);
 #                                                  else if TENSOR ((11, 22, 33, 12, 13, 23), (...), ...)
-t2 = t1 = time.time()
+t2 = t1 - time.time()
 print>> sys.__stdout__, str( 'Time taken {} mins'.format(str((t2-t1)/60.0)))
 for MultiFrame in steps.frames:  # Loop over every frame captured in odb
     # for MultiFrame in [steps.frames[-1]]:
@@ -401,15 +401,11 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
                             # TempNodes.append(Tempfield.values[num_val].nodeLabel)  # Node label list
                         TempData.append(tuple([Tempfield.values[num_val].dataDouble, ]))  # Data at node
             # Add values to dictionary element with key = frameValue
-            # if Disp:
-            #     if count == 0:
-            #         DispNodesDict[0.0] = tuple(DispNodes)
-            #     DispDataDict[float(round(MultiFrame.frameValue, Round_Var))] = tuple(DispData)
+            if Disp:
+                DispDataDict[float(round(MultiFrame.frameValue, Round_Var))] = tuple(DispData)
             #
-            # if Temp:
-            #     if count == 0:
-            #         TempNodesDict[0.0] = tuple(TempNodes)
-            #     TempDataDict[float(round(MultiFrame.frameValue, Round_Var))] = tuple(TempData)
+            if Temp:
+                TempDataDict[float(round(MultiFrame.frameValue, Round_Var))] = tuple(TempData)
             # ElecP = 1
             # if ElecP:
             #     try:
@@ -514,6 +510,17 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
             step1.setDefaultField(newField)
         #	    odb.save()
         if Temp:
+            # Add fieldoutput object to new odb
+            newField2 = frame.FieldOutput(name='Co',
+                                          description='Concentration',
+                                          type=SCALAR)  # Creation of new field otput object called 'CONCENTRATION'
+            # Add data to fieldoutput object
+            newField2.addData(position=NODAL,
+                              instance=instance1,
+                              labels=nodeNum,
+                              data=TempDataDict[round(FrameTime, Round_Var)])
+        #	    odb.save()
+        if ElecP:
             # Add fieldoutput object to new odb
             newField2 = frame.FieldOutput(name='Co',
                                           description='Concentration',
