@@ -239,8 +239,11 @@ for nodes in myinstance.nodes:
         del intnode
 
 # Creates an ODB
-newodbnameExt = '_NoUEL3'
+newodbnameExt = '_NoUEL'
 odbpath = cwd + OldOdbNameNoext + newodbnameExt + '.odb'
+if os.path.isfile(odbpath):
+    newodbnameExt = '_NoUEL2'
+    odbpath = cwd + OldOdbNameNoext + newodbnameExt + '.odb'
 odb = Odb(name='WriteOdbTest', analysisTitle="ODB created by python script",
           description="Odb for showing VUEL data from a previous odb with no visualization elements",
           path=odbpath)
@@ -351,7 +354,7 @@ StatusFile = open(cwd + OldOdbNameNoext + newodbnameExt + '.sta', 'w')
 #                                                  else if VECTOR ((data1, data2, data3), (..., ..., ..,), ...);
 #                                                  else if TENSOR ((11, 22, 33, 12, 13, 23), (...), ...)
 t2 = t1 = time.time()
-print>> sys.__stdout__, str( 'Time taken {}'.format(str(t2-t1)))
+print>> sys.__stdout__, str( 'Time taken {} mins'.format(str((t2-t1)/60.0)))
 for MultiFrame in steps.frames:  # Loop over every frame captured in odb
     # for MultiFrame in [steps.frames[-1]]:
     # FrameTime= round(MultiFrame.frameValue,Round_Var)
@@ -603,11 +606,12 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
     #	odb.save()
 
         StatusFile.write('Field variables written for {}s\n'.format(str(FrameTime)))
-        StatusFile.close()
+        StatusFile.write('Field variables written for {}s\n'.format(str(FrameTime)))
         print >> sys.__stdout__, ('Field variables written for {}s\n'.format(str(FrameTime)))
+        StatusFile.close()
         FrameTime += frequency
         t3 = time.time()
-        print >> sys.__stdout__, ('Time taken for frame: {}'.format(t3-t2))
+        print >> sys.__stdout__, ('Time taken for frame: {} mins'.format((t3-t2)/60.0))
 newField0 = frame.FieldOutput(name='Centroid',
                               description='Centroid of each element',
                               type=VECTOR,
