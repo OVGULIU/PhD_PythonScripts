@@ -10,7 +10,7 @@ Check and change teh following variables:
 	point2
 
 crl+shift+v into terminal
-abaqus viewer noGUI=/home/cerecam/Dropbox/Masters/PythonCodes/DefModePostProcess.py
+abaqus viewer noGUI=/home/cerecam/Desktop/GIT/PhD_PythonScripts/DefModePostProcess.py
 ===================================================================================
 '''
 
@@ -57,14 +57,14 @@ def writeFile(Data, filename, FirstLine, cwd):
 def BM(Q):
     """
     Calculated maximum bedning moment of a ligament
-    :param Q:
-    :return: Value of bendign moment (BendingMomnet) at multiple rotated values (RotatedVal)
+    :param Q: Rotation matrix
+    :return: Value of bending moment (BendingMomnet) at multiple rotated values (RotatedVal)
     """
     BendingMoment = {}
     RotatedVal = {}
     BM_3D = [0, 0]
-    for key, value in normals.items():
-        Val = np.dot(Q, np.array(COORD_e[int(key) - 1]))
+    for key in Ligament_elements:
+        Val = np.dot(Q, np.array(COORD_e[int(key)-1]))
         RotatedVal[key] = Val[0:2]
         RotCentroid = np.dot(Q, np.array(Centroid))
         RotCentroid = RotCentroid[0:2]
@@ -105,69 +105,80 @@ global normalvec
 global normalstress
 global shearstress
 global FO
+global COORD_e
 global angle
 global ligamentname
+global Ligament_elements
+global Lig_ele_nodes
 global centroid
 global odbname
 
 # surfaces = {'F1': [1, 2, 3], 'F2': [1, 2, 4], 'F3': [2, 3, 4], 'F4': [1, 3, 4]}
-surfaces = {'F1' : [1, 2, 3, 4], 'F2':[5, 6, 7, 8], 'F3' : [1, 8, 8, 4], 'F4' : [6, 2, 3, 7],
-          'F5': [4, 8, 7, 3], 'F6' : [1, 5, 6, 2]}
-axis = {'0': 'X', '1': 'Y', '2': 'Z'}
+# surfaces = {'F1' : [1, 2, 3, 4], 'F2':[5, 6, 7, 8], 'F3' : [1, 8, 8, 4], 'F4' : [6, 2, 3, 7],
+#           'F5': [4, 8, 7, 3], 'F6' : [1, 5, 6, 2]}
+# axis = {'0': 'X', '1': 'Y', '2': 'Z'}
 
 cwd = '/home/cerecam/Desktop/GP_BoundaryConditionTests/'
 odbname = 'Test1_NoUEL'
 
-ligvals = open(cwd + '/LigVals.txt', 'r')  # File containing Ligament name, origin, 2 points to define co-ord system and the face orientated
+# ligvals = open(cwd + '/LigVals.txt', 'r')  # File containing Ligament name, origin, 2 points to define co-ord system and the face orientated
 results = open(cwd + odbname + '.txt', 'w')
-# File giving lig name, bendign moment at max angle, torque, normal stress, shear stress and area of ligament.
-ligfile = ligvals.read()
-ligfile = ligfile.split('\n')
 
-for ligamentnumber in range(1):
+# File giving lig name, bendign moment at max angle, torque, normal stress, shear stress and area of ligament.
+# ligfile = ligvals.read()
+# ligfile = ligfile.split('\n')
+lig_dir = '/home/cerecam/Desktop/96x96x96_Ligaments/'
+ligAxis_fname = '/home/cerecam/Desktop/96x96x96_Ligaments/LigamentAxis.inp'
+with open(ligAxis_fname, 'rb') as ligAxis:
+    ligAxis.readline()
+    axes = ligAxis.readline().split()
+
+[ODB, assembly, Keys_steps, steps, frames, FO] = abaqusopen(cwd + odbname)
+myinstance = assembly.instances[assembly.instances.keys()[-1]]
+nodeObject = myinstance.nodes
+
+frame_val = ODB.steps[Keys_steps[-1]].frames[-1]
+FO_E = frame_val.fieldOutputs['E']
+E = [E_val.data for E_val in FO_E.values]
+FO_S = frame_val.fieldOutputs['S']
+S = [S_val.data for S_val in FO_S.values]
+FO_COORD = frame_val.fieldOutputs['Centroid']
+COORD_e = [COORD_val.data for COORD_val in FO_COORD.values]
+
+for ligamentnumber in range(50,51):
     Norm = {}
     Coordnode = {}
-    normals = {}
+    # normals = {}
     Area = {}
     Centroid = []
     Rotation = {}
-    Ligament_elements = []
     stresstens = {}
     tractionvec = {}
 
     ligamentname = 'Ligament' + str(ligamentnumber)
-    for value in range(0, len(ligfile), 6):
-        if ligfile[value].upper() == ligamentname.upper():
-            print >> sys.__stdout__, (str(ligfile[value].upper()))
-            origin = int(ligfile[value + 1][7:].strip())
-            point1 = int(ligfile[value + 2][7:].strip())
-            point2 = int(ligfile[value + 3][7:].strip())
-            myface = str(ligfile[value+4][7:].strip())
-            print >> sys.__stdout__, (str((origin, point1, point2, myface)))
 
-    Norm[ligamentname] = [0, 0, 1]
-    [ODB, assembly, Keys_steps, steps, frames, FO] = abaqusopen(cwd + odbname)
-    myinstance = assembly.instances[assembly.instances.keys()[-1]]
+    if axes[ligamentnumber-1] =='X':
+        Norm[ligamentname] = [1, 0, 0]
+    elif axes[ligamentnumber-1] =='Y':
+        Norm[ligamentname] = [0, 1, 0]
+    elif axes[ligamentnumber-1] =='Z':
+        Norm[ligamentname] = [0, 0, 1]
+
     # Setting up no coord system and getting Transformed data (Sress, strain and Coords)
-    NODEorigin = tuple(assembly.instances[assembly.instances.keys()[-1]].nodes[origin - 1].coordinates)
-    NODEpoint1 = tuple(assembly.instances[assembly.instances.keys()[-1]].nodes[point1 - 1].coordinates)
-    NODEpoint2 = tuple(assembly.instances[assembly.instances.keys()[-1]].nodes[point2 - 1].coordinates)
-    NEWCSYS = ODB.rootAssembly.DatumCsysByThreePoints(name='NEW', coordSysType=CARTESIAN, origin=NODEorigin,
-                                                      point1=NODEpoint1, point2=NODEpoint2)
-    frame_val = ODB.steps[Keys_steps[-1]].frames[-1]
-    FO_E = frame_val.fieldOutputs['E'].getTransformedField(NEWCSYS)
-    E = [E_val.data for E_val in FO_E.values]
-    FO_S = frame_val.fieldOutputs['S'].getTransformedField(NEWCSYS)
-    S = [S_val.data for S_val in FO_S.values]
-    FO_COORD = frame_val.fieldOutputs['Centroid'].getTransformedField(NEWCSYS)
-    COORD_e = [COORD_val.data for COORD_val in FO_COORD.values]
-    COORD_n = []
-    for nodes in myinstance.nodes:
-        if int(nodes.label) < 999990:
-            intnode = [nodes.coordinates[0], nodes.coordinates[1],
-                       nodes.coordinates[2]]  # Tuple of node data (node no., node x-coord, y-coord, z-coord)
-            COORD_n.append(intnode)
-            del intnode
+    # NODEorigin = tuple(assembly.instances[assembly.instances.keys()[-1]].nodes[origin - 1].coordinates)
+    # NODEpoint1 = tuple(assembly.instances[assembly.instances.keys()[-1]].nodes[point1 - 1].coordinates)
+    # NODEpoint2 = tuple(assembly.instances[assembly.instances.keys()[-1]].nodes[point2 - 1].coordinates)
+    # NEWCSYS = ODB.rootAssembly.DatumCsysByThreePoints(name='NEW', coordSysType=CARTESIAN, origin=NODEorigin,
+    #                                                   point1=NODEpoint1, point2=NODEpoint2)
+
+    # COORD_e = [COORD_val.data for COORD_val in FO_COORD.values]
+    # COORD_n = []
+    # for nodes in myinstance.nodes:
+    #     if int(nodes.label) < 999990:
+    #         intnode = [nodes.coordinates[0], nodes.coordinates[1],
+    #                    nodes.coordinates[2]]  # Tuple of node data (node no., node x-coord, y-coord, z-coord)
+    #         COORD_n.append(intnode)
+    #         del intnode
 
     # with open(cwd + '/' + ligamentname.upper() + 'faces' + '.csv',
     #           'rb') as csv_file:
@@ -175,18 +186,28 @@ for ligamentnumber in range(1):
     #     myface = dict(readertwo)
     Ligament_elements = []
     Lig_ele_nodes = {}
-    with open(cwd + '/' + ligamentname + '.inp', 'rb') as lig_file:
-        lig_file.readline()
-        lig_file.readline()
+    with open(lig_dir + ligamentname + '.inp', 'rb') as lig_file:
+        start = False
         for line in lig_file:
-            Ligament_elements.append(line.split()[1])
-            Lig_ele_nodes[line.split()[1]] = line.split()[3:]
+            if start:
+                Ligament_elements.append(line.split()[1])
+                Lig_ele_nodes[line.split()[1]] = line.split()[3:]
+            if line[:10] == '----------':
+                start = True
+    print >> sys.__stdout__, ('Ligament_elements: ' + str(Ligament_elements))
+    print >> sys.__stdout__, ('Lig_ele_nodes: ' + str(Lig_ele_nodes))
+    # for nodes in myinstance.nodes:
+    #     if int(nodes.label) < 999990:
+    #         intnode = [nodes.coordinates[0], nodes.coordinates[1],
+    #                    nodes.coordinates[2]]  # Tuple of node data (node no., node x-coord, y-coord, z-coord)
+    #         COORD_n.append(intnode)
+    #         del intnode
 
-    X = [COORD_e[int(i) - 1][0] for i in Ligament_elements]
+    X = [FO_COORD.values[int(i) - 1].data[0] for i in Ligament_elements]
     X = np.sort(X)
-    Y = [COORD_e[int(i) - 1][1] for i in Ligament_elements]
+    Y = [FO_COORD.values[int(i) - 1].data[1] for i in Ligament_elements]
     Y = np.sort(Y)
-    Z = [COORD_e[int(i) - 1][2] for i in Ligament_elements]
+    Z = [FO_COORD.values[int(i) - 1].data[2] for i in Ligament_elements]
     Z = np.sort(Z)
 
     Xmin = X[0]
@@ -209,28 +230,27 @@ for ligamentnumber in range(1):
         Ele_node_coords = []
         Ele_coords = []
         # Gets the co-ordinates of each node within those elements specified by the file ("ligamentname"+faces.csv)
-        [Ele_node_coords.append(COORD_n[int(p) - 1]) for p in ConnectedNodes]
+        [Ele_node_coords.append(myinstance.nodes[int(p) - 1].coordinates) for p in ConnectedNodes]
         eleNormal = {}
         FaceArea = {}
         # print >> sys.__stdout__, (str(Ele_node_coords[1]))
         # Calculation of normals of all surfaces
-        value = surfaces[myface]
-        surfacevec = []
-        surfacevec.append(list(np.array(Ele_node_coords[value[0] - 1]) - np.array(Ele_node_coords[value[1] - 1])))
-        surfacevec.append(list(np.array(Ele_node_coords[value[0] - 1]) - np.array(Ele_node_coords[value[2] - 1])))
-        normaldir = np.cross(surfacevec[0], surfacevec[1])
-        number = Norm[ligamentname].index(1)
-        if float(normaldir[number]) < 0:
-            normaldir = [float(x) * -1 for x in normaldir]
-        normalmag = np.array(norm(normaldir))
-        normals[i] = np.array([float(m) / normalmag for m in normaldir])
-        Area[i] = normalmag / 2
-
-    for key, value in normals.items():
-        S_ele = S[int(key) - 1]
-        stresstens[key] = np.array(
+        # value = surfaces[myface]
+        # surfacevec = []
+        # surfacevec.append(list(np.array(Ele_node_coords[value[0] - 1]) - np.array(Ele_node_coords[value[1] - 1])))
+        # surfacevec.append(list(np.array(Ele_node_coords[value[0] - 1]) - np.array(Ele_node_coords[value[2] - 1])))
+        # normaldir = np.cross(surfacevec[0], surfacevec[1])
+        # number = Norm[ligamentname].index(1)
+        # if float(normaldir[number]) < 0:
+        #     normaldir = [float(x) * -1 for x in normaldir]
+        # normalmag = np.array(norm(normaldir))
+        # normals[i] = np.array([float(m) / normalmag for m in normaldir])
+        # Area[i] = normalmag / 2
+        Area[i] = 0.87891
+        S_ele = S[int(i) - 1]
+        stresstens[i] = np.array(
             [[S_ele[0], S_ele[3], S_ele[4]], [S_ele[3], S_ele[1], S_ele[5]], [S_ele[4], S_ele[5], S_ele[2]]])
-        tractionvec[key] = np.dot(stresstens[key], normals[key]).T
+        tractionvec[i] = np.dot(stresstens[i], Norm[ligamentname]).T
 
     normalstress = {}
     N = Norm[ligamentname]
@@ -239,7 +259,7 @@ for ligamentnumber in range(1):
 
     BM_Rot = {}
     maxBM = {}
-    for angledeg in range(0, 180, 30):
+    for angledeg in range(0, 180, 10):
         angle = angledeg * (pi / 180)
         if Norm[ligamentname][0] == 1:
             Q = [[1, 0, 0], [0, math.cos(angle), math.sin(angle)], [0, -math.sin(angle), math.cos(angle)]]
@@ -247,7 +267,7 @@ for ligamentnumber in range(1):
             Q = [[math.cos(angle), 0, -math.sin(angle)], [0, 1, 0], [math.sin(angle), 0, math.cos(angle)]]
         if Norm[ligamentname][2] == 1:
             Q = [[math.cos(angle), math.sin(angle), 0], [-math.sin(angle), math.cos(angle), 0], [0, 0, 1]]
-        _, _, BM_3D = BM(Q)
+        _, _, BM_3D = BM(Q, )
         BM_Rot[str(angle)] = BM_3D
         maxBM[str(angle)] = [np.amax(abs(BM_3D)), np.argmax(abs(BM_3D))]
 
@@ -284,11 +304,10 @@ for ligamentnumber in range(1):
         ShearMag = np.array(norm(value - p))
         shearvec[key] = np.array([i / ShearMag for i in (value - p)])
 
-    Torque = {}
     PerpenVec = {}
     PXint = {}
     A = {}
-    for key, value in normals.items():
+    for key in Ligament_elements:
         Val = np.array(COORD_e[int(key) - 1])
         PerpenPoint = Val + (np.dot((Centroid - Val), shearvec[key])) * shearvec[key]
         Vector = PerpenPoint - Centroid
@@ -348,9 +367,9 @@ for ligamentnumber in range(1):
 
     results.write(ligamentname + '\n')
     results.write(
-        'Bending Moment: ' + str(BM_3D[maxBM[AngleBM][1]]) + ' at angle: ' + str(float(AngleBM) * 180 / pi) + '\n')
-    results.write('Torque ' + str(Torque) + '\n')
-    results.write('Normal stress ' + str(NormalS) + '\n')
-    results.write('Shear ' + str(Shear) + '\n')
-    results.write('Area ' + str(AreaTot) + '\n')
+        'Bending Moment: ' + str(BM_3D[maxBM[AngleBM][1]]) + 'e-14 N.m' + ' at angle: ' + str(float(AngleBM) * 180 / pi) + '\n')
+    results.write('Torque ' + str(Torque) + 'e-14 N.m' + '\n')
+    results.write('Normal stress ' + str(NormalS) + 'e-7 N' + '\n')
+    results.write('Shear ' + str(Shear) + 'e-7 N' + '\n')
+    results.write('Area ' + str(AreaTot)  + 'e-14 N^{2}' + '\n')
     results.write('\n')

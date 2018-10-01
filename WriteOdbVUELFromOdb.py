@@ -356,7 +356,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
                 DispNodes = []
                 if count == 0:
                     DispNodes = [Dispfield.values[num_val].nodeLabel for num_val in range(len(Dispfield.values))]  # Node label list
-                DispData = [(tuple(Dispfield.values[num_val].dataDouble)) for num_val in range(Value_len)] # Data at node
+                DispData = [(tuple(Dispfield.values[num_val].dataDouble)) for num_val in range(Dispfield.values)] # Data at node
             if Temp:
                 Tempfield = MultiFrame.fieldOutputs['NT11']  # Extract Temperature fieldOutput object from old Odb
                 TempData = []
@@ -440,28 +440,25 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
 
                 # ElecDisp = np.array(e_zero * e_r * ElecField)
                 # Qf = F * (Z * Conc_gp + csat)
-                if mat == 'Gold':
-                    # EleListG.append(Ele_Label)
-                    E = 0.5 * (np.transpose(H[0]) + H[0])  # Strain calculation at Gauss point
-                    #            if Ele_Label == 11150:
-                    #                print >> sys.__stdout__, str(E)
+                # EleListG.append(Ele_Label)
+                E = 0.5 * (np.transpose(H[0]) + H[0])  # Strain calculation at Gauss point
+                #            if Ele_Label == 11150:
+                #                print >> sys.__stdout__, str(E)
 
-                    S_mech = 2.0 * Gmod * E + lam * np.trace(E) * np.eye(
-                        3)  # Mecahnical stress calculation at Gauss point
-                    # S_chem = -((k * Qf) / Z) * np.eye(3)  # Chemical Stress calculation at Gauss point
+                S_mech = 2.0 * Gmod * E + lam * np.trace(E) * np.eye(3)  # Mecahnical stress calculation at Gauss point
+                # S_chem = -((k * Qf) / Z) * np.eye(3)  # Chemical Stress calculation at Gauss point
 
-                    # S_elec = (1.0 / (e_zero * e_r)) * (
-                    #         (np.outer(ElecDisp, ElecDisp)) - 0.5 * (np.dot(ElecDisp, ElecDisp)) * np.eye(3))
-                    #            S_elec = np.array([[0.0,0.0,0.0],[0.0,0.0,0.0],[0.0,0.0,0.0]])
-                    # S_total = S_mech + S_chem + S_elec
-                    S_total = S_mech
-                    Ee.append(tuple(E.flatten()[[0, 4, 8, 1, 2,
-                                                 5]]))  # create vector format of strain data ('E11','E22','E33','E12','E13','E23')
-                    Ss_mech.append(tuple(S_mech.flatten()[[0, 4, 8, 1, 2,
-                                                           5]]))  # create vector format of strain data ('S11','S22','S33','S12','S13','S23')
-                    # Ss_chem.append(tuple(S_chem.flatten()[[0, 4, 8, 1, 2, 5]]))
-                    # Ss_elec.append(tuple(S_elec.flatten()[[0, 4, 8, 1, 2, 5]]))
-                    Ss_tot.append(tuple(S_total.flatten()[[0, 4, 8, 1, 2, 5]]))
+                # S_elec = (1.0 / (e_zero * e_r)) * (
+                #         (np.outer(ElecDisp, ElecDisp)) - 0.5 * (np.dot(ElecDisp, ElecDisp)) * np.eye(3))
+                #            S_elec = np.array([[0.0,0.0,0.0],[0.0,0.0,0.0],[0.0,0.0,0.0]])
+                # S_total = S_mech + S_chem + S_elec
+                S_total = S_mech
+                Ee.append(tuple(E.flatten()[[0, 4, 8, 1, 2,5]]))  # create vector format of strain data ('E11','E22','E33','E12','E13','E23')
+                Ss_mech.append(tuple(S_mech.flatten()[[0, 4, 8, 1, 2,
+                                                       5]]))  # create vector format of strain data ('S11','S22','S33','S12','S13','S23')
+                # Ss_chem.append(tuple(S_chem.flatten()[[0, 4, 8, 1, 2, 5]]))
+                # Ss_elec.append(tuple(S_elec.flatten()[[0, 4, 8, 1, 2, 5]]))
+                Ss_tot.append(tuple(S_total.flatten()[[0, 4, 8, 1, 2, 5]]))
             if Stress:
                 # Store data for frame in question
                 Efinal[float(round(MultiFrame.frameValue, Round_Var))] = tuple(Ee)
