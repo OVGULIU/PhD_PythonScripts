@@ -36,11 +36,11 @@ from odbMaterial import *
 from odbSection import *
 from abaqusConstants import *
 import numpy as np
-import time
 
 # import python libraries
-import sys, time, csv, os
-
+import sys, time, csv, os, datetime
+t1 = time.time()
+print >> sys.__stdout__, str(datetime.datetime.now())
 
 def StressStrain(Ele_Con, Node_Vals, ElementType):
     if ElementType.strip() == 'C3D4':  # Tetrahedral element with one integration point
@@ -176,8 +176,6 @@ def StressStrain(Ele_Con, Node_Vals, ElementType):
 
     return dNdX1, dNdX2, dNdX3, pNN
 
-
-t1 = time.time()
 #
 #########################################################
 # Opening old odb file (pure VUEL file) to get nodal data:
@@ -229,15 +227,23 @@ frequency = analysisTime / numIntervals
 nodeData = []
 nodeDict = {}
 nodeNum = []
+polymerNodes = []
+polymerNodeData = []
+node_count = 0
 for nodes in myinstance.nodes:
     if int(nodes.label) < 999990:
         intnode = (nodes.label, nodes.coordinates[0], nodes.coordinates[1],
                    nodes.coordinates[2])  # Tuple of node data (node no., node x-coord, y-coord, z-coord)
         nodeDict[str(nodes.label)] = (nodes.coordinates[0], nodes.coordinates[1], nodes.coordinates[2])
-        nodeNum.append(nodes.label)
+        nodeNum.append(int(nodes.label))
         nodeData.append(intnode)
+        if node_count < len(assembly.nodeSets['POLYMER_NODES'].nodes[0]):
+            if int(assembly.nodeSets['POLYMER_NODES'].nodes[0][node_count].label) == int(nodes.label): # Read in node set data from old odb file
+                polymerNodeData.append(intnode)
+                polymerNodes.append(int(nodes.label))
+                node_count += 1
         del intnode
-
+nodeNum.sort()
 # Creates an ODB
 newodbnameExt = '_NoUEL'
 odbpath = cwd + OldOdbNameNoext + newodbnameExt + '.odb'
@@ -261,6 +267,8 @@ for num, mat in enumerate(materialNames):
 # MODEL data, creation of part from node data
 part1 = odb.Part(name='Part-1', embeddedSpace=THREE_D, type=DEFORMABLE_BODY)
 part1.addNodes(nodeData=tuple(nodeData), nodeSetName='All_NODES')  # add nodes to part
+part1.addNodes(nodeData=tuple(polymerNodeData), nodeSetName='POLYMER_NODES')  # add polymer node set to part
+
 
 # Element connectivity data read from .inp file (cannot use old odb as connectivity of user elements (RNODE3) not given)
 EleList = []
@@ -353,9 +361,9 @@ StatusFile = open(cwd + OldOdbNameNoext + newodbnameExt + '.sta', 'w')
 # Data must be written as a tuple (tuple of data), if SCALAR tuple of data written as (scalar,);
 #                                                  else if VECTOR ((data1, data2, data3), (..., ..., ..,), ...);
 #                                                  else if TENSOR ((11, 22, 33, 12, 13, 23), (...), ...)
-t2 = t1 - time.time()
-print>> sys.__stdout__, str( 'Time taken {} mins'.format(str((t2-t1)/60.0)))
 for MultiFrame in steps.frames:  # Loop over every frame captured in odb
+    t2 = time.time()
+    print >> sys.__stdout__, str('Time taken {} mins'.format(str((t2 - t1) / 60.0)))
     # for MultiFrame in [steps.frames[-1]]:
     # FrameTime= round(MultiFrame.frameValue,Round_Var)
     if count > 0:
@@ -377,42 +385,57 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
             if Disp:
                 Dispfield = MultiFrame.fieldOutputs['U']  # Extract disp field output object from old Odb
                 DispData = []
-                # DispNodes = []
+                DispNodes = []
                 Value_len = len(Dispfield.values)
             if Temp:
                 Tempfield = MultiFrame.fieldOutputs['NT11']  # Extract Temperature fieldOutput object from old Odb
                 TempData = []
-                # TempNodes = []
+                TempNodes = []
                 Value_len = len(Tempfield.values)
-            for num_val in range(Value_len):
+            for num_val in nodeNum:
                 if Disp:
                     if int(Dispfield.values[num_val].nodeLabel) > len(nodeNum):
                         pass
                     else:
                         # if count == 0:
-                            # DispNodes.append(Dispfield.values[num_val].nodeLabel)  # Node label list
+                        # DispNodes = []
+                        DispNodes.append(Dispfield.values[num_val].nodeLabel)  # Node label list
+                        # DispData.append([Dispfield.values[num_val].nodeLabel,tuple(Dispfield.values[num_val].dataDouble)])  # Data at node
                         DispData.append(tuple(Dispfield.values[num_val].dataDouble))  # Data at node
+                        DispDataDict[Dispfield.values[num_val].nodeLabel] = Dispfield.values[num_val].dataDouble
 
                 if Temp:
                     if int(Tempfield.values[num_val].nodeLabel) > len(nodeNum):
                         pass
                     else:
                         # if count == 0:
-                            # TempNodes.append(Tempfield.values[num_val].nodeLabel)  # Node label list
-                        TempData.append(tuple([Tempfield.values[num_val].dataDouble, ]))  # Data at node
+                        TempNodes.append(Tempfield.values[num_val].nodeLabel)  # Node label list
+                        # TempData.append([Tempfield.values[num_val].nodeLabel,tuple([Tempfield.values[num_val].dataDouble,])])  # Data at node
+                        TempData.append(tuple([Tempfield.values[num_val].dataDouble,]))  # Data at node
             # Add values to dictionary element with key = frameValue
             if Disp:
+                # DispData.sort()
+                # DispNodes.sort()
                 DispDataDict[float(round(MultiFrame.frameValue, Round_Var))] = tuple(DispData)
             #
             if Temp:
+                # TempNodes.sort()
+                # TempData.sort()
                 TempDataDict[float(round(MultiFrame.frameValue, Round_Var))] = tuple(TempData)
             # ElecP = 1
-            # if ElecP:
-            #     try:
-            #         with open(cwd+'Elecpotentials'+oldOdb+str(int((count+1)*100))+'.csv', 'r') as fopen:
-            #             ElecData = list(csv.reader(fopen))
-            #     except FileNotFoundError:
-            #         pass
+            if ElecP:
+                epName = '{}Elecpotentials{}{}.csv'.format(
+                    cwd, OldOdbNameNoext, str(count * 100) if int(count * 100) > 0 else '')
+                try:
+                    with open(epName, 'r') as fopen:
+                        ElecData = [tuple([float(x[0]),]) for x in list(csv.reader(fopen))]
+                        ElecData.append((0.0,))
+                        EpData = 1
+                except:
+                    EpData = 0
+                    print >> sys.__stdout__, (str(epName) + 'not found')
+                    pass
+                # print >> sys.__stdout__, str(ElecData[1000:1020])
         Ee, Ss, Ee_principal, Ss_principal, V_mises = [], [], [], [], []
         Ss_mech, Ss_chem, Ss_elec, Ss_tot = [], [], [], []
         ##################### Material Parameters #############################
@@ -436,61 +459,60 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
                 # Node_Vals = {}
                 # # Elec_Ele_Data = {}qstat
                 # for i in Ele_con:  # Creates dictionary (key = node label) of nodal coordinates (X,Y,Z) for element in question (Ele_Con[0])
-            # Node_Vals[str(i)] = nodeDict[str(i)]
-            # Elec_Ele_Data[int(i)] = ElecData[int(i)]
+                # Node_Vals[str(i)] = nodeDict[str(i)]
+                # Elec_Ele_Data[int(i)] = ElecData[int(i)]
 
-            H = [[0.0, 0.0, 0.0] * ipLen]
-            # Conc_gp = [0.0]*len(dNdX1)
-            # ElecField = np.array([0.0, 0.0, 0.0])
-            # Tarray = []
-            for x, y in enumerate(Ele_con):
-                for ip in range(ipLen):
-                    Uarray = DispData[int(y) - 1]
-                    H[ip] = H[ip] + np.outer(Uarray,
-                                             np.array([dNdX1[Ele_Label][ip][x], dNdX2[Ele_Label][ip][x],
-                                                       dNdX3[Ele_Label][ip][x]]))  # Grad(U)
-                    # if materialNames[Mat].lower() == 'polymer':
-                    #     Tarray.append(
-                    #         float(TempDataDict[float(round(MultiFrame.frameValue, Round_Var))][int(y) - 1][0]))
-                    # # ElecField_int = [dNdX * Elec_Ele_Data[y] for dNdX in [dNdX1[ip][x], dNdX2[ip][x], dNdX3[ip][x]]]
-                    # # ElecField = ElecField - np.array(ElecField_int)
-                    #
-                    # else:
-                    # Tarray.append(csat)
+                H = [[0.0, 0.0, 0.0] * ipLen]
+                # Conc_gp = [0.0]*len(dNdX1)
+                # ElecField = np.array([0.0, 0.0, 0.0])
+                # Tarray = []
+                for x, y in enumerate(Ele_con):
+                    for ip in range(ipLen):
+                        Uarray = DispDataDict[str(y)]
+                        H[ip] = H[ip] + np.outer(Uarray,
+                                                 np.array([dNdX1[Ele_Label][ip][x], dNdX2[Ele_Label][ip][x],
+                                                           dNdX3[Ele_Label][ip][x]]))  # Grad(U)
+                        # if materialNames[Mat].lower() == 'polymer':
+                        #     Tarray.append(
+                        #         float(TempDataDict[float(round(MultiFrame.frameValue, Round_Var))][int(y) - 1][0]))
+                        # # ElecField_int = [dNdX * Elec_Ele_Data[y] for dNdX in [dNdX1[ip][x], dNdX2[ip][x], dNdX3[ip][x]]]
+                        # # ElecField = ElecField - np.array(ElecField_int)
+                        #
+                        # else:
+                        # Tarray.append(csat)
 
-                    # Conc_gp = np.dot(np.array(pNN[Ele_Label][0]), np.array(Tarray))
+                        # Conc_gp = np.dot(np.array(pNN[Ele_Label][0]), np.array(Tarray))
 
-                    # ElecDisp = np.array(e_zero * e_r * ElecField)
-                    # Qf = F * (Z * Conc_gp + csat)
-                    # EleListG.append(Ele_Label)
-                    E = 0.5 * (np.transpose(H[0]) + H[0])  # Strain calculation at Gauss point
+                        # ElecDisp = np.array(e_zero * e_r * ElecField)
+                        # Qf = F * (Z * Conc_gp + csat)
+                        # EleListG.append(Ele_Label)
+                E = 0.5 * (np.transpose(H[0]) + H[0])  # Strain calculation at Gauss point
                 # if Ele_Label == 11150:
-            #print >> sys.__stdout__, str(E)
-            # S_mech = 2.0 * Gmod * E + lam * np.trace(E) * np.eye(3)  # Mecahnical stress calculation at Gauss point
-            # S_chem = -((k * Qf) / Z) * np.eye(3)  # Chemical Stress calculation at Gauss point
-            # S_elec = (1.0 / (e_zero * e_r)) * (
-            #         (np.outer(ElecDisp, ElecDisp)) - 0.5 * (np.dot(ElecDisp, ElecDisp)) * np.eye(3))
-            #            S_elec = np.array([[0.0,0.0,0.0],[0.0,0.0,0.0],[0.0,0.0,0.0]])
-            # S_total = S_mech + S_chem + S_elec
-            # S_total = S_mech
-            Ee.append(tuple(E.flatten()[[0, 4, 8, 1, 2,
-                                         5]]))  # create vector format of strain data ('E11','E22','E33','E12','E13','E23')
-            # Ss_mech.append(tuple(S_mech.flatten()[[0, 4, 8, 1, 2,5]]))  # create vector format of strain data ('S11','S22','S33','S12','S13','S23')
-            # Ss_chem.append(tuple(S_chem.flatten()[[0, 4, 8, 1, 2, 5]]))
-            # Ss_elec.append(tuple(S_elec.flatten()[[0, 4, 8, 1, 2, 5]]))
-            # Ss_tot.append(tuple(S_total.flatten()[[0, 4, 8, 1, 2, 5]]))
-            # Store data for frame in question
-            Efinal[float(round(MultiFrame.frameValue, Round_Var))] = tuple(Ee)
-            #        print >> sys.__stdout__, str(Efinal)
-            # S_mechfinal[float(round(MultiFrame.frameValue, Round_Var))] = tuple(Ss_mech)
-            # S_chemfinal[float(round(MultiFrame.frameValue,2))] = tuple(Ss_chem)
-            # S_elecfinal[round(MultiFrame.frameValue, 3)] = tuple(Ss_elec)
-            # S_totfinal[float(round(MultiFrame.frameValue, Round_Var))] = tuple(Ss_tot)
+                #print >> sys.__stdout__, str(E)
+                # S_mech = 2.0 * Gmod * E + lam * np.trace(E) * np.eye(3)  # Mecahnical stress calculation at Gauss point
+                # S_chem = -((k * Qf) / Z) * np.eye(3)  # Chemical Stress calculation at Gauss point
+                # S_elec = (1.0 / (e_zero * e_r)) * (
+                #         (np.outer(ElecDisp, ElecDisp)) - 0.5 * (np.dot(ElecDisp, ElecDisp)) * np.eye(3))
+                #            S_elec = np.array([[0.0,0.0,0.0],[0.0,0.0,0.0],[0.0,0.0,0.0]])
+                # S_total = S_mech + S_chem + S_elec
+                # S_total = S_mech
+                Ee.append(tuple(E.flatten()[[0, 4, 8, 1, 2,
+                                             5]]))  # create vector format of strain data ('E11','E22','E33','E12','E13','E23')
+                # Ss_mech.append(tuple(S_mech.flatten()[[0, 4, 8, 1, 2,5]]))  # create vector format of strain data ('S11','S22','S33','S12','S13','S23')
+                # Ss_chem.append(tuple(S_chem.flatten()[[0, 4, 8, 1, 2, 5]]))
+                # Ss_elec.append(tuple(S_elec.flatten()[[0, 4, 8, 1, 2, 5]]))
+                # Ss_tot.append(tuple(S_total.flatten()[[0, 4, 8, 1, 2, 5]]))
+                # Store data for frame in question
+                # Efinal[float(round(MultiFrame.frameValue, Round_Var))] = tuple(Ee)
+                #        print >> sys.__stdout__, str(Efinal)
+                # S_mechfinal[float(round(MultiFrame.frameValue, Round_Var))] = tuple(Ss_mech)
+                # S_chemfinal[float(round(MultiFrame.frameValue,2))] = tuple(Ss_chem)
+                # S_elecfinal[round(MultiFrame.frameValue, 3)] = tuple(Ss_elec)
+                # S_totfinal[float(round(MultiFrame.frameValue, Round_Var))] = tuple(Ss_tot)
 
 #########################################################################################
 # NEW ODB FIELD DATA CREATION
 #########################################################################################
-        count += 1
         # Creation of displacement, cocentration, stress and strain field at n=numIntervals frames
         frame = step1.Frame(incrementNumber=count,
                             frameValue=FrameTime,
@@ -505,7 +527,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
             # Add data to fieldoutput object
             newField.addData(position=NODAL,
                              instance=instance1,
-                             labels=nodeNum,
+                             labels=DispNodes,
                              data=DispDataDict[round(FrameTime, Round_Var)])
             step1.setDefaultField(newField)
         #	    odb.save()
@@ -517,21 +539,23 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
             # Add data to fieldoutput object
             newField2.addData(position=NODAL,
                               instance=instance1,
-                              labels=nodeNum,
+                              labels=TempNodes,
                               data=TempDataDict[round(FrameTime, Round_Var)])
+            if not Disp:
+                step1.setDefaultField(newField2)
         #	    odb.save()
-        if ElecP:
+        if ElecP and EpData:
             # Add fieldoutput object to new odb
-            newField2 = frame.FieldOutput(name='Co',
-                                          description='Concentration',
+            newField4 = frame.FieldOutput(name='Ep',
+                                          description='Electric potential',
                                           type=SCALAR)  # Creation of new field otput object called 'CONCENTRATION'
             # Add data to fieldoutput object
-            newField2.addData(position=NODAL,
+            newField4.addData(position=NODAL,
                               instance=instance1,
                               labels=nodeNum,
-                              data=TempDataDict[round(FrameTime, Round_Var)])
+                              data=ElecData)
         #	    odb.save()
-        if Stress:
+        if Stress and (MultiFrame.frameValue == analysisTime):
             # Add fieldoutput object to new odb
             newField3 = frame.FieldOutput(name='E',
                                           description='Small strain at gauss points',
@@ -544,7 +568,7 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
             newField3.addData(position=INTEGRATION_POINT,
                               instance=instance1,
                               labels=tuple(EleList),
-                              data=Efinal[round(FrameTime, Round_Var)])
+                              data=tuple(Ee))
 
             # Add fieldoutput object to new odb
             #            newField4 = frame.FieldOutput(name='S',
@@ -608,17 +632,16 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
             #                          instance=instance1,
             #                          labels=FieldValueEleDict[round(FrameTime,Round_Var)],
             #                          data=FieldValueDataDict[round(FrameTime,Round_Var)])
-
-        step1.setDefaultField(newField)
-    #	odb.save()
+        count += 1
+        # odb.save()
 
         StatusFile.write('Field variables written for {}s\n'.format(str(FrameTime)))
         StatusFile.write('Field variables written for {}s\n'.format(str(FrameTime)))
-        print >> sys.__stdout__, ('Field variables written for {}s\n'.format(str(FrameTime)))
+        print >> sys.__stdout__, ('Field variables written for frame {} at {}s'.format(str(count),str(FrameTime)))
         StatusFile.close()
         FrameTime += frequency
         t3 = time.time()
-        print >> sys.__stdout__, ('Time taken for frame: {} mins'.format((t3-t2)/60.0))
+        print >> sys.__stdout__, ('Time taken for frame {}: {} mins\n'.format(str(count),str((t3-t2)/60.0)))
 newField0 = frame.FieldOutput(name='Centroid',
                               description='Centroid of each element',
                               type=VECTOR,
