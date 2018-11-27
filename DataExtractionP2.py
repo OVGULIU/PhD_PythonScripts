@@ -24,7 +24,7 @@ Z1_Poly_file = 'Z1_POLY.csv'
 Z1_Gold_file = 'Z1_Gold.csv'
 GoldEle_file = 'GoldElements.csv'
 PolyEle_file = 'PolymerElements.csv'
-fOut = 'Disp_Values_20Nov'
+fOut = 'Disp_Values_25_Nov_new'
 
 # cwd = '/home/cerecam/Desktop/2M_96x96x96/2M_96x96x96_42PER/'
 # cwd = '/home/cerecam/Desktop/2M_96x96x96/Old_NoUEL_odb/'
@@ -40,19 +40,18 @@ fOut = 'Disp_Values_20Nov'
 # odblist = ['S1_G58_NoUEL3.odb', 'S2_G58_NoUEL.odb', 'S3_G58_NoUEL5.odb', 'S4_G58_NoUEL2.odb','S5_G58_8_NoUEL3.odb','S6_G58_20_NoUEL.odb','S7_G58_5_NoUEL.odb']
 
 cwdDictionary = {}
-cwdDictionary['/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_25PER/'] = ['S1_NoUEL.odb', 'S2_25PER_NoUEL.odb',
-                                                                                 'S3_25PER_NoUEL.odb', 'S4_25PER_NoUEL.odb']
+cwdDictionary['/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_25PER/'] = ['S1_25PER_NoUEL3.odb']
 
-cwdDictionary['/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_34PER/'] = ['S1_34PER_NoUEL.odb', 'S2_34PER_NoUEL.odb',
-                                                                                 'S3_34PER_NoUEL.odb', 'S4_34PER_NoUEL.odb']
-
-cwdDictionary['/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_42PER/'] = ['S1_42PER_NoUEL.odb', 'S2_42PER_NoUEL.odb',
-                                                                                 'S3_42PER_NoUEL.odb']
-
-cwdDictionary['/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_50PER/'] = ['S1_50PER_NoUEL.odb', 'S2_50PER_NoUEL.odb',
-                                                                                 'S3_50PER_NoUEL.odb', 'S4_50PER_NoUEL.odb',
-                                                                                 'S5_50PER_NoUEL.odb', 'S6_50PER_NoUEL.odb',
-                                                                                 'S7_50PER_NoUEL.odb']
+# cwdDictionary['/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_34PER/'] = ['S1_1_34PER_NoUEL.odb', 'S2_1_34PER_NoUEL.odb',
+#                                                                                   'S3_1_34PER_NoUEL.odb', 'S4_1_34PER_NoUEL.odb']
+#
+# cwdDictionary['/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_34PER/'] = ['S6_1_34PER_NoUEL.odb']
+# #
+cwdDictionary['/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_42PER/HPC_42PER/'] = ['S2_42PER_NoUEL.odb']
+#
+# cwdDictionary['/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_50PER/HPC_50PER/'] = ['S1_50PER3_NoUEL.odb', 'S2_50PER3_NoUEL.odb',
+#                                                                                            'S3_50PER3_NoUEL.odb',
+#                                                                                            'S4_50PER3_NoUEL.odb', 'S5_50PER3_NoUEL.odb']
 
 for cwd,odblist in cwdDictionary.items():
     with open(cwd + Z1_Gold_file, 'r') as fname:
@@ -159,3 +158,5 @@ for cwd,odblist in cwdDictionary.items():
         csvWriter.writerow(['S-Volume average polymer: '] + [list(x[1]) for x in sav_poly])
         csvWriter.writerow(['E-Volume average gold: '] + [list(x[1]) for x in eav_gold])
         csvWriter.writerow(['E-Volume average polymer: '] + [list(x[1]) for x in eav_poly])
+
+    print >> sys.__stdout__, '------ Data written to ' + cwd + fOut + '.csv' + ' ------'

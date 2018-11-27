@@ -7,7 +7,7 @@ Data csv file created from script DataExtractionP2.py
 import sys, csv
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.signal import savgol_filter
+#from scipy.signal import savgol_filter
 
 
 def extractCSVData(cwd, fileName):
@@ -27,20 +27,27 @@ def extractCSVData(cwd, fileName):
     return frametime, dispX_G, dispX_P, dispY_G, dispY_P, dispZ_G, dispZ_P, S_G, S_P, E_G, E_P
 
 
-fileName = 'Disp_Values_20Nov.csv'
+fileName = 'Disp_Values_21_Nov.csv'
 
+#cwd = '/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_25PER/'
+#[time_25, x_g_25, x_p_25, y_g_25, y_p_25, z_g_25, z_p_25, s_g_25, s_p_25, e_g_25, e_p_25] = extractCSVData(cwd,
+                                                                                                            #fileName)
 
-# cwd = '/home/cerecam/Desktop/2M_96x96x96/2M_96x96x96_42PER/'
-cwd = '/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_25PER/'
-[time_25, x_g_25, x_p_25, y_g_25, y_p_25, z_g_42, z_p_42, s_g_42, s_p_42, e_g_42, e_p_42] = extractCSVData(cwd,
+cwd = '/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_34PER/'
+[time_34, x_g_34, x_p_34, y_g_34, y_p_34, z_g_34, z_p_34, s_g_34, s_p_34, e_g_34, e_p_34] = extractCSVData(cwd,
                                                                                                            fileName)
 
-cwd = '/home/cerecam/Desktop/2M_96x96x96/2M_96x96x96_58PER/'
-[time_58, x_g_58, x_p_58, y_g_58, y_p_58, z_g_58, z_p_58, s_g_58, s_p_58, e_g_58, e_p_58] = extractCSVData(cwd,
-                                                                                                           fileName)
+cwd = '/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_42PER/HPC_42PER/'
+[time_42, x_g_42, x_p_42, y_g_42, y_p_42, z_g_42, z_p_42, s_g_42, s_p_42, e_g_42, e_p_42] = extractCSVData(cwd,
+                                                                                                            fileName)
 
-time_58 = [i/time_58[-1] for i in time_58]
-time_42 = [i/time_42[-1] for i in time_42]
+# cwd = '/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_50PER/HPC_50PER/'
+# [time_50, x_g_50, x_p_50, y_g_50, y_p_50, z_g_50, z_p_50, s_g_50, s_p_50, e_g_50, e_p_50] = extractCSVData(cwd,
+#                                                                                                            fileName)
+# time_25 = [i / time_25[-1] for i in time_25]
+# time_34 = [i / time_34[-1] for i in time_34]
+# time_42 = [i / time_42[-1] for i in time_42]
+# time_50 = [i / time_50[-1] for i in time_50]
 
 '''
 trace42gS = []
@@ -162,7 +169,8 @@ for p in [5,-40,-30,-25,-20,-15,-10,-1]:
 # plt.title('Volume change of gold over time')
 # plt.legend(loc='best')
 # #
-colours = ['b', 'b', 'r','y', 'y', 'y']
+colours = ['b', 'b', 'r', 'y', 'y', 'y']
+lineType = ['--', '-', '--']
 # # #
 # #
 # fig = plt.figure()
@@ -175,9 +183,8 @@ colours = ['b', 'b', 'r','y', 'y', 'y']
 #              color=colours[i])
 # plt.title('Average strain development in polymer')
 # plt.legend(loc='best')
-legendLabels = ['42 % gold vol frac S$_{\parallel}$', '42 % gold vol frac S$_{\perp}$',
-                '58 % gold vol frac S$_{\parallel}$', '58 % gold vol frac S$_{\perp}$']
-
+legendLabels = ['34 % gold vol frac S$_{\parallel}$', '34 % gold vol frac S$_{\perp}$',
+                '42 % gold vol frac S$_{\parallel}$', '42 % gold vol frac S$_{\perp}$']
 # fig = plt.figure()
 # for i in range(1,3):
 #     plt.plot(time_42, [float(_[i]) for _ in e_g_42], label='42 % gold vol frac E$_{' + str(i + 1) + str(i + 1) + '}$',
@@ -191,42 +198,51 @@ legendLabels = ['42 % gold vol frac S$_{\parallel}$', '42 % gold vol frac S$_{\p
 
 maxy = []
 fig = plt.figure()
-for i in range(1,3):
-    plt.plot(time_42, [float(_[i]) for _ in s_g_42],
-             linestyle='--', color=colours[i])
-    maxy.append(max([float(_[i]) for _ in s_g_42]))
-# fig = plt.figure()
-for i in range(1,3):
-    plt.plot(time_58, [float(_[i]) for _ in s_g_58],
-             color=colours[i])
-    maxy.append(max([float(_[i]) for _ in s_g_58]))
-plt.ylim(0,max(maxy))
+#for i in range(1, 3):
+    #plt.plot(time_25, [-1*float(_[i]) for _ in s_g_25],
+             #linestyle=lineType[i], color='b')
+    #maxy.append(max([float(_[i]) for _ in s_g_25]))
+for i in range(1, 3):
+    plt.plot(time_34, [float(_[i]) for _ in s_g_34],
+    linestyle = lineType[i], color = 'r')
+    maxy.append(max([float(_[i]) for _ in s_g_34]))
+for i in range(1, 3):
+	plt.plot(time_42, [float(_[i]) for _ in s_g_42],
+	linestyle = lineType[i], color = 'g')
+	maxy.append(max([float(_[i]) for _ in s_g_42]))
+# for i in range(1, 3):
+#     plt.plot(time_50, [float(_[i]) for _ in s_g_50],
+#     linestyle = lineType[i], color = 'y')
+#     maxy.append(max([float(_[i]) for _ in s_g_50]))
+# plt.ylim(0, max(maxy))
 plt.title('Average stress development in gold')
 plt.xlabel('time/time$_{end}$')
 plt.ylabel('stress [MPa]')
 plt.legend(legendLabels, loc='best')
-#
-#
+    #
+    #
 
 fig = plt.figure()
+#for i in range(1, 3):
+    #plt.plot(time_25, [-1*float(_[i]) for _ in s_p_25],
+             #linestyle=lineType[i], color='b')
+    #maxy.append(max([float(_[i]) for _ in s_p_25]))
 for i in range(1, 3):
-    y = [float(_[i]) for _ in s_p_42]
-    # yhat = savgol_filter(y, 21, 2)
-    # plt.plot(time_42, yhat, label='42 % gold vol frac S$_{' + str(i + 1) + str(i + 1) + '}$',
-    #          linestyle='--', color=colours[i])
-
-    plt.plot(time_42, y,
-             linestyle='--', color=colours[i])
-
-# fig = plt.figure()
+    plt.plot(time_34, [float(_[i]) for _ in s_p_34],
+    linestyle = lineType[i], color = 'r')
+    maxy.append(max([float(_[i]) for _ in s_p_34]))
 for i in range(1, 3):
-    plt.plot(time_58, [float(_[i]) for _ in s_p_58],
-             color=colours[i])
-
+	plt.plot(time_42, [float(_[i]) for _ in s_p_42],
+	linestyle = lineType[i], color = 'g')
+	maxy.append(max([float(_[i]) for _ in s_p_42]))
+# for i in range(1, 3):
+#     plt.plot(time_50, [float(_[i]) for _ in s_p_50],
+#     linestyle = lineType[i], color = 'y')
+#     maxy.append(max([float(_[i]) for _ in s_p_50]))
+# plt.ylim(0, max(maxy))
 plt.title('Average stress development in polymer')
 plt.xlabel('time/time$_{end}$')
 plt.ylabel('stress [MPa]')
-plt.ylim(0,max(maxy))
 plt.legend(legendLabels, loc='best')
 # p_42 = np.poly1d(np.polyfit(time_42,z_p_42,6))
 # xp_42 = np.linspace(time_42[0],time_42[-1],len(time_42))
@@ -234,63 +250,68 @@ plt.legend(legendLabels, loc='best')
 # p_58 = np.poly1d(np.polyfit(time_58,z_p_58,6))
 # xp_58 = np.linspace(time_58[0],time_58[-1],len(time_58))
 #
-z_p_max = max([max(z_p_42),max(z_p_58)])
-z_g_max = max([max(z_g_42),max(z_g_58)])
+#z_p_max = max([max(z_p_25), max(z_p_34), max(z_p_50)])
+#z_g_max = max([max(z_g_25), max(z_g_34), max(z_g_50)])
+#z_p_max = max([max(z_p_50)])
+#z_g_max = max([max(z_g_50)])
+#maxy = max([z_p_max, z_g_max])
 # z_p_42 = [i/z_p_max for i in z_p_42]
 # z_g_42 = [i/z_g_max for i in z_g_42]
 # z_p_58 = [i/z_p_max for i in z_p_58]
 # z_g_58 = [i/z_g_max for i in z_g_58]
 # colour = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
 # colorC = 0
-# fig = plt.figure()
+fig = plt.figure()
 # yhat = savgol_filter(z_p_42,23,2)
 # plt.plot(time_42, yhat, '-',color='b',  label='42 % gold vol frac')
-# # plt.plot(time_42, z_p_42, '-',color='b',  label='42 % gold vol frac')
-# # plt.plot(xp_42, p_42(xp_42), '-',color='b',  label='42 % gold vol frac')
-# # for i in [11,13,15,17]:
+# plt.plot(xp_42, p_42(xp_42), '-',color='b',  label='42 % gold vol frac')
+# for i in [11,13,15,17]:
 # yhat = savgol_filter(z_p_58,17,2)
 # plt.plot(time_58, yhat,'-',color='r',  label='58 % gold vol frac')
-#     # colorC += 1
-# # plt.plot(time_58, z_p_58,color='r',  label='58 % gold vol frac')
-#
-# maxy = max([max(z_g_42), max(z_g_58), max(z_p_42), max(z_p_58)])
-# # plt.plot(xp_58, p_58(xp_58), '-',color='r',  label='58 % gold vol frac')
+    # colorC += 1
+#plt.plot(time_25, z_p_25, '-',color='b',  label='25 %')
+plt.plot(time_34, z_p_34, '-',color='r',  label='34 %')
+plt.plot(time_42, z_p_42, '-',color='g',  label='42 %')
+# plt.plot(time_50, z_p_50, '-',color='y',  label='50 %')
+
+# plt.plot(xp_58, p_58(xp_58), '-',color='r',  label='58 % gold vol frac')
 # plt.ylim(0.0, maxy)
-# plt.xlim(0.0)
-# plt.xlabel('time/time$_{end}$')
-# plt.ylabel('displacement [nm]')
-# plt.title('Average displacement of polymer on influx face')
-# plt.legend(loc='best')
-# # plt.show()
+plt.xlim(0.0)
+plt.xlabel('time/time$_{end}$')
+plt.ylabel('displacement [nm]')
+plt.title('Average displacement of polymer on influx face')
+plt.legend(loc='best')
+# plt.show()
+
+# p_42 = np.poly1d(np.polyfit(time_42,z_g_42,3))
+# xp_42 = np.linspace(time_42[0],time_42[-1],len(time_42))
 #
-# # p_42 = np.poly1d(np.polyfit(time_42,z_g_42,3))
-# # xp_42 = np.linspace(time_42[0],time_42[-1],len(time_42))
-# #
-# # p_58 = np.poly1d(np.polyfit(time_58,z_g_58,3))
-# # xp_58 = np.linspace(time_58[0],time_58[-1],len(time_58))
-# #
-# # colour = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
-# # colorC = 0
-# fig = plt.figure()
-# # plt.plot(time_42, z_g_42, '-',color='b',  label='42 % gold vol frac')
+# p_58 = np.poly1d(np.polyfit(time_58,z_g_58,3))
+# xp_58 = np.linspace(time_58[0],time_58[-1],len(time_58))
+#
+# colour = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+# colorC = 0
+fig = plt.figure()
 # yhat = savgol_filter(z_g_42,23,2)
 # plt.plot(time_42, yhat, '-',color='b',  label='42 % gold vol frac')
-#     # plt.plot(time_42, yhat, '-',color=colour[colorC],  label=str(i))
-#     # colorC +=1
-# # plt.plot(xp_42, p_42(xp_42), '-',color='b',  label='42 % gold vol frac')
+    # plt.plot(time_42, yhat, '-',color=colour[colorC],  label=str(i))
+    # colorC +=1
 # yhat = savgol_filter(z_g_58,17,2)
 # plt.plot(time_58, yhat,'-',color='r',  label='58 % gold vol frac')
-# # plt.plot(time_58, z_g_58,color='r',  label='58 % gold vol frac')
-# # plt.plot(xp_58, p_58(xp_58), '-',color='r',  label='58 % gold vol frac')
-# maxy = max([max(z_g_42), max(z_g_58), max(z_p_42), max(z_p_58)])
+# plt.plot(time_58, z_g_58,color='r',  label='58 % gold vol frac')
+#plt.plot(time_25, z_g_25, '-',color='b',  label='25 %')
+plt.plot(time_34, z_g_34, '-',color='r',  label='34 %')
+plt.plot(time_42, z_g_42, '-',color='g',  label='42 %')
+# plt.plot(time_50, z_g_50, '-',color='y',  label='50 %')
+
 # plt.ylim(0.0,maxy)
-# plt.xlim(0.0)
-# plt.xlabel('time/time$_{end}$')
-# plt.ylabel('displacement [nm]')
-# plt.title('Average displacement of gold on influx face')
-# plt.legend(loc='best')
-#
-#
+plt.xlim(0.0)
+plt.xlabel('time/time$_{end}$')
+plt.ylabel('displacement [nm]')
+plt.title('Average displacement of gold on influx face')
+plt.legend(loc='best')
+
+
 
 plt.show()
 # '''

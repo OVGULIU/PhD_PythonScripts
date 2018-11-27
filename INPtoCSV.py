@@ -1,7 +1,7 @@
 import numpy as np
 
-cwd = '/home/cerecam/Desktop/emma_models_NEW/2M_96x96x96_89_over_146'
-InpName = 'SideElements'
+cwd = '/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_42PER'
+InpName = 'Elsets'
 filename =  cwd + '/' + InpName+'.inp'
 elements = []
 switch=0
@@ -17,13 +17,14 @@ else:
     generate=False
 elements = []
 dummyElements = []
-Writef = open(cwd + '/Dummy'+InpName + '.inp','w')
+Writef = open(cwd + '/FullList'+InpName + '.inp','w')
 for line in lines[1:]:
     if line[0] =='*':        
         np.savetxt(cwd+ '/'+elset +'.csv',np.array([len(elements)]+elements), delimiter=",",fmt='%i')
 #        print('csv file '+elset+' is written in '+cwd+ '/'+elset +'.csv')
 #         dummyElements.sort()
-        Writef.write(','.join(split_line_name))
+        Writef.write(' /) \n')
+        Writef.write('*' + split_line_name[1].split('=')[-1] + ' = (/ ')
         if generate:
             dummyElementsGen = list(range(dummyElements[0],dummyElements[-1]+1,1))
             for x in range(0, len(dummyElementsGen), entries_per_line):
@@ -33,7 +34,7 @@ for line in lines[1:]:
                 Writef.write(str(dummyElements[x:x+entries_per_line]).strip('[').strip(']')+', & \n')
         print(len(elements),elset)
         split_line_name = line.split(',')
-        elset = split_line_name[1].split('=')[1]
+        elset = split_line_name[1].split('=')[1].strip()
         if split_line_name[-1].strip()=='generate':
             generate=True
         else:
@@ -47,7 +48,7 @@ for line in lines[1:]:
 #            if elset[3:].upper() == 'GOLD':                
 #                dummyElements = range(int(split_line[0]),int(split_line[1]),int(split_line[2]))
 #            else:
-            dummyElements = list(range(int(split_line[0]),int(split_line[1]),int(split_line[2])))
+            dummyElements = list(range(int(split_line[0]),int(split_line[1])+1,int(split_line[2])))
         else:
             # values = map(int, line.strip().split(','))
 #            if elset[3:].upper() == 'GOLD':
@@ -57,9 +58,10 @@ for line in lines[1:]:
             elements.extend(int(x) for x in line.strip().split(',') if x)
             dummyElements.extend(int(x) for x in line.strip().split(',') if x)
     elif line == lines[-1]:
-        np.savetxt(cwd+ '/'+elset +'.csv',np.array([len(elements)]+elements).astype(int), delimiter=",",fmt='%i')    
-#        print('csv file '+elset+' is written in '+cwd+ '/'+elset +'.csv')        
-        Writef.write(','.join(split_line_name))
+        np.savetxt(cwd+ '/'+elset +'.csv',np.array([len(elements)]+elements).astype(int), delimiter=",",fmt='%i')
+#        print('csv file '+elset+' is written in '+cwd+ '/'+elset +'.csv')
+        Writef.write(' /)')
+        Writef.write('*' + split_line_name[1].split('=')[-1] + ' = (/ ')
         for x in range(0,len(dummyElements),entries_per_line):
             Writef.write(str(dummyElements[x:x+entries_per_line]).strip('[').strip(']')+', & \n')
         
