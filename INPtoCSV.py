@@ -1,7 +1,7 @@
 import numpy as np
 
-cwd = '/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_42PER'
-InpName = 'Elsets'
+cwd = '/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_25PER/HPC_25PER'
+InpName = 'SideElements'
 filename =  cwd + '/' + InpName+'.inp'
 elements = []
 switch=0
