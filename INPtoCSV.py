@@ -20,7 +20,7 @@ dummyElements = []
 Writef = open(cwd + '/FullList'+InpName + '.inp','w')
 for line in lines[1:]:
     if line[0] =='*':        
-        np.savetxt(cwd+ '/'+elset +'.csv',np.array([len(elements)]+elements), delimiter=",",fmt='%i')
+        np.savetxt(cwd+ '/'+elset +'_eles.csv',np.array([len(elements)]+elements), delimiter=",",fmt='%i')
 #        print('csv file '+elset+' is written in '+cwd+ '/'+elset +'.csv')
 #         dummyElements.sort()
         Writef.write(' /) \n')
@@ -35,6 +35,7 @@ for line in lines[1:]:
         print(len(elements),elset)
         split_line_name = line.split(',')
         elset = split_line_name[1].split('=')[1].strip()
+
         if split_line_name[-1].strip()=='generate':
             generate=True
         else:
@@ -58,7 +59,7 @@ for line in lines[1:]:
             elements.extend(int(x) for x in line.strip().split(',') if x)
             dummyElements.extend(int(x) for x in line.strip().split(',') if x)
     elif line == lines[-1]:
-        np.savetxt(cwd+ '/'+elset +'.csv',np.array([len(elements)]+elements).astype(int), delimiter=",",fmt='%i')
+        np.savetxt(cwd+ '/'+elset +'_eles.csv',np.array([len(elements)]+elements).astype(int), delimiter=",",fmt='%i')
 #        print('csv file '+elset+' is written in '+cwd+ '/'+elset +'.csv')
         Writef.write(' /)')
         Writef.write('*' + split_line_name[1].split('=')[-1] + ' = (/ ')

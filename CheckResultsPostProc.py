@@ -4,8 +4,10 @@ Created on Tue Jun 19 10:23:25 2018
 
 @author: cerecam
 """
+import csv
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FormatStrFormatter
 
 def getresults(name, influx_file, efflux_file):
     filename = '/home/cerecam/Desktop/RVE_25_34_42_50/'+name+'.inp'

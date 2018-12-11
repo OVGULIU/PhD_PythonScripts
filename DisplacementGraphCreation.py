@@ -32,7 +32,7 @@ def extractCSVData(cwd, fileName):
 
 
 # fileName = 'Disp_Values_new2.csv'
-fileName = 'Disp_Values_only_S1_25.csv'
+fileName = 'Disp_Values_only_tmpS1_25.csv'
 # cwd = '/home/etg/Dropbox/UCT/PhD/Results/Paper2/25PER/'
 cwd = '/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_25PER/HPC_25PER/'
 [time_25, x_g_25, x_p_25, y_g_25, y_p_25, z_g_25, z_p_25] = extractCSVData(cwd,
@@ -43,10 +43,14 @@ cwd = '/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_25PER/HPC_25PER/'
 # cwd = '/home/etg/Dropbox/UCT/PhD/Results/Paper2/34PER/'
 # [time_34, x_g_34, x_p_34, y_g_34, y_p_34, z_g_34, z_p_34, s_g_34, s_p_34, e_g_34, e_p_34] = extractCSVData(cwd,
 #                                                                                                            fileName)
+fileName = 'Disp_Values_only_tmpS1_34.csv'
+cwd = '/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_34PER/HPC_34PER/'
+[time_34, x_g_34, x_p_34, y_g_34, y_p_34, z_g_34, z_p_34] = extractCSVData(cwd,
+                                                                                                           fileName)
 # # fileName = 'Disp_Values_new.csv'
 # cwd = '/home/etg/Dropbox/UCT/PhD/Results/Paper2/42PER/'
 # [time_42, x_g_42, x_p_42, y_g_42, y_p_42, z_g_42, z_p_42, s_g_42, s_p_42, e_g_42, e_p_42] = extractCSVData(cwd,
-fileName = 'Disp_Values_only_S1_42.csv'
+fileName = 'Disp_Values_only_tmpS1_42.csv'
 # cwd = '/home/etg/Dropbox/UCT/PhD/Results/Paper2/25PER/'
 cwd = '/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_42PER/HPC_42PER/'
                                                                                            # fileName)
@@ -54,7 +58,7 @@ cwd = '/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_42PER/HPC_42PER/'
                                                                                                            fileName)
 
 # cwd = '/home/etg/Dropbox/UCT/PhD/Results/Paper2/50PER/'
-fileName = 'Disp_Values_only_S1_50.csv'
+fileName = 'Disp_Values_only_tmpS1_50.csv'
 # cwd = '/home/etg/Dropbox/UCT/PhD/Results/Paper2/25PER/'
 cwd = '/home/cerecam/Desktop/RVE_25_34_42_50/2M_NEW_96x96x96_50PER/HPC_50PER/'
 [time_50, x_g_50, x_p_50, y_g_50, y_p_50, z_g_50, z_p_50] = extractCSVData(cwd,
@@ -299,7 +303,7 @@ ax3 = plt.gca()
 # plt.plot(time_58, yhat,'-',color='r',  label='58 % gold vol frac')
 # colorC += 1
 plt.plot(time_25, z_p_25, '-', color='b', label='25 %')
-# plt.plot(time_34, z_p_34, '-', color='r', label='34 %')
+plt.plot(time_34, z_p_34, '-', color='r', label='34 %')
 plt.plot(time_42, z_p_42, '-', color='g', label='42 %')
 plt.plot(time_50, z_p_50, '-', color='k', label='50 %')
 
