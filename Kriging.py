@@ -39,39 +39,39 @@ def loaddisplacementData(Filename):
 # #
 #      return
 
-def likelihood(x):
-    global x_exp
-    global y_exp
-
-    x = [1]
-
-    theta = [10 ** i for i in x]
-    n = len(x_exp)
-    one = [1] * n
-    PSI = [[0] * n] * n
-    eps = np.spacing(1) * 100
-    x_exp = [x_exp]
-    y_exp = [y_exp]
-
-    for i in range(n):
-        for j in range(n):
-            for k in range(len(theta)):
-                PSI[i][j] = PSI[i][j] + np.exp(-theta[k] * (x_exp[k][i] - x_exp[k][j]) ** 2)
-
+# def likelihood(x):
+    # global x_exp
+    # global y_exp
+    #
+    # x = [1]
+    #
+    # theta = [10 ** i for i in x]
+    # n = len(x_exp)
+    # one = [1] * n
+    # PSI = [[0] * n] * n
+    # eps = np.spacing(1) * 100
+    # x_exp = [x_exp]
+    # y_exp = [y_exp]
+    #
     # for i in range(n):
-    #     PSI = np.matrix(PSI) + np.transpose(np.matrix(PSI))
-    try:
-        [U, p] = np.linalg.cholesky(PSI)
-        LnDetPsi = 2 * np.sum(np.log(abs(np.diag(U))))
-        mu = (np.matmul(np.transpose(one), np.matmul(np.invert(np.matrix(PSI)), np.array(y_exp))))
-        var = np.matmul(np.transpose(np.array(y_exp[0]) - np.matmul(one, mu)),
-                        np.matmul((np.invert(np.matrix(PSI)), np.array(y_exp[0]) - np.matmul(one, mu)))) / float(n)
-        NegLnLike = -1 * (-n / 2.0) * np.log(var) - 0.5 * LnDetPsi
-
-    except:
-        NegLnLike = 1e4
-
-    return NegLnLike, PSI, U
+    #     for j in range(n):
+    #         for k in range(len(theta)):
+    #             PSI[i][j] = PSI[i][j] + np.exp(-theta[k] * (x_exp[k][i] - x_exp[k][j]) ** 2)
+    #
+    # # for i in range(n):
+    # #     PSI = np.matrix(PSI) + np.transpose(np.matrix(PSI))
+    # try:
+    #     [U, p] = np.linalg.cholesky(PSI)
+    #     LnDetPsi = 2 * np.sum(np.log(abs(np.diag(U))))
+    #     mu = (np.matmul(np.transpose(one), np.matmul(np.invert(np.matrix(PSI)), np.array(y_exp))))
+    #     var = np.matmul(np.transpose(np.array(y_exp[0]) - np.matmul(one, mu)),
+    #                     np.matmul((np.invert(np.matrix(PSI)), np.array(y_exp[0]) - np.matmul(one, mu)))) / float(n)
+    #     NegLnLike = -1 * (-n / 2.0) * np.log(var) - 0.5 * LnDetPsi
+    #
+    # except:
+    #     NegLnLike = 1e4
+    #
+    # return NegLnLike, PSI, U
 
 
 def Branin(x1, x2):
@@ -100,82 +100,97 @@ def objectiveFunction(x_i, x_j, parms, theta, p):
     for i in range(parms):
         d = d + theta * abs(x_i[i] - x_j[i]) ** p
         y = y + abs(x_i[i] - x_j[i])
+        # print(d)
     return d, y
 
 
 def correlation(d):
     return np.exp(-d)
 
-lhd = lhs(2, 21, 'Maximin') # sampling data
-lhd_full = lhd
-lhd = lhd[1:] # removing one value to allow for cross model validation
-x1 = []
-x2 = []
-y = []
-y1 = []
-d, d1 = [], []
-cor, cor1 = [], []
-one_bar = np.array([1] * len(lhd))
 ranges = [[-5.0,10.0],[0,10.0]]
 x_1_range = ranges[0]
 x_2_range = ranges[1]
+lhd = lhs(2, 6, 'Maximin') # sampling data
 
-# Creation of initial Kriging model
-for i in lhd:
-    x1.append(i[0] * (x_1_range[1] - x_1_range[0]) + x_1_range[0])
-    x2.append(i[1] * (x_2_range[1] - x_2_range[0]) + x_2_range[0])
-    y.append(Branin(x1[-1], x2[-1]))
-    cor_tmp = []
-    for j in lhd:
-        a, b = objectiveFunction([x1[-1], x2[-1]], j[:2], 2, 0.01, 2)
-        cor_tmp.append(correlation(a))
-    cor.append(cor_tmp)
+for count, i in enumerate(lhd):
+    lhd[count] = [i[0] * (x_1_range[1] - x_1_range[0]) + x_1_range[0],i[1] * (x_2_range[1] - x_2_range[0]) + x_2_range[0]]
+lhd_full = lhd
+lhd = lhd[1:] # removing one value to allow for cross model validation
+one_bar = np.array([1] * len(lhd))
 
-cor = np.array(cor)
-cor_inv = np.linalg.inv(cor)
-y = np.array(y)
-mu_bar = (np.matmul(np.matmul(np.transpose(one_bar), cor_inv), y)) / (
-    np.matmul(np.matmul(np.transpose(one_bar), cor_inv), one_bar))
-sig_2 = (np.matmul(np.matmul(np.transpose(y - (one_bar * mu_bar)), cor_inv),
-                   np.transpose(y - (one_bar * mu_bar)))) / len(lhd)
+# Calibration of initial Kriging model for parameter theta, assuming p = 2 (exponent in weighted residual)
+# theta value refers to ln of this number so theta 2 is actually a value of 10^2, approximated range betweeen 10^-3 and 10^2
+for p in [2]:
+    for theta_test in [0.0001,0.001,0.1,0.25,0.5,0.75]:
+        x1 = []
+        x2 = []
+        y = []
+        y1 = []
+        d, d1 = [], []
+        cor, cor1 = [], []
+        for i in lhd:
+            x1.append(i[0])
+            x2.append(i[1])
+            y.append(Branin(x1[-1], x2[-1]))
+            cor_tmp = []
+            for j in lhd:
+                j1 = j[0]
+                j2 = j[1]
+                a, b = objectiveFunction([x1[-1], x2[-1]], [j1, j2], 2, theta_test, p)
+                cor_tmp.append(correlation(a))
+            cor.append(cor_tmp)
 
-max_likelihood = -mu_bar/2.0*np.
-print("mu_bar: {}".format(mu_bar))
-print("s_2: {}".format(sig_2))
+        cor = np.array(cor)
+        cor_inv = np.linalg.inv(cor)
+        y = np.array(y)
+        mu_bar = (np.matmul(np.matmul(np.transpose(one_bar), cor_inv), y)) / (
+            np.matmul(np.matmul(np.transpose(one_bar), cor_inv), one_bar))
+        sig_2 = (np.matmul(np.matmul(np.transpose(y - (one_bar * mu_bar)), cor_inv),
+                           (y - (one_bar * mu_bar)))) / len(lhd)
+        print("Condition number: {}".format(np.linalg.cond(cor)))
+        if np.linalg.det(cor) <= 0:
+            print("Ill conditioned matrix!")
+            likelihood = 1e4
+        else:
+            likelihood = -1*(-mu_bar/2.0*np.log(sig_2) - 1.0/2.0*np.log(np.linalg.det(cor)))
+
+        print("mu_bar: {}".format(mu_bar))
+        print("sig_2: {}".format(sig_2))
+        print("Maximum likelihood fuction for theta {}, p_value of {}: {}".format(theta_test, p, likelihood))
 
 ########################################################
 # Plotting of Branin function with initial sampled points for visualization purposes
-x1 = np.linspace(-5.0, 10.0, 10)
-x2 = np.linspace(0.0, 15.0, 10)
-X, Y = np.meshgrid(x1, x2)
-Z = Branin(X, Y)
-
-data = []
-for i in range(len(x1)):
-    for j in range(len(x2)):
-        data.append([x1[i], x2[j], Z[i][j]])
-
-fig = plt.figure(1)
-ax = fig.gca(projection='3d')
-ax.contour(X, Y, Z, 40)
-ax.scatter(x1, x2, y)
-plt.show()
-########################################################
-
-# Kringing prediction
-new_point = lhd_full[0]
-r_newpnt = []
-for i in range(len(lhd)):
-    a_new, b_new = objectiveFunction(new_point, [x1[i], x2[i]], 2, 0.01, 2)
-    r_newpnt.append(correlation(a_new))
-
-y_bar = mu_bar + np.matmul(np.matmul(np.transpose(np.array(r_newpnt)), cor_inv), np.transpose(y - (one_bar * mu_bar)))
-print("y predictor: {}".format(y_bar))
-
-sqr_error = sig_2*(1.0 - np.matmul(np.matmul(np.transpose(r_newpnt), cor_inv), r_newpnt) + (
-            1.0 - np.matmul(np.matmul(np.transpose(one_bar), cor_inv), r_newpnt) ** 2) / (
-                      np.matmul(np.matmul(np.transpose(one_bar), cor_inv), r_newpnt)))
-print("Mean square error of predictor: {}".format(sqr_error))
+# x1 = np.linspace(-5.0, 10.0, 10)
+# x2 = np.linspace(0.0, 15.0, 10)
+# X, Y = np.meshgrid(x1, x2)
+# Z = Branin(X, Y)
+#
+# data = []
+# for i in range(len(x1)):
+#     for j in range(len(x2)):
+#         data.append([x1[i], x2[j], Z[i][j]])
+#
+# fig = plt.figure(1)
+# ax = fig.gca(projection='3d')
+# ax.contour(X, Y, Z, 40)
+# ax.scatter(x1, x2, y)
+# plt.show()
+# ########################################################
+#
+# # Kringing prediction
+# new_point = lhd_full[0]
+# r_newpnt = []
+# for i in range(len(lhd)):
+#     a_new, b_new = objectiveFunction(new_point, [x1[i], x2[i]], 2, 0.01, 2)
+#     r_newpnt.append(correlation(a_new))
+#
+# y_bar = mu_bar + np.matmul(np.matmul(np.transpose(np.array(r_newpnt)), cor_inv), np.transpose(y - (one_bar * mu_bar)))
+# print("y predictor: {}".format(y_bar))
+#
+# sqr_error = sig_2*(1.0 - np.matmul(np.matmul(np.transpose(r_newpnt), cor_inv), r_newpnt) + (
+#             1.0 - np.matmul(np.matmul(np.transpose(one_bar), cor_inv), r_newpnt) ** 2) / (
+#                       np.matmul(np.matmul(np.transpose(one_bar), cor_inv), r_newpnt)))
+# print("Mean square error of predictor: {}".format(sqr_error))
 # y.sort()
 # y1.sort()
 # d.sort()

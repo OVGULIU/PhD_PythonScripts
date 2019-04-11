@@ -8,7 +8,7 @@ from pyDOE import lhs
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-def f(x_1, x_2):
+def f(x_1, x_2=0):
     # Test function
     # result = np.log10(1 + 100*(x_1**2-x_2)**2 + (1-x_1)**2)
 
@@ -21,6 +21,8 @@ def f(x_1, x_2):
     t = 1.0 / (8.0 * pi)
 
     result = a * (x_2 - b * x_1 ** 2 + c * x_1 - r) ** 2 + s * (1.0 - t) * np.cos(x_1) + s
+
+    # result = x_1**3 +3*x_1**2 -9*x_1 +7
 
     return result
 
