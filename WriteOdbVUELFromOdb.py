@@ -398,15 +398,15 @@ for MultiFrame in steps.frames:  # Loop over every frame captured in odb
                             # TempNodes.append(Tempfield.values[num_val].nodeLabel)  # Node label list
                         TempData.append(tuple([Tempfield.values[num_val].dataDouble, ]))  # Data at node
             # Add values to dictionary element with key = frameValue
-            # if Disp:
+            if Disp:
             #     if count == 0:
             #         DispNodesDict[0.0] = tuple(DispNodes)
-            #     DispDataDict[float(round(MultiFrame.frameValue, Round_Var))] = tuple(DispData)
+                DispDataDict[float(round(MultiFrame.frameValue, Round_Var))] = tuple(DispData)
             #
-            # if Temp:
+            if Temp:
             #     if count == 0:
             #         TempNodesDict[0.0] = tuple(TempNodes)
-            #     TempDataDict[float(round(MultiFrame.frameValue, Round_Var))] = tuple(TempData)
+                TempDataDict[float(round(MultiFrame.frameValue, Round_Var))] = tuple(TempData)
             # ElecP = 1
             # if ElecP:
             #     try:
