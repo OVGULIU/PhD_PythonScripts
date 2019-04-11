@@ -12,6 +12,7 @@ plt.rcParams['lines.linewidth']=1.75
 plt.rcParams['grid.linestyle']='-'
 plt.rcParams['grid.color']=(0.75,0.75,0.75)
 plt.rcParams['axes.axisbelow']= True
+# plt.rcParams['axes.autolimit_mode'] = 'round_number'
 # from scipy.signal import savgol_filter
 
 
@@ -74,24 +75,34 @@ conMax_50_index = conc_50.index(concMax_50)
 timeMaxConc_50 = time_50[conMax_50_index]
 print('50 {}')
 print('Max concentration is: {}, at time {} (increment: {})'.format(str(concMax_50),str(timeMaxConc_50), str(timeMaxConc_50/1.903E-01)))
+areaPerEle = (96.0/100.0)*(96.0/100.0)
+nodes_25 = 8009
+nodes_34 = 7376
+nodes_42 = 6768
+nodes_50 = 6105
 
-conc_25_molPm = [_*7148.0 for _ in conc_25]
-conc_34_molPm = [_*6403.0 for _ in conc_34]
-conc_42_molPm = [_*5748.0 for _ in conc_42]
-conc_50_molPm = [_*5056.0 for _ in conc_50]
+# conc_25_molPm = [_*8009/(7148.0*areaPerEle) for _ in conc_25]
+# conc_34_molPm = [_*7376/(6403.0*areaPerEle) for _ in conc_34]
+# conc_42_molPm = [_*6768/(5748.0*areaPerEle) for _ in conc_42]
+# conc_50_molPm = [_*6105/(5056.0*areaPerEle) for _ in conc_50]
 
-fig = plt.figure(1)
-ax = plt.gca()
-plt.plot(time_25,conc_25, 'b', label = '$\phi_G = 25 \% $')
-plt.plot(time_34,conc_34, 'r', label = '$\phi_G = 34 \% $')
-plt.plot(time_42,conc_42, 'g', label = '$\phi_G = 42 \% $')
-plt.plot(time_50,conc_50, 'm', label = '$\phi_G = 50 \% $')
+conc_25_molPm = [_ for _ in conc_25]
+conc_34_molPm = [_ for _ in conc_34]
+conc_42_molPm = [_ for _ in conc_42]
+conc_50_molPm = [_ for _ in conc_50]
 
-plt.xlabel('time [ns]')
-plt.ylabel('concentration [mol/nm$^3$]')
-ax.yaxis.set_major_formatter(FormatStrFormatter('%.2e'))
-ax.legend( frameon=False, loc = 'upper right', ncol=2)
-plt.grid(which='both')
+# fig = plt.figure(1)
+# ax = plt.gca()
+# plt.plot(time_25,conc_25, 'b', label = '$\phi_G = 25 \% $')
+# plt.plot(time_34,conc_34, 'r', label = '$\phi_G = 34 \% $')
+# plt.plot(time_42,conc_42, 'g', label = '$\phi_G = 42 \% $')
+# plt.plot(time_50,conc_50, 'm', label = '$\phi_G = 50 \% $')
+#
+# plt.xlabel('time [ns]')
+# plt.ylabel('concentration [mol/nm$^3$]')
+# ax.yaxis.set_major_formatter(FormatStrFormatter('%.2e'))
+# ax.legend( frameon=False, loc = 'upper right', ncol=2)
+# plt.grid(which='both')
 
 fig = plt.figure(2)
 ax2 = plt.gca()
@@ -100,6 +111,8 @@ plt.plot(time_34,conc_34_molPm, 'r', label = '$\phi_G = 34 \% $')
 plt.plot(time_42,conc_42_molPm, 'g', label = '$\phi_G = 42 \% $')
 plt.plot(time_50,conc_50_molPm, 'm', label = '$\phi_G = 50 \% $')
 
+
+ax2.yaxis.set_major_formatter(FormatStrFormatter('%.2e'))
 plt.xlabel('time [ns]')
 plt.ylabel('concentration [mol/nm]')
 ax2.legend( frameon=False, loc = 'upper right', ncol=2)
