@@ -4,11 +4,11 @@ Created on Tue Feb  6 15:25:54 2018
 
 @author: cerecam
 """
-cwd = '/home/cerecam/Desktop/emma_models_NEW/2M_96x96x96_89_over_146/'
+cwd = '/home/cerecam/Desktop/Crack_Models/30PER/1/'
 NodeFile = 'Nodes.inp'
-Mat0File = 'GoldElements.inp'
-Mat1File = 'PolymerElements.inp'
-projectName = 'Voxel96'
+Mat0File = 'PolymerElements.inp'
+Mat1File = 'MetalElements.inp'
+projectName = '30PER'
 Instancename = 'RVE'
 
 
@@ -26,7 +26,7 @@ writef.close()
 ElementSets1 = []
 ElementSets2 = []
 readf = open(cwd + Mat0File,'r') # All nodes with coordinates
-elements = [0]*(884736+1)
+elements = [0]*(2097152+1)
 for line in readf:
     newarray = map(int,line.split(','))
     elements[newarray[0]] = newarray[1:]
