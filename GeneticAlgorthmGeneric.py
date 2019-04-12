@@ -75,7 +75,7 @@ def GA(parms,parms_range, individuals, num_gen, plot):
     fx = []
     for i in range(len(population)):
         population[i] = [population[i][0]*(x_1_range[-1]-x_1_range[0])+x_1_range[0],population[i][1]*(x_2_range[-1]-x_2_range[0])+x_2_range[0]]
-        tmp = list(population[i])
+        tmp = []
         tmp.append(f(population[i][0],population[i][1]))
         fx.append(tmp)
     fx = np.array(fx)
